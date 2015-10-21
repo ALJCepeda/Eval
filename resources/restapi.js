@@ -20,7 +20,7 @@ var Restful = function(app) {
 
 		var script = req.body.script;
 
-		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
+		var tmpFile = tmp.fileSync({ mode: 0644, postfix:"php", dir:"/var/tmp/eval/php" });
 		fs.writeSync(tmpFile.fd, script);
 
 		var name = path.basename(tmpFile.name);
@@ -32,9 +32,17 @@ var Restful = function(app) {
 
 		var result = shell.exec(cmd, function(error, stdout, stderr) {
 			if(error) {
-				console.log("Docker: " + stderr);
-				res.sendStatus(500);
+				if(error.kill === true) {
+					//Docker Error
+					console.log("Docker: " + stderr);
+					res.sendStatus(500);
+				} else {
+					//Command Error, probably pre-compile errors
+					var result = stderr.replace("/script/" + name, "POOP!");
+					res.send(result);
+				}
 			} else {
+				//Command output
 				res.send(stdout);
 			}
 		});

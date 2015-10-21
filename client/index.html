@@ -1,3 +1,73 @@
-<div>
-	Hello Worlds
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Editor</title>
+  <style type="text/css" media="screen">
+    body {
+        overflow: hidden;
+    }
+    #editor {
+        margin: 0;
+        position: absolute;
+        top: 50px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div style="width:100%; height:50px;">
+	<button id="submit">Submit</button>
 </div>
+
+<pre id="editor">
+<?php
+	class Person {
+		var $firstname;
+		var $lastname;
+
+		function sayHello() {
+			echo "Hello my name is " + $firstname + " " + $lastname;
+		}
+	}
+
+	$person = new Person();
+	$person->firstname = "Shawn";
+	$person->lastname = "Bonacci";
+	$person->sayHello();
+?>
+</pre>
+
+<script src="assets/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/twilight");
+    editor.session.setMode("ace/mode/php");
+
+    var doc = editor.session.getDocument();
+	var submit = document.getElementById("submit");
+
+	submit.addEventListener("click", function(e) {
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "/compile");
+		xmlhttp.setRequestHeader('Content-type', 'application/json');
+		xmlhttp.onreadystatechange = function() {
+			if(xmlhttp.readyState == XMLHttpRequest.DONE) {
+				if(xmlhttp.status == 200) {
+					alert(xmlhttp.responseText);
+				}
+			}
+		}
+		xmlhttp.send(JSON.stringify({
+			type:'PHP',
+			script:doc.getValue()
+		}));
+	});
+</script>
+
+</body>
+</html>
