@@ -21,7 +21,7 @@ var Restful = function(app) {
 		console.log("Valid compile request received");
 		var script = req.body.script;
 
-		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
+		var tmpFile = tmp.fileSync({ mode: 0644, postfix:"php", dir:"/var/tmp/eval/php" });
 		fs.writeSync(tmpFile.fd, script);
 
 		console.log("Creating docker command");
@@ -36,9 +36,17 @@ var Restful = function(app) {
 		shell.exec(cmd, function(error, stdout, stderr) {
 			console.log("Docker finished, sending result");
 			if(error) {
-				console.log("Docker: " + stderr);
-				res.sendStatus(500);
+				if(error.kill === true) {
+					//Docker Error
+					console.log("Docker: " + stderr);
+					res.sendStatus(500);
+				} else {
+					//Command Error, probably pre-compile errors
+					var result = stderr.replace("/script/" + name, "POOP!");
+					res.send(result);
+				}
 			} else {
+				//Command output
 				res.send(stdout);
 			}
 		});
