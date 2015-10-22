@@ -30,9 +30,7 @@
 		var $firstname;
 		var $lastname;
 
-		function sayHello() {
-			echo "Hello my name is " + $firstname + " " + $lastname;
-		}
+		function sayHello() { echo "Hello my name is " + $firstname + " " + $lastname; }
 	}
 
 	$person = new Person();
@@ -49,8 +47,26 @@
     editor.session.setMode("ace/mode/php");
 
     var doc = editor.session.getDocument();
-	var submit = document.getElementById("submit");
+    var precode = 
+    "<?php \n\n" +
 
+	"class Person {\n" +
+		"\tvar $firstname;\n" +
+		"\tvar $lastname;\n\n" +
+		
+		"\tfunction sayHello() { \n" +
+			"\t\techo sprintf('Hello my name is %s %s', $this->firstname, $this->lastname);\n" +
+		"\t} \n\n" +
+	"}\n\n" +
+
+	"$person = new Person(); \n" +
+	"$person->firstname = 'John'; \n" +
+	"$person->lastname = 'Doe'; \n" +
+	"$person->sayHello();";
+    	
+    doc.setValue(precode);
+
+	var submit = document.getElementById("submit");
 	submit.addEventListener("click", function(e) {
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "/compile");
