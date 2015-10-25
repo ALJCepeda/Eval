@@ -12,19 +12,19 @@ var Dockerizer = function() {
 	this.command = '';
 	this.args =  [ ];
 
-	this.configure = function(version, descriptor, scriptname) {
+	this.configure = function(version, descriptor) {
 		self.version = version;
 		self.cmd = descriptor.command;
 		self.repository = descriptor.repository || descriptor.name;
 		self.domain = descriptor.domain || self.domain;
-		self.mounts = descriptor.mounts;
+		self.mounts = descriptor.mounts || self.mounts;
 	};
 
 	this.generateCommand = function() {
 		var cmd = "sudo docker run";
 		cmd += (self.shouldRemove) ? ' --rm' : '';
 
-		cmd += self.mounted.reduce(function(pre, mount) {
+		cmd += self.mounts.reduce(function(pre, mount) {
 			return pre + ' -v ' + mount.host + ':' + mount.guest; 
 		}, '');
 

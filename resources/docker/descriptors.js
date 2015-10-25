@@ -1,6 +1,7 @@
 require('../prototypes/object.js');
 
 var Descriptor = function(data) {
+	var self = this;
 	this.name = '';
 	this.versions = [];
 	this.command = '';

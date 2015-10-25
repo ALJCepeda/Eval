@@ -56,11 +56,10 @@ var Restful = function(app) {
 
 		console.log("Creating docker command");
 		var filename = path.basename(tmpFile.name);
-		var dockername = uid(10);
 
 		var descriptor = docker_descriptions[type];
 		var docker = new Dockerizer();
-		docker.configure(descriptor, version, dockername);
+		docker.configure(descriptor, version);
 
 		console.log(docker.generateCommand());
 		/*
