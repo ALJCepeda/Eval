@@ -6,11 +6,6 @@ module.exports = {
 		'knockout.js' : 'dist/knockout.js'
 	},
 	libMap: { },
-	supported: {
-		'php': [ '5.4', '5.5', '5.6', '7.0' ],
-		'nodejs': [ '0.12.7' ],
-		'haskell' : [ '7.10.2' ]
-	},
 	aceThemes: [
 		'ambiance', 				'chaos',
 		'chrome', 					'clouds',

@@ -1,14 +1,24 @@
 var shell = require("child_process");
+var uid = require("uid");
 
 var Dockerizer = function() {
 	var self = this;
 	this.shouldRemove = true;
-	this.mounted = [ ];
-	this.name = '';
+	this.domain = 'literphor';
+	this.mounts = [ ];
+	this.name = uid(10);;
 	this.repository = '';
 	this.version = '';
-	this.cmd = '';
+	this.command = '';
 	this.args =  [ ];
+
+	this.configure = function(version, descriptor, scriptname) {
+		self.version = version;
+		self.cmd = descriptor.command;
+		self.repository = descriptor.repository || descriptor.name;
+		self.domain = descriptor.domain || self.domain;
+		self.mounts = descriptor.mounts;
+	};
 
 	this.generateCommand = function() {
 		var cmd = "sudo docker run";
@@ -26,6 +36,7 @@ var Dockerizer = function() {
 
 		return cmd;
 	};
+
 	this.run = function(success, failure) {
 		var command = self.generateCommand();
 

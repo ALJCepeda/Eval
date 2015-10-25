@@ -92,7 +92,12 @@
 			postCompile.onreadystatechange = function() {
 				if(postCompile.readyState == XMLHttpRequest.DONE) {
 					if(postCompile.status == 200) {
+						console.log("POST script: Success");
 						alert(postCompile.responseText);
+					} else {
+						console.log("POST script: Failure");
+						console.log(postCompile.responseText);
+						alert("There was an error, please try again later");
 					}
 				}
 			}
@@ -112,8 +117,14 @@
     		if(getThemes.readyState === XMLHttpRequest.DONE) {
     			if(getThemes.status === 200) {
     				var data = JSON.parse(getThemes.responseText);
+    				console.log("GET themes: Success");
+    				console.dir(data);
+    				
     				self.themes(data);
     				self.selectedTheme('twilight');
+    			} else {
+    				console.log("GET theme: Failure");
+    				console.log(getThemes.responseText);
     			}
     		}
     	}
@@ -125,9 +136,15 @@
 			if(getSupported.readyState === XMLHttpRequest.DONE) {
 				if(getSupported.status === 200) {
 					var data = JSON.parse(getSupported.responseText);
+					console.log("GET supported: Success");
+					console.dir(data);
+
 					self.supported(data);
 					self.selectedLanguage('php');
 					self.selectedVersion('5.6');
+				} else {
+					console.log("GET supported: Failure");
+					console.dir(getSupported.responseText);
 				}
 			}
 		}

@@ -1,13 +1,15 @@
-var Restful = function(app) {
-	var bodyparser = require("body-parser");
-	var fs = require("fs");
-	var tmp = require("tmp");
-	var path = require("path");
-	var uid = require("uid");
-	
-	var Dockerizer = require("./dockerizer.js");
-	var config = require('../config.js');
+var bodyparser = require("body-parser");
+var fs = require("fs");
+var tmp = require("tmp");
+var path = require("path");
 
+require("./prototypes/object.js");
+
+var Dockerizer = require("./docker/dockerizer.js");
+var docker_descriptions = require("./docker/descriptors");
+var config = require('../config.js');
+
+var Restful = function(app) {
 	var jsoner = bodyparser.json();
 	app.use(jsoner);
 	app.use(function (error, req, res, next){
@@ -18,7 +20,13 @@ var Restful = function(app) {
 	});
  	
  	app.get("/supported", jsoner, function(req, res) {
- 		res.send(config.supported);
+ 		var supported = docker_descriptions.map(function(name, descriptor) {
+ 			var result = {};
+ 			result[name] = descriptor.versions;
+ 			return result;
+ 		});
+
+ 		res.send(supported);
  	});
 
  	app.get("/themes", jsoner, function(req, res) {
@@ -30,31 +38,29 @@ var Restful = function(app) {
 			return res.sendStatus(400);
 		}
 
-		console.log("Valid compile request received");
+		var type = req.body.type;
+		var version = req.body.version;
 		var script = req.body.script;
 
+		if(!docker_descriptions[type]) {
+			return res.send('Unrecognized language: ' + type);
+		}
+
+		if(!docker_descriptions[type].hasVersion(version)) {
+			return res.send('Unrecognized version: ' + version + ' for type: ' + type);
+		}
+
+		console.log("Valid compile request received");
 		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
 		fs.writeSync(tmpFile.fd, script);
 
 		console.log("Creating docker command");
 		var filename = path.basename(tmpFile.name);
-		console.log(tmpFile.name);
 		var dockername = uid(10);
 
+		var descriptor = docker_descriptions[type];
 		var docker = new Dockerizer();
-		docker.name = dockername;
-		docker.domain = 'literphor';
-		docker.repository = 'php';
-		docker.version = '5.6';
-		docker.cmd = 'php';
-		docker.args = [ '/script/' + filename ];
-		docker.mounted = [ {
-			host:'/var/tmp/eval/php',
-			guest:'/script'
-		}, {
-			host:'/var/www/node/eval/resources/configs/php.ini',
-			guest:'/usr/local/etc/php/php.ini'
-		}];
+		docker.configure(descriptor, version, dockername);
 
 		console.log(docker.generateCommand());
 		/*
