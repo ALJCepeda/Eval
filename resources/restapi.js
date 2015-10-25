@@ -1,10 +1,11 @@
 var Restful = function(app) {
 	var bodyparser = require("body-parser");
-	var shell = require("child_process");
 	var fs = require("fs");
 	var tmp = require("tmp");
 	var path = require("path");
-
+	var uid = require("uid");
+	
+	var Dockerizer = require("./dockerizer.js");
 	var config = require('../config.js');
 
 	var jsoner = bodyparser.json();
@@ -25,42 +26,48 @@ var Restful = function(app) {
  	});
 
 	app.post("/compile", jsoner, function(req, res) {
-		if(!req.body || !req.body.type || !req.body.script) {
+		if(!req.body || !req.body.type || !req.body.version || !req.body.script) {
 			return res.sendStatus(400);
 		}
 
 		console.log("Valid compile request received");
 		var script = req.body.script;
 
-		var tmpFile = tmp.fileSync({ mode: 0644, postfix:"php", dir:"/var/tmp/eval/php" });
+		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
 		fs.writeSync(tmpFile.fd, script);
 
 		console.log("Creating docker command");
-		var name = path.basename(tmpFile.name);
-		var cmd = "sudo docker run --rm";
-		cmd += " --name "+name; 
-		cmd += " -v /var/tmp/eval/php:/script";
-		cmd += " -v /var/www/node/eval/resources/configs/php.ini:/usr/local/etc/php/php.ini";
-		cmd += " php:5.6-cli php /script/" + name;
+		var filename = path.basename(tmpFile.name);
+		console.log(tmpFile.name);
+		var dockername = uid(10);
 
-		console.log("Executing docker command");
-		shell.exec(cmd, function(error, stdout, stderr) {
-			console.log("Docker finished, sending result");
-			if(error) {
-				if(error.kill === true) {
-					//Docker Error
-					console.log("Docker: " + stderr);
-					res.sendStatus(500);
-				} else {
-					//Command Error, probably pre-compile errors
-					var result = stderr.replace("/script/" + name, "POOP!");
-					res.send(result);
-				}
+		var docker = new Dockerizer();
+		docker.name = dockername;
+		docker.domain = 'literphor';
+		docker.repository = 'php';
+		docker.version = '5.6';
+		docker.cmd = 'php';
+		docker.args = [ '/script/' + filename ];
+		docker.mounted = [ {
+			host:'/var/tmp/eval/php',
+			guest:'/script'
+		}, {
+			host:'/var/www/node/eval/resources/configs/php.ini',
+			guest:'/usr/local/etc/php/php.ini'
+		}];
+
+		console.log(docker.generateCommand());
+		/*
+		docker.run(function(stdout) {
+			res.send(stdout);
+		}, function(error, stderr) {
+			if(error.kill === true) {
+				res.sendStatus(500);
 			} else {
-				//Command output
-				res.send(stdout);
+				var result = stderr.replace("/script/" + filename, "POOP!");
+				res.send(result);
 			}
-		});
+		});*/
 	});
 };
 
