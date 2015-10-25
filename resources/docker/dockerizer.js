@@ -12,14 +12,12 @@ var Dockerizer = function() {
 	this.command = '';
 	this.args =  [ ];
 
-	this.configure = function(version, descriptor) {
+	this.configure = function(descriptor, version) {
 		self.version = version;
 		self.cmd = descriptor.command;
 		self.repository = descriptor.repository || descriptor.name;
 		self.domain = descriptor.domain || self.domain;
 		self.mounts = descriptor.mounts || self.mounts;
-
-		console.log("Repository: " + self.repository);
 	};
 
 	this.generateCommand = function() {
@@ -30,7 +28,7 @@ var Dockerizer = function() {
 			return pre + ' -v ' + mount.host + ':' + mount.guest; 
 		}, '');
 
-		cmd += ' ' + self.repository + ':' + self.version + ' ' + self.cmd;
+		cmd += ' ' + self.domain + '/' + self.repository + ':' + self.version + ' ' + self.cmd;
 
 		cmd += self.args.reduce(function(pre, arg) {
 			return pre + ' ' + arg;
