@@ -95,12 +95,24 @@
 			postCompile.setRequestHeader('Content-type', 'application/json');
 			postCompile.onreadystatechange = function() {
 				if(postCompile.readyState == XMLHttpRequest.DONE) {
+					var success = false;
 					if(postCompile.status == 200) {
-						console.log("POST script: Success");
-						console.log(postCompile.responseText);
+						var data = JSON.parse(postCompile.responseText);
+
+						if(data.status === 200 ) {
+							success = true;
+							console.log("POST script: Success");
+							console.log(data.message);
+						} else {
+							console.log("POST script: Failure");
+							console.log(data.message);
+						}
 					} else {
 						console.log("POST script: Failure");
 						console.log(postCompile.responseText);
+					}
+
+					if(!success) {
 						alert("There was an error, please try again later");
 					}
 
@@ -128,7 +140,7 @@
     				console.log("GET themes: Success");
     				console.dir(data);
 
-    				self.themes(data);
+    				self.themes(data.message);
     				self.selectedTheme('twilight');
     			} else {
     				console.log("GET theme: Failure");

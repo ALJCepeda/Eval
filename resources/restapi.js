@@ -20,7 +20,7 @@ var Restful = function(app) {
 	});
  	
  	app.all("/:action", jsoner, function(req, res, next) {
- 		console.log("Recieved request for action: " + req.params.action);
+ 		console.log("Action: " + req.params.action);
  		next();
  	});
  	app.get("/supported", jsoner, function(req, res) {
@@ -46,19 +46,27 @@ var Restful = function(app) {
 		var version = req.body.version;
 		var script = req.body.script;
 
+		if(script === '') {
+			return res.send({ 
+				status:400, message:'Must contain a valid script' 
+			});
+		}
+
 		if(!docker_descriptions[type]) {
-			return res.send('Unrecognized language: ' + type);
+			return res.send({
+				status:400, message:'Unrecognized language: ' + type
+			});
 		}
 
 		if(!docker_descriptions[type].hasVersion(version)) {
-			return res.send('Unrecognized version: ' + version + ' for type: ' + type);
+			return res.send({
+				status:400, message:'Unrecognized version: ' + version
+			});
 		}
 
-		console.log("Valid compile request received");
 		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
 		fs.writeSync(tmpFile.fd, script);
 
-		console.log("Creating docker command");
 		var filename = path.basename(tmpFile.name);
 
 		var descriptor = docker_descriptions[type];
@@ -66,8 +74,11 @@ var Restful = function(app) {
 		docker.configure(descriptor, version);
 
 		var command = docker.generateCommand();
-		console.log(command);
-		res.send(command);
+		console.log("Valid Compile: " + command);
+		res.send({
+			status:200, message:command
+		});
+
 		/*
 		docker.run(function(stdout) {
 			res.send(stdout);
