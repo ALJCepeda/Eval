@@ -1,9 +1,5 @@
-var express = require('express');
-var path = require('path');
-
-var app = express();
+var app = require('express')();
 var http = require('http').Server(app);
-
 var config = require('./config.js');
 
 require('./resources/staticapi.js')(app);

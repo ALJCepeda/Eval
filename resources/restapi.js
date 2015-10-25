@@ -2,6 +2,7 @@ var bodyparser = require("body-parser");
 var fs = require("fs");
 var tmp = require("tmp");
 var path = require("path");
+var uid = require("uid");
 
 require("./prototypes/object.js");
 
@@ -23,6 +24,7 @@ var Restful = function(app) {
  		console.log("Action: " + req.params.action);
  		next();
  	});
+
  	app.get("/supported", jsoner, function(req, res) {
  		var supported = docker_descriptions.map(function(name, descriptor) {
  			var result = {};
@@ -64,32 +66,54 @@ var Restful = function(app) {
 			});
 		}
 
-		var tmpFile = tmp.fileSync({ mode: 0644, postfix:".php", dir:"/var/tmp/eval/php" });
-		fs.writeSync(tmpFile.fd, script);
+		var dockername = uid(10);
+		tmp.dir({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX") }, 
+			function(err, dirpath, deleteDir) {
+				if(err) { throw err; }
 
-		var filename = path.basename(tmpFile.name);
+				console.log(dirpath);
+				tmp.file({ mode:0744, postfix:"." + type, dir:dirpath },
+					function(err, filepath, fd, deleteFile) {
+						if(err) { throw err; }
 
-		var descriptor = docker_descriptions[type];
-		var docker = new Dockerizer();
-		docker.configure(descriptor, version);
+						fs.writeSync(fd, script);
+						var filename = path.basename(filepath);
 
-		var command = docker.generateCommand();
-		console.log("Valid Compile: " + command);
-		res.send({
-			status:200, message:command
-		});
+						var descriptor = docker_descriptions[type];
+						var docker = new Dockerizer();
+						
+						docker.configure(descriptor, dockername, version);
 
-		/*
-		docker.run(function(stdout) {
-			res.send(stdout);
-		}, function(error, stderr) {
-			if(error.kill === true) {
-				res.sendStatus(500);
-			} else {
-				var result = stderr.replace("/script/" + filename, "POOP!");
-				res.send(result);
+						var command = docker.generateCommand();
+						console.log("Valid Compile: " + command);
+
+						function cleanup() {
+							deleteFile();
+							deleteDir();
+						}
+
+						docker.run(function(stdout) {
+							cleanup();
+							
+							res.send({
+								status:200, message:stdout
+							});
+						}, function(error, stderr) {
+							if(error.kill === true) {
+								res.sendStatus(500);
+							} else {
+								var result = stderr.replace("/script/" + filename, "POOP!");
+								res.send({
+									status:200, message:command
+								});
+							}
+
+							cleanup();
+						});
+					}
+				);
 			}
-		});*/
+		);
 	});
 };
 
