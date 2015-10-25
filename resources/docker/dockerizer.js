@@ -18,6 +18,8 @@ var Dockerizer = function() {
 		self.repository = descriptor.repository || descriptor.name;
 		self.domain = descriptor.domain || self.domain;
 		self.mounts = descriptor.mounts || self.mounts;
+
+		console.log("Repository: " + self.repository);
 	};
 
 	this.generateCommand = function() {

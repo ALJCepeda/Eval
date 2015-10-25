@@ -89,6 +89,7 @@
 			}
 		})
 		this.submit = function(e) {
+			var btn = document.getElementById('submit');
 			var postCompile = new XMLHttpRequest();
 			postCompile.open("POST", "/compile");
 			postCompile.setRequestHeader('Content-type', 'application/json');
@@ -96,12 +97,14 @@
 				if(postCompile.readyState == XMLHttpRequest.DONE) {
 					if(postCompile.status == 200) {
 						console.log("POST script: Success");
-						alert(postCompile.responseText);
+						console.log(postCompile.responseText);
 					} else {
 						console.log("POST script: Failure");
 						console.log(postCompile.responseText);
 						alert("There was an error, please try again later");
 					}
+
+					btn.disabled = false;
 				}
 			}
 			postCompile.send(JSON.stringify({
@@ -109,6 +112,8 @@
 				version:self.selectedVersion(),
 				script:self.doc.getValue()
 			}));
+
+			btn.disabled = true;
 		};
 
 		aceEditor.setTheme("ace/theme/twilight");

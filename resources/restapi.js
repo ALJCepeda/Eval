@@ -19,6 +19,10 @@ var Restful = function(app) {
     	next(error);
 	});
  	
+ 	app.all("/:action", jsoner, function(req, res, next) {
+ 		console.log("Recieved request for action: " + req.params.action);
+ 		next();
+ 	});
  	app.get("/supported", jsoner, function(req, res) {
  		var supported = docker_descriptions.map(function(name, descriptor) {
  			var result = {};
@@ -34,7 +38,7 @@ var Restful = function(app) {
  	});
 
 	app.post("/compile", jsoner, function(req, res) {
-		if(!req.body || !req.body.type || !req.body.version || !req.body.script) {
+		if(!req.body || !req.body.type || !req.body.version) {
 			return res.sendStatus(400);
 		}
 
@@ -61,7 +65,9 @@ var Restful = function(app) {
 		var docker = new Dockerizer();
 		docker.configure(descriptor, version);
 
-		console.log(docker.generateCommand());
+		var command = docker.generateCommand();
+		console.log(command);
+		res.send(command);
 		/*
 		docker.run(function(stdout) {
 			res.send(stdout);
