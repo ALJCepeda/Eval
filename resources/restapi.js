@@ -5,13 +5,24 @@ var Restful = function(app) {
 	var tmp = require("tmp");
 	var path = require("path");
 
+	var config = require('../config.js');
+
 	var jsoner = bodyparser.json();
 	app.use(jsoner);
 	app.use(function (error, req, res, next){
     	//Catch json error
-    	console.log("JSON error");
+    	console.log("Error encountered");
     	res.sendStatus(400);
+    	next(error);
 	});
+ 	
+ 	app.get("/supported", jsoner, function(req, res) {
+ 		res.send(config.supported);
+ 	});
+
+ 	app.get("/themes", jsoner, function(req, res) {
+ 		res.send(config.aceThemes);
+ 	});
 
 	app.post("/compile", jsoner, function(req, res) {
 		if(!req.body || !req.body.type || !req.body.script) {

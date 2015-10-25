@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Editor</title>
+
+  <script src="/lib/knockout.js"></script>
+  
   <style type="text/css" media="screen">
     body {
         overflow: hidden;
@@ -21,68 +24,118 @@
 <body>
 
 <div style="width:100%; height:50px;">
-	<button id="submit">Submit</button>
+	<p>
+		Platform: 
+		
+		<select data-bind="	options: languages,
+                       		value: selectedLanguage,
+                       		optionsCaption: 'Choose...'"></select>
+
+        Version:
+
+        <select data-bind=" options:versions,
+        					value: selectedVersion,
+        					optionsCaption: 'Choose...'"></select>
+
+       	Theme:
+
+       	<select data-bind=" options:themes,
+       						value:selectedTheme,
+       						optionsCaption: 'Choose...'"></select>
+
+        <button id="submit" style="float:right;" data-bind="clicked:submit">Submit</button>
+   </p>
 </div>
 
-<pre id="editor">
-<?php
-	class Person {
-		var $firstname;
-		var $lastname;
-
-		function sayHello() { echo "Hello my name is " + $firstname + " " + $lastname; }
-	}
-
-	$person = new Person();
-	$person->firstname = "Shawn";
-	$person->lastname = "Bonacci";
-	$person->sayHello();
-?>
-</pre>
+<pre id="editor"></pre>
 
 <script src="assets/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/twilight");
-    editor.session.setMode("ace/mode/php");
+	var Model = function(aceEditor) {
+		var self = this;
+		this.supported = ko.observable({});
+		this.themes = ko.observableArray([]);
 
-    var doc = editor.session.getDocument();
-    var precode = 
-    "<?php \n\n" +
+		this.selectedLanguage = ko.observable();
+		this.selectedVersion = ko.observable();
+		this.selectedTheme = ko.observable('twilight');
 
-	"class Person {\n" +
-		"\tvar $firstname;\n" +
-		"\tvar $lastname;\n\n" +
-		
-		"\tfunction sayHello() { \n" +
-			"\t\techo sprintf('Hello my name is %s %s', $this->firstname, $this->lastname);\n" +
-		"\t} \n\n" +
-	"}\n\n" +
+		this.doc = aceEditor.session.getDocument();
+		this.modeMap = {
+			'nodejs':'javascript'
+		}
 
-	"$person = new Person(); \n" +
-	"$person->firstname = 'John'; \n" +
-	"$person->lastname = 'Doe'; \n" +
-	"$person->sayHello();";
-    	
-    doc.setValue(precode);
+		this.languages = ko.computed(function() {
+			return Object.keys(self.supported());
+		});
 
-	var submit = document.getElementById("submit");
-	submit.addEventListener("click", function(e) {
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("POST", "/compile");
-		xmlhttp.setRequestHeader('Content-type', 'application/json');
-		xmlhttp.onreadystatechange = function() {
-			if(xmlhttp.readyState == XMLHttpRequest.DONE) {
-				if(xmlhttp.status == 200) {
-					alert(xmlhttp.responseText);
+		this.versions = ko.computed(function() {
+			if(self.languages().length === 0 || !self.selectedLanguage()) { return []; }
+			return self.supported()[this.selectedLanguage()];
+		});
+
+		//Updates the ace editor when selected language is changed
+		this.selectedLanguage.subscribe(function(value) {
+			var path = typeof self.modeMap[value] !== 'undefined' ? self.modeMap[value] : value;
+			editor.session.setMode("ace/mode/"+path);
+		});
+
+		this.selectedTheme.subscribe(function(value) {
+			if(typeof value !== 'undefined') {
+				aceEditor.setTheme("ace/theme/"+value);
+			}
+		})
+		this.submit = function(e) {
+			var postCompile = new XMLHttpRequest();
+			postCompile.open("POST", "/compile");
+			postCompile.setRequestHeader('Content-type', 'application/json');
+			postCompile.onreadystatechange = function() {
+				if(postCompile.readyState == XMLHttpRequest.DONE) {
+					if(postCompile.status == 200) {
+						alert(postCompile.responseText);
+					}
+				}
+			}
+			postCompile.send(JSON.stringify({
+				type:self.selectedLanguage(),
+				version:self.selectedVersion(),
+				script:self.doc.getValue()
+			}));
+		};
+
+		aceEditor.setTheme("ace/theme/twilight");
+    	aceEditor.session.setMode("ace/mode/php");
+
+    	var getThemes = new XMLHttpRequest();
+    	getThemes.open("GET", "/themes");
+    	getThemes.onreadystatechange = function() {
+    		if(getThemes.readyState === XMLHttpRequest.DONE) {
+    			if(getThemes.status === 200) {
+    				var data = JSON.parse(getThemes.responseText);
+    				self.themes(data);
+    				self.selectedTheme('twilight');
+    			}
+    		}
+    	}
+    	getThemes.send();
+
+		var getSupported = new XMLHttpRequest();
+		getSupported.open("GET", "/supported");
+		getSupported.onreadystatechange = function() {
+			if(getSupported.readyState === XMLHttpRequest.DONE) {
+				if(getSupported.status === 200) {
+					var data = JSON.parse(getSupported.responseText);
+					self.supported(data);
+					self.selectedLanguage('php');
+					self.selectedVersion('5.6');
 				}
 			}
 		}
-		xmlhttp.send(JSON.stringify({
-			type:'PHP',
-			script:doc.getValue()
-		}));
-	});
+		getSupported.send();
+	}
+
+	var editor = ace.edit("editor");
+	ko.applyBindings(Model(editor));
 </script>
 
 </body>

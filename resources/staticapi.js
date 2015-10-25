@@ -17,7 +17,6 @@ var Staticy = function(app) {
 	}));
 
 	app.use(express.static(path.join(appDir, 'client')));
-
 	app.get('/lib/:name', function(req, res){
 		var script = config.lib[req.params.name];
 		if( typeof script !== 'undefined' ) {
