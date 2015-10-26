@@ -66,52 +66,38 @@ var Restful = function(app) {
 			});
 		}
 
-		var dockername = uid(10);
-		tmp.dir({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX") }, 
-			function(err, dirpath, deleteDir) {
-				if(err) { throw err; }
+		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX") });
+		var tmpfile = tmp.fileSync({ mode:0744, postfix:"." + type, dir:tmpdir.name });
 
-				console.log(dirpath);
-				tmp.file({ mode:0744, postfix:"." + type, dir:dirpath },
-					function(err, filepath, fd, deleteFile) {
-						if(err) { throw err; }
+		var filename = path.basename(tmpfile.name);
+		var dockername = path.basename(tmpdir.name);
 
-						fs.writeSync(fd, script);
-						var filename = path.basename(filepath);
+		var docker = new Dockerizer();
+		var descriptor = docker_descriptions[type];
 
-						var descriptor = docker_descriptions[type];
-						var docker = new Dockerizer();
-						
-						docker.configure(descriptor, dockername, version);
+		fs.writeSync(tmpfile.fd, script);
+		docker.configure(descriptor, dockername, version);
 
-						var command = docker.generateCommand();
-						console.log("Valid Compile: " + command);
+		function cleanup() {
+			tmpfile.removeCallback();
+			tmpdir.removeCallback();
+		}
 
-						function cleanup() {
-							deleteFile();
-							deleteDir();
-						}
+		docker.run(filename,
+			function(stdout) {	
+				res.send({ status:200, message:stdout });
 
-						docker.run(function(stdout) {
-							cleanup();
-							
-							res.send({
-								status:200, message:stdout
-							});
-						}, function(error, stderr) {
-							if(error.kill === true) {
-								res.sendStatus(500);
-							} else {
-								var result = stderr.replace("/script/" + filename, "POOP!");
-								res.send({
-									status:200, message:command
-								});
-							}
+				//cleanup();
+			}, 
+			function(error, stderr) {
+				if(error.kill === true) {
+					res.sendStatus(500);
+				} else {
+					var result = stderr.replace("/script/" + filename, "POOP!");
+					res.send({ status:200, message:result });
+				}
 
-							cleanup();
-						});
-					}
-				);
+				//cleanup();
 			}
 		);
 	});

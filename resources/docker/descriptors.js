@@ -15,7 +15,7 @@ var Descriptor = function(data) {
 
 var php = new Descriptor({
 	name:'php',
-	versions: [ '5.4', '5.5', '5.6', '7.0' ],
+	versions: [ '5.4', '5.5', '5.6', 'latest' ],
 	command: 'php',
 	mounts: [{
 		host:'/var/www/node/eval/resources/configs/php.ini',
@@ -25,13 +25,13 @@ var php = new Descriptor({
 
 var nodejs = new Descriptor({
 	name:'nodejs',
-	versions: [ '0.12.7' ],
+	versions: [ '0.12.7', 'latest' ],
 	command: 'node'
 });
 
 var haskell = new Descriptor({
 	name:'haskell',
-	versions: [ '7.10.2' ],
+	versions: [ '7.10.2', 'latest' ],
 	command: 'ghc'
 });
 
