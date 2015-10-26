@@ -2,7 +2,9 @@ require('../prototypes/object.js');
 
 var Descriptor = function(data) {
 	var self = this;
+	this.needsCompile = false;
 	this.name = '';
+	this.ext = '';
 	this.versions = [];
 	this.command = '';
 	this.mounts = [];
@@ -15,6 +17,7 @@ var Descriptor = function(data) {
 
 var php = new Descriptor({
 	name:'php',
+	ext: '.php',
 	versions: [ '5.4', '5.5', '5.6', 'latest' ],
 	command: 'php',
 	mounts: [{
@@ -25,14 +28,23 @@ var php = new Descriptor({
 
 var nodejs = new Descriptor({
 	name:'nodejs',
+	ext: '.js',
 	versions: [ '0.12.7', 'latest' ],
 	command: 'node'
 });
 
 var haskell = new Descriptor({
 	name:'haskell',
+	ext: '.hs',
 	versions: [ '7.10.2', 'latest' ],
-	command: 'ghc'
+	command: function(file) {
+		var name = file.substring(0, file.indexOf('.'));
+		return './' + name;
+	}
+	compile: function(file) {
+		var name = file.substring(0, file.indexOf('.'));
+		return 'ghc -o ' + name + ' ' + name + this.ext;
+	};
 });
 
 module.exports = {

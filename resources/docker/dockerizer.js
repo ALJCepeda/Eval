@@ -1,35 +1,27 @@
 var shell = require("child_process");
 var uid = require("uid");
 var path = require("path");
+var _ = require("underscore");
 
 var Dockerizer = function() {
 	var self = this;
+	this.descriptor;
 	this.shouldRemove = true;
 
-	this.name = '';
 	this.domain = 'literphor';
-	this.repository = '';
-	this.version = '';
-	this.image = '';
-
 	this.hostRoot = '';
 	this.guestRoot = '/scripts';
-	this.mounts = [ ];
-	
-	this.command = '';
-	this.args =  [ ];
 
 	this.configure = function(descriptor, name, version) {
 		self.name = name;
 		self.version = version;
-		
-		self.cmd = descriptor.command;
-		self.repository = descriptor.repository || descriptor.name;
-		self.domain = descriptor.domain || self.domain;
-		self.mounts = descriptor.mounts || self.mounts;
 
-		self.hostRoot = path.join('/var/tmp/eval', self.repository, self.name);
-		self.image = path.join(self.domain, self.repository) + ':' + self.version;
+		self.cmd = descriptor.command;
+		self.domain = descriptor.domain || self.domain;
+		self.descriptor = descriptor;
+
+		self.hostRoot = path.join('/var/tmp/eval', descriptor.repository, self.name);
+		self.image = path.join(self.domain, descriptor.respository) + ':' + self.version;
 	}
 
 	this.generate = {
@@ -50,46 +42,63 @@ var Dockerizer = function() {
 			cmd += ' -v ' + self.hostRoot + ':' + self.guestRoot;
 
 			//Add all mounts to the command in the form -v host:guest
-			cmd += self.mounts.reduce(function(pre, mount) {
+			var mounts = self.descriptor.mounts.concat(self.mounts);
+			cmd += mounts.reduce(function(pre, mount) {
 				return pre + ' -v ' + mount.host + ':' + mount.guest; 
 			}, '');
 
 
 			//Add information about the container and command we want to run
-			cmd += ' ' + self.image + ' ' + self.cmd;
+			cmd += ' ' + self.image + ' ' + self.descriptor.command;
 
 			return cmd;
-		},
-
-		commandArgs: function() {
-			return self.args.reduce(function(pre, arg) {
-				return pre + ' ' + arg;
-			}, '');
 		}
 	};
 	
+	this.start = function(file, complete) {
+		var compile = self.descriptor.compile;
 
-	this.run = function(file, success, failure) {
-		//Gather docker command
-		var command = self.generate.command();
+		//Check if script needs to be compiled first
+		if( _.isFunction(compile) ) {
+			var command = compile(file);
 
-		//Tell command which file to run in guest machine
-		command += " " + file;
+			self.exec(command, function(error, stdout, stderr) {
+				if(error) { complete(error, stdout, stderr); }
+				else { self.run(file, complete); }
+			});
+		} else {
+			self.run(file, complete);
+		}
+	};
 
-		//Add rest of command's arguments
-		command += self.generate.commandArgs();
+	this.run = function(file, complete) {
+		var command;
+		if( _.isFunction(self.descriptor.command )) {
+			command = self.descriptor.command(file);
+		} else {
+			command = descriptor.command + " " = file;
+		}
+		
+		if( _.isFunction(self.descriptor.commandArgs) ) {
+			command += self.descriptor.commandArgs(file, uid);
+		} else {
+			//Tell command which file to run in guest machine
+			command += " " + file;
 
-		console.log("Docker Command: " + command);
+			//Add rest of command's arguments
+			command += self.generate.commandArgs();
+		}
+
+		self.exec(file, complete);
+	}
+
+	this.exec = function(command, complete) {
+		console.log("Command: " + command);
 		//Execute docker command
 		shell.exec(command, function(error, stdout, stderr) {
-			if(error) {
-				console.log("Docker: " + stderr);
-				failure(error, stderr);
-			} else {
-				success(stdout);
-			}
+			complete(error, stdout, stderr);
 		});
-	};
+	}
 };
 
 module.exports = Dockerizer;

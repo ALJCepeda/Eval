@@ -66,28 +66,28 @@ var Restful = function(app) {
 			});
 		}
 
+		var docker = new Dockerizer();
+		var descriptor = docker_descriptions[type];
+
 		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX") });
-		var tmpfile = tmp.fileSync({ mode:0744, postfix:"." + type, dir:tmpdir.name });
+		var tmpfile = tmp.fileSync({ mode:0744, postfix:descriptor.ext, dir:tmpdir.name });
 
 		var filename = path.basename(tmpfile.name);
 		var dockername = path.basename(tmpdir.name);
-
-		var docker = new Dockerizer();
-		var descriptor = docker_descriptions[type];
 
 		fs.writeSync(tmpfile.fd, script);
 		docker.configure(descriptor, dockername, version);
 
 		function cleanup() {
-			tmpfile.removeCallback();
-			tmpdir.removeCallback();
+			//tmpfile.removeCallback();
+			//tmpdir.removeCallback();
 		}
 
 		docker.run(filename,
 			function(stdout) {	
 				res.send({ status:200, message:stdout });
 
-				//cleanup();
+				cleanup();
 			}, 
 			function(error, stderr) {
 				if(error.kill === true) {
@@ -97,7 +97,7 @@ var Restful = function(app) {
 					res.send({ status:200, message:result });
 				}
 
-				//cleanup();
+				cleanup();
 			}
 		);
 	});
