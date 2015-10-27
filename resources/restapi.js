@@ -83,23 +83,15 @@ var Restful = function(app) {
 			//tmpdir.removeCallback();
 		}
 
-		docker.run(filename,
-			function(stdout) {	
-				res.send({ status:200, message:stdout });
-
-				cleanup();
-			}, 
-			function(error, stderr) {
-				if(error.kill === true) {
-					res.sendStatus(500);
-				} else {
-					var result = stderr.replace("/script/" + filename, "POOP!");
-					res.send({ status:200, message:result });
-				}
-
-				cleanup();
+		docker.start(filename, function(error, stdout, stderr) {
+			if( error && error.kill === true ) {
+				res.sendStatus(500);
+				console.log("Docker error: " + stderr);
+			} else {
+				var result = stdout.replace("/script/" + filename, "POOP!");
+				res.send({ status:200, message:result });
 			}
-		);
+		});
 	});
 };
 
