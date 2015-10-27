@@ -9,8 +9,9 @@ var Descriptor = function(data) {
 	this.command = '';
 	this.compile = '';
 	this.mounts = [];
+	this.precode = '';
 
-	this.assign(data);
+	Object.assign(this, data);
 	this.hasVersion = function(version) {
 		return self.versions.indexOf(version) !== -1;
 	}
@@ -24,7 +25,8 @@ var php = new Descriptor({
 	mounts: [{
 		host:'/var/www/node/eval/resources/configs/php.ini',
 		guest:'/usr/local/etc/php/php.ini'
-	}]
+	}],
+	precode: '<?php\n\t'
 });
 
 var nodejs = new Descriptor({
@@ -38,6 +40,7 @@ var haskell = new Descriptor({
 	repository:'haskell',
 	ext: '.hs',
 	versions: [ '7.10.2', 'latest' ],
+	precode: 'main = ',
 	command: function(file) {
 		var name = file.substring(0, file.indexOf('.'));
 		return './' + name;

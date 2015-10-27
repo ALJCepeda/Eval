@@ -56,8 +56,7 @@
 <script>
 	var Model = function(aceEditor) {
 		var self = this;
-		this.supported = ko.observable({});
-		this.themes = ko.observableArray([]);
+		this.info = ko.observable({ supported:[], themes:[], precodes:{} });
 
 		this.selectedLanguage = ko.observable();
 		this.selectedVersion = ko.observable();
@@ -68,20 +67,32 @@
 			'nodejs':'javascript'
 		}
 
+		this.themes = ko.computed(function() {
+			return this.info().themes;
+		});
+
 		this.languages = ko.computed(function() {
-			return Object.keys(self.supported());
+			return Object.keys(self.info().supported);
 		});
 
 		this.versions = ko.computed(function() {
 			if(self.languages().length === 0 || !self.selectedLanguage()) { return []; }
-			return self.supported()[this.selectedLanguage()];
+			return self.info().supported[this.selectedLanguage()];
 		});
 
 		//Updates the ace editor when selected language is changed
+		var oldlanguage = this.selectedLanguage.peek();
 		this.selectedLanguage.subscribe(function(value) {
 			var path = typeof self.modeMap[value] !== 'undefined' ? self.modeMap[value] : value;
 			editor.session.setMode("ace/mode/"+path);
+			var docStr = doc.getValue();
+			var precodes = self.info().precodes;
+			if(docStr === '' || docStr === precodes[oldlanguage] ) {
+				doc.setValue(self.info().precodes[value]);
+			}
+			oldlanguage = value;
 		});
+
 
 		this.selectedTheme.subscribe(function(value) {
 			if(typeof value !== 'undefined') {
@@ -131,47 +142,31 @@
 		aceEditor.setTheme("ace/theme/twilight");
     	aceEditor.session.setMode("ace/mode/php");
 
-    	var getThemes = new XMLHttpRequest();
-    	getThemes.open("GET", "/themes");
-    	getThemes.onreadystatechange = function() {
-    		if(getThemes.readyState === XMLHttpRequest.DONE) {
-    			if(getThemes.status === 200) {
-    				var data = JSON.parse(getThemes.responseText);
-    				console.log("GET themes: Success");
+    	var getInfo = new XMLHttpRequest();
+    	getInfo.open("GET", "/info");
+    	getInfo.onreadystatechange = function() {
+    		if(getInfo.readyState === XMLHttpRequest.DONE) {
+    			if(getInfo.status === 200) {
+    				var data = JSON.parse(getInfo.responseText);
+    				console.log("GET info: Success");
     				console.dir(data);
 
-    				self.themes(data.message);
+    				self.info(data);
+
+    				self.selectedLanguage('php');
+					self.selectedVersion('latest');
     				self.selectedTheme('twilight');
     			} else {
-    				console.log("GET theme: Failure");
-    				console.log(getThemes.responseText);
+    				console.log("GET info: Failure");
+    				console.log(getInfo.responseText);
     			}
     		}
     	}
-    	getThemes.send();
-
-		var getSupported = new XMLHttpRequest();
-		getSupported.open("GET", "/supported");
-		getSupported.onreadystatechange = function() {
-			if(getSupported.readyState === XMLHttpRequest.DONE) {
-				if(getSupported.status === 200) {
-					var data = JSON.parse(getSupported.responseText);
-					console.log("GET supported: Success");
-					console.dir(data);
-
-					self.supported(data);
-					self.selectedLanguage('php');
-					self.selectedVersion('5.6');
-				} else {
-					console.log("GET supported: Failure");
-					console.dir(getSupported.responseText);
-				}
-			}
-		}
-		getSupported.send();
+    	getInfo.send();
 	}
 
 	var editor = ace.edit("editor");
+	editor.$blockScrolling = Infinity;
 	ko.applyBindings(Model(editor));
 </script>
 </html>

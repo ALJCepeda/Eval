@@ -25,18 +25,21 @@ var Restful = function(app) {
  		next();
  	});
 
- 	app.get("/supported", jsoner, function(req, res) {
- 		var supported = docker_descriptions.map(function(name, descriptor) {
- 			var result = {};
- 			result[name] = descriptor.versions;
- 			return result;
+ 	app.get("/info", jsoner, function(req, res) {
+ 		var supported = { };
+ 		var precodes = { };
+ 		var themes = config.aceThemes;
+
+ 		Object.each(docker_descriptions, function(name, descriptor) {	
+ 			supported[name] = descriptor.versions;
+ 			precodes[name] = descriptor.precode;
  		});
 
- 		res.send(supported);
- 	});
-
- 	app.get("/themes", jsoner, function(req, res) {
- 		res.send(config.aceThemes);
+ 		res.send({
+ 			supported:supported,
+ 			precodes:precodes,
+ 			themes:themes
+ 		});
  	});
 
 	app.post("/compile", jsoner, function(req, res) {
@@ -49,21 +52,15 @@ var Restful = function(app) {
 		var script = req.body.script;
 
 		if(script === '') {
-			return res.send({ 
-				status:400, message:'Must contain a valid script' 
-			});
+			return res.send({ status:400, message:'Must contain a valid script' });
 		}
 
 		if(!docker_descriptions[type]) {
-			return res.send({
-				status:400, message:'Unrecognized language: ' + type
-			});
+			return res.send({ status:400, message:'Unrecognized language: ' + type });
 		}
 
 		if(!docker_descriptions[type].hasVersion(version)) {
-			return res.send({
-				status:400, message:'Unrecognized version: ' + version
-			});
+			return res.send({ status:400, message:'Unrecognized version: ' + version });
 		}
 
 		var docker = new Dockerizer();
@@ -78,11 +75,6 @@ var Restful = function(app) {
 		fs.writeSync(tmpfile.fd, script);
 		docker.configure(descriptor, dockername, version);
 
-		function cleanup() {
-			//tmpfile.removeCallback();
-			//tmpdir.removeCallback();
-		}
-
 		docker.start(filename, function(error, stdout, stderr) {
 			if( error && error.kill === true ) {
 				res.sendStatus(500);
@@ -91,6 +83,9 @@ var Restful = function(app) {
 				var result = stdout.replace("/script/" + filename, "POOP!");
 				res.send({ status:200, message:result });
 			}
+
+			tmpfile.removeCallback();
+			tmpdir.removeCallback();
 		});
 	});
 };
