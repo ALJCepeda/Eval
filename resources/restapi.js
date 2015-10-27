@@ -66,7 +66,7 @@ var Restful = function(app) {
 		var docker = new Dockerizer();
 		var descriptor = docker_descriptions[type];
 
-		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX") });
+		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX"), unsafeCleanup:true});
 		var tmpfile = tmp.fileSync({ mode:0744, postfix:descriptor.ext, dir:tmpdir.name });
 
 		var filename = path.basename(tmpfile.name);
@@ -76,11 +76,17 @@ var Restful = function(app) {
 		docker.configure(descriptor, dockername, version);
 
 		docker.start(filename, function(error, stdout, stderr) {
-			if( error && error.kill === true ) {
-				res.sendStatus(500);
-				console.log("Docker error: " + stderr);
+			var truncated = filename.substring(filename.indexOf('-')+1, filename.length);
+			if( error ) {
+				if(error.kill === true) {
+					res.sendStatus(500);
+					console.log("Docker error: " + stderr);
+				} else {
+					var result = stderr.replace(filename, truncated);
+					res.send({ status:400, message:result });
+				}
 			} else {
-				var result = stdout.replace("/script/" + filename, "POOP!");
+				var result = stdout.replace(filename, truncated);
 				res.send({ status:200, message:result });
 			}
 
