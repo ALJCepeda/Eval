@@ -1,6 +1,6 @@
 module.exports = {
 	port: 8002,
-	bowerdir:'/home/vagrant/bower_components',
+	bowerdir:'/shared/bower_components',
 	mongoURL:'mongodb://localhost:27017/test',
 	lib: {
 		'knockout.js' : 'dist/knockout.js'
