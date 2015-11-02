@@ -12,6 +12,7 @@ function loaded() {
 		nav.info(data);
 
 		nav.selectedLanguage("php");
+		nav.selectedVersion("5.6");
 		nav.selectedTheme("twilight");
 	}, function(message) {
 		alert("There was an issue, please try again");
@@ -20,6 +21,28 @@ function loaded() {
 
 	var btn = document.getElementById("submit");
 	btn.addEventListener("click", function(e) {
+		var type = nav.selectedLanguage();
+		var version = nav.selectedVersion();
+		var script = doc.getValue();
+
+		var error = [];
+		if(_.isUndefined(type)) {
+			error.push('You must select a platform');
+		}
+
+		if(_.isUndefined(version)) {
+			error.push('You must select a version');
+		}
+
+		if(script === '') {
+			error.push('You must type code into the editor');
+		}
+
+		if(error.length > 0) {
+			alert(error.join('\n'));
+			return;
+		}
+
 		btn.disabled = true;
 		ajax.post("/compile", {
 			type:nav.selectedLanguage(),
@@ -27,8 +50,8 @@ function loaded() {
 			script:doc.getValue()
 		}).then(function(message) {
 			var data = JSON.parse(message);
-			document.getElementById("stdout_container").innerHTML = data.stdout;
-			document.getElementById("stderr_container").innerHTML = data.stderr;
+			document.getElementById("stdout_frame").contentDocument.body.innerHTML = data.stdout;
+			document.getElementById("stderr_frame").contentDocument.body.innerHTML = data.stderr;
 
 			nav.selectedTab('output');
 			btn.disabled = false;
@@ -41,6 +64,10 @@ function loaded() {
 
 	var oldlanguage = nav.selectedLanguage.peek();
 	nav.selectedLanguage.subscribe(function(value) {
+		if(_.isUndefined(value)) {
+			return;
+		}
+
 		var path = !_.isUndefined(nav.modeMap[value]) ? nav.modeMap[value] : value;
 		editor.session.setMode("ace/mode/"+path);
 
@@ -53,10 +80,12 @@ function loaded() {
 	});
 
 	nav.selectedTheme.subscribe(function(value) {
-		if(!_.isUndefined(value)) {
-			editor.setTheme("ace/theme/"+value);
+		if(_.isUndefined(value)) {
+			return
 		}
+
+		editor.setTheme("ace/theme/"+value);
 	});
-	
+
 	ko.applyBindings(nav);
 }

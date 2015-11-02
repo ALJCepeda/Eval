@@ -42,19 +42,19 @@
 
 <div id="content_container" style="position:absolute; left:150px; right:0; top:0; bottom:0;">
 	<div class="page" id="output_container" data-bind="visible:selectedTab() === 'output'">
-	  	<div id="stdout_container" style="width:100%; height:80%;"></div>
+	  	<iframe id="stdout_frame" style="width:100%; height:80%;"></iframe>
 	  
-	  	<div id="stderr_container" style="width:100%; height:20%; border-top:1px solid black;"></div>
+	  	<iframe id="stderr_frame" style="width:100%; height:20%; border-top:1px solid black;"></iframe>
 	</div>
 
 	<div id="editor_container" data-bind="visible:selectedTab() === 'editor'">
 		<div style="position:absolute; top:0; right:0; z-index:2">
 			<div>
-				<select data-bind="	options: languages,
+				<select required data-bind="	options: languages,
 									value: selectedLanguage,
 									optionsCaption: 'Platform...'"></select>
 
-				<select data-bind=" options:versions,
+				<select required data-bind=" options:versions,
 									value: selectedVersion,
 									optionsCaption: 'Version...'"></select>
 
