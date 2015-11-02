@@ -43,11 +43,11 @@ var Restful = function(app) {
  	});
 
 	app.post("/compile", jsoner, function(req, res) {
-		if(!req.body || !req.body.type || !req.body.version) {
+		if(!req.body || !req.body.platform || !req.body.version) {
 			return res.sendStatus(400);
 		}
 
-		var type = req.body.type;
+		var platform = req.body.platform;
 		var version = req.body.version;
 		var script = req.body.script;
 
@@ -55,18 +55,18 @@ var Restful = function(app) {
 			return res.send({ status:400, message:'Must contain a valid script' });
 		}
 
-		if(!docker_descriptions[type]) {
-			return res.send({ status:400, message:'Unrecognized language: ' + type });
+		if(!docker_descriptions[platform]) {
+			return res.send({ status:400, message:'Unrecognized language: ' + platform });
 		}
 
-		if(!docker_descriptions[type].hasVersion(version)) {
+		if(!docker_descriptions[platform].hasVersion(version)) {
 			return res.send({ status:400, message:'Unrecognized version: ' + version });
 		}
 
 		var docker = new Dockerizer();
-		var descriptor = docker_descriptions[type];
+		var descriptor = docker_descriptions[platform];
 
-		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", type, "XXXXXXX"), unsafeCleanup:true});
+		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", platform, "XXXXXXX"), unsafeCleanup:true});
 		var tmpfile = tmp.fileSync({ mode:0744, postfix:descriptor.ext, dir:tmpdir.name });
 
 		var filename = path.basename(tmpfile.name);
@@ -76,13 +76,13 @@ var Restful = function(app) {
 		docker.configure(descriptor, dockername, version);
 
 		docker.start(filename, function(error, stdout, stderr) {
-			var truncated = filename.substring(filename.indexOf('-')+1, filename.length);
 			if( error  && error.kill === true) {
 				res.sendStatus(500);
 				console.log("Docker error: " + stderr);
 			} else {
-				var output = stdout.replace(filename, truncated);
-				var error = stderr.replace(filename, truncated);
+				var scriptReg = new RegExp('/scripts/'+filename, 'g');
+				var output = stdout.replace(scriptReg, 'Script.js');
+				var error = stderr.replace(scriptReg, 'Script.js');
 
 				res.send({ statuse:200, stdout:output, stderr:error });
 			}

@@ -11,7 +11,7 @@ function loaded() {
 		var data = JSON.parse(message);
 		nav.info(data);
 
-		nav.selectedLanguage("php");
+		nav.selectedPlatform("php");
 		nav.selectedVersion("5.6");
 		nav.selectedTheme("twilight");
 	}, function(message) {
@@ -21,12 +21,12 @@ function loaded() {
 
 	var btn = document.getElementById("submit");
 	btn.addEventListener("click", function(e) {
-		var type = nav.selectedLanguage();
+		var platform = nav.selectedPlatform();
 		var version = nav.selectedVersion();
 		var script = doc.getValue();
 
 		var error = [];
-		if(_.isUndefined(type)) {
+		if(_.isUndefined(platform)) {
 			error.push('You must select a platform');
 		}
 
@@ -45,9 +45,9 @@ function loaded() {
 
 		btn.disabled = true;
 		ajax.post("/compile", {
-			type:nav.selectedLanguage(),
-			version:nav.selectedVersion(),
-			script:doc.getValue()
+			platform:platform,
+			version:version,
+			script:script
 		}).then(function(message) {
 			var data = JSON.parse(message);
 			document.getElementById("stdout_frame").contentDocument.body.innerHTML = data.stdout;
@@ -62,8 +62,8 @@ function loaded() {
 		});
 	});
 
-	var oldlanguage = nav.selectedLanguage.peek();
-	nav.selectedLanguage.subscribe(function(value) {
+	var oldlanguage = nav.selectedPlatform.peek();
+	nav.selectedPlatform.subscribe(function(value) {
 		if(_.isUndefined(value)) {
 			return;
 		}

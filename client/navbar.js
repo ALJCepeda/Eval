@@ -5,7 +5,7 @@ var Navbar = function() {
 		{ url:'#script', text:'Script', click: function(e) { self.selectedTab('editor'); } }
 	]);
 	this.selectedTab = ko.observable('editor');
-	this.selectedLanguage = ko.observable();
+	this.selectedPlatform = ko.observable();
 	this.selectedVersion = ko.observable();
 	this.selectedTheme = ko.observable('twilight');
 
@@ -21,12 +21,12 @@ var Navbar = function() {
 		return self.info().themes;
 	});
 
-	this.languages = ko.computed(function() {
+	this.platforms = ko.computed(function() {
 		return Object.keys(self.info().supported);
 	});
 
 	this.versions = ko.computed(function() {
-		if(self.languages().length === 0 || !self.selectedLanguage()) { return []; }
-		return self.info().supported[self.selectedLanguage()];
+		if(self.platforms().length === 0 || !self.selectedPlatform()) { return []; }
+		return self.info().supported[self.selectedPlatform()];
 	});
 }
