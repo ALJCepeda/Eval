@@ -2,7 +2,6 @@ var Navbar = function() {
 	var self = this;
 	this.info = ko.observable({ supported:[], themes:[], precodes:{} });
 	this.tabs = ko.observableArray([
-		{ url:'#html', text:'Output', click: function(e) { self.selectedTab('html'); } },
 		{ url:'#script', text:'Script', click: function(e) { self.selectedTab('editor'); } }
 	]);
 	this.selectedTab = ko.observable('editor');
@@ -10,6 +9,10 @@ var Navbar = function() {
 	this.selectedVersion = ko.observable();
 	this.selectedTheme = ko.observable('twilight');
 
+	this.outputClicked = function(e) {
+		self.selectedTab('output');
+	};
+	
 	this.modeMap = {
 		'nodejs':'javascript'
 	};

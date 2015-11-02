@@ -29,7 +29,7 @@ function loaded() {
 			var data = JSON.parse(message);
 			document.getElementById("stdout_container").innerHTML = data.stdout;
 			document.getElementById("stderr_container").innerHTML = data.stderr;
-			
+
 			btn.disabled = false;
 		}, function(message) {
 			alert("There was an error, please try again later");
@@ -54,7 +54,16 @@ function loaded() {
 		if(!_.isUndefined(value)) {
 			editor.setTheme("ace/theme/"+value);
 		}
-	})
+	});
+
+	window.onresize = function(e) {
+		var elements = document.getElementsByClassName("page")
+		
+		for(var i=0; i<elements.length; i++) {
+			var element = elements[i]
+			element.height = window.innerHeight;
+		};
+	};
 
 	ko.applyBindings(nav);
 }
