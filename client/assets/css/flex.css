@@ -1,0 +1,89 @@
+.row-w{
+	display:flex;
+	flex-flow:row wrap;
+}
+.col-w {
+	display:flex;
+	flex-flow:column wrap;
+}
+.row-nw {
+	display:flex;
+	flex-flow:row nowrap;
+}
+.col-nw {
+	display:flex;
+	flex-flow:column nowrap;
+}
+
+.c-center {
+	align-items:center;
+}
+.c-top {
+	align-items:flex-start;
+}
+.c-bottom {
+	align-items:flex-end;
+}
+.c-fill {
+	align-items:stretch;
+}
+.c-between {
+	align-items:space-between;
+}
+.c-around {
+	align-item:space-around;
+}
+
+.m-center {
+	justify-content:center;
+}
+.m-left {
+	justify-content:flex-start;
+}
+.m-right {
+	justify-content:flex-end;
+}
+.m-between {
+	justify-content:space-between;
+}
+.m-around {
+	justify-content:space-around;
+}
+
+.g-top {
+	align-content:flex-start;
+}
+.g-bottom {
+	align-content:flex-end;
+}
+.g-center {
+	align-content:center;
+}
+.g-stretch {
+	align-content:stretch;
+}
+.g-between {
+	align-content:space-between;
+}
+.g-around {
+	align-content:space-around;
+}
+
+.x-scroll {
+	overflow-x:scroll;
+	overflow-y:hidden;
+}
+
+.f-aside {
+	flex:1 1;
+}
+.f-big { 
+	flex:2 1;
+}
+.f-little {
+	flex:1 1;
+}
+
+.panel-footer { 
+	align-self:flex-end; 
+}

@@ -5,168 +5,63 @@
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   	<title>Editor</title>
 
-  	<script src="/lib/knockout.js"></script>
-  
+  	<script src="/lib/knockout.js" type="text/javascript"></script>
+  	<script src="/lib/underscore.js" type="text/javascript"></script>
+  	<script src="assets/ace-builds/ace.js" type="text/javascript"></script>
+  	<script src="navbar.js" type="text/javascript"></script>
+  	<script src="ajaxer.js" type="text/javascript"></script>
+	<script src="index.js" type="text/javascript"></script>
+	
+	<link rel="stylesheet" href="assets/css/flex.css">
   	<style type="text/css" media="screen">
     	body {
         	overflow: hidden;
     	}
-    	#editor {
+    	.page {
         	margin: 0;
         	position: absolute;
-        	top: 50px;
+        	top: 30px;
         	bottom: 0;
         	left: 0;
         	right: 0;
+        	z-index:-1;
     	}
   	</style>
 </head>
 
 <body>
 
-<div style="width:100%; height:50px;">
-	<p>
-		Platform: 
-		
+<div id="navbar" class="row-nw m-between c-center" style="width:100%">
+	<div class="row-nw m-around c-center" style="width:150px;" data-bind="foreach: tabs">
+		<div data-bind="click: click">
+			<a style="width:50px;" data-bind="attr: { href: url }"><span data-bind="text: text"></span></a>
+		</div>
+	</div>
+
+	<div style="align-self:center;">
 		<select data-bind="	options: languages,
                        		value: selectedLanguage,
-                       		optionsCaption: 'Choose...'"></select>
-
-        Version:
+                       		optionsCaption: 'Platform...'"></select>
 
         <select data-bind=" options:versions,
         					value: selectedVersion,
-        					optionsCaption: 'Choose...'"></select>
-
-       	Theme:
+        					optionsCaption: 'Version...'"></select>
 
        	<select data-bind=" options:themes,
        						value:selectedTheme,
-       						optionsCaption: 'Choose...'"></select>
+       						optionsCaption: 'Theme...'"></select>
+	</div>
 
-        <button id="submit" style="float:right;" data-bind="click:submit">Submit</button>
-   </p>
+	<button id="submit" data-bind="click:submit">Submit</button>
 </div>
 
-<pre id="editor"></pre>
-
+<div class="page" id="htmlcontainer" data-bind="visible:selectedTab() === 'html'"></div>
+<div id="editorcontainer" data-bind="visible:selectedTab() === 'editor'">
+	<pre class="page" id="editor"></pre>
+</div>
 </body>
 
-<script src="assets/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>
-	var Model = function(aceEditor) {
-		var self = this;
-		this.info = ko.observable({ supported:[], themes:[], precodes:{} });
-
-		this.selectedLanguage = ko.observable();
-		this.selectedVersion = ko.observable();
-		this.selectedTheme = ko.observable('twilight');
-
-		this.doc = aceEditor.session.getDocument();
-		this.modeMap = {
-			'nodejs':'javascript'
-		}
-
-		this.themes = ko.computed(function() {
-			return this.info().themes;
-		});
-
-		this.languages = ko.computed(function() {
-			return Object.keys(self.info().supported);
-		});
-
-		this.versions = ko.computed(function() {
-			if(self.languages().length === 0 || !self.selectedLanguage()) { return []; }
-			return self.info().supported[this.selectedLanguage()];
-		});
-
-		//Updates the ace editor when selected language is changed
-		var oldlanguage = this.selectedLanguage.peek();
-		this.selectedLanguage.subscribe(function(value) {
-			var path = typeof self.modeMap[value] !== 'undefined' ? self.modeMap[value] : value;
-			editor.session.setMode("ace/mode/"+path);
-			var docStr = doc.getValue();
-			var precodes = self.info().precodes;
-			if(docStr === '' || docStr === precodes[oldlanguage] ) {
-				doc.setValue(self.info().precodes[value]);
-			}
-			oldlanguage = value;
-		});
-
-
-		this.selectedTheme.subscribe(function(value) {
-			if(typeof value !== 'undefined') {
-				aceEditor.setTheme("ace/theme/"+value);
-			}
-		})
-		this.submit = function(e) {
-			var btn = document.getElementById('submit');
-			var postCompile = new XMLHttpRequest();
-			postCompile.open("POST", "/compile");
-			postCompile.setRequestHeader('Content-type', 'application/json');
-			postCompile.onreadystatechange = function() {
-				if(postCompile.readyState == XMLHttpRequest.DONE) {
-					var success = false;
-					if(postCompile.status == 200) {
-						var data = JSON.parse(postCompile.responseText);
-
-						if(data.status === 200 ) {
-							success = true;
-							console.log("POST script: Success");
-							console.log(data.message);
-						} else {
-							console.log("POST script: Failure");
-							console.log(data.message);
-						}
-					} else {
-						console.log("POST script: Failure");
-						console.log(postCompile.responseText);
-					}
-
-					if(!success) {
-						alert("There was an error, please try again later");
-					}
-
-					btn.disabled = false;
-				}
-			}
-			postCompile.send(JSON.stringify({
-				type:self.selectedLanguage(),
-				version:self.selectedVersion(),
-				script:self.doc.getValue()
-			}));
-
-			btn.disabled = true;
-		};
-
-		aceEditor.setTheme("ace/theme/twilight");
-    	aceEditor.session.setMode("ace/mode/php");
-
-    	var getInfo = new XMLHttpRequest();
-    	getInfo.open("GET", "/info");
-    	getInfo.onreadystatechange = function() {
-    		if(getInfo.readyState === XMLHttpRequest.DONE) {
-    			if(getInfo.status === 200) {
-    				var data = JSON.parse(getInfo.responseText);
-    				console.log("GET info: Success");
-    				console.dir(data);
-
-    				self.info(data);
-
-    				self.selectedLanguage('php');
-					self.selectedVersion('latest');
-    				self.selectedTheme('twilight');
-    			} else {
-    				console.log("GET info: Failure");
-    				console.log(getInfo.responseText);
-    			}
-    		}
-    	}
-    	getInfo.send();
-	}
-
-	var editor = ace.edit("editor");
-	editor.$blockScrolling = Infinity;
-	ko.applyBindings(Model(editor));
+<script type="text/javascript">
+	loaded();
 </script>
 </html>

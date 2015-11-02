@@ -20,7 +20,7 @@ var Descriptor = function(data) {
 var php = new Descriptor({
 	repository:'php',
 	ext: '.php',
-	versions: [ '5.4', '5.5', '5.6', 'latest' ],
+	versions: [ '5.4', '5.5', '5.6' ],
 	command: 'php',
 	mounts: [{
 		host:'/var/www/node/eval/resources/configs/php.ini',
