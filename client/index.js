@@ -27,10 +27,13 @@ function loaded() {
 			script:doc.getValue()
 		}).then(function(message) {
 			var data = JSON.parse(message);
-			document.getElementById("htmlcontainer").innerHTML = data.message;
+			document.getElementById("stdout_container").innerHTML = data.stdout;
+			document.getElementById("stderr_container").innerHTML = data.stderr;
+			
 			btn.disabled = false;
 		}, function(message) {
-			debugger;
+			alert("There was an error, please try again later");
+			console.log(message);
 		});
 	});
 
@@ -48,7 +51,7 @@ function loaded() {
 	});
 
 	nav.selectedTheme.subscribe(function(value) {
-		if(typeof value !== "undefined") {
+		if(!_.isUndefined(value)) {
 			editor.setTheme("ace/theme/"+value);
 		}
 	})

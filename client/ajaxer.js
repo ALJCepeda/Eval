@@ -11,7 +11,6 @@ var Ajaxer = function() {
 	this.ajax  = function(method, url, data, modify) {
 		var promise = new Promise(function(resolve, reject) {
 			var request = new XMLHttpRequest();
-
 			request.open(method, url);
 			request.setRequestHeader("Content-Type", "application/json");
 			request.onreadystatechange = function() {

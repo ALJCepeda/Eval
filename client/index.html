@@ -52,12 +52,20 @@
        						optionsCaption: 'Theme...'"></select>
 	</div>
 
-	<button id="submit" data-bind="click:submit">Submit</button>
+	<button id="submit">Submit</button>
 </div>
 
-<div class="page" id="htmlcontainer" data-bind="visible:selectedTab() === 'html'"></div>
-<div id="editorcontainer" data-bind="visible:selectedTab() === 'editor'">
-	<pre class="page" id="editor"></pre>
+<div class="page" id="output_container" data-bind="visible:selectedTab() === 'html'">
+  <hr>
+  <div id="stdout_container" style="width:100%; height:80%;"></div>
+
+  <hr>
+  
+  <div id="stderr_container" style="width:100%; height:20%;"></div>
+</div>
+
+<div id="editor_container" data-bind="visible:selectedTab() === 'editor'">
+	 <pre class="page" id="editor"></pre>
 </div>
 </body>
 

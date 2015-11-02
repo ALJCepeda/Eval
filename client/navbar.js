@@ -2,7 +2,7 @@ var Navbar = function() {
 	var self = this;
 	this.info = ko.observable({ supported:[], themes:[], precodes:{} });
 	this.tabs = ko.observableArray([
-		{ url:'#html', text:'Html', click: function(e) { self.selectedTab('html'); } },
+		{ url:'#html', text:'Output', click: function(e) { self.selectedTab('html'); } },
 		{ url:'#script', text:'Script', click: function(e) { self.selectedTab('editor'); } }
 	]);
 	this.selectedTab = ko.observable('editor');

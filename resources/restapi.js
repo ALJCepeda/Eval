@@ -77,17 +77,14 @@ var Restful = function(app) {
 
 		docker.start(filename, function(error, stdout, stderr) {
 			var truncated = filename.substring(filename.indexOf('-')+1, filename.length);
-			if( error ) {
-				if(error.kill === true) {
-					res.sendStatus(500);
-					console.log("Docker error: " + stderr);
-				} else {
-					var result = stderr.replace(filename, truncated);
-					res.send({ status:400, message:result });
-				}
+			if( error  && error.kill === true) {
+				res.sendStatus(500);
+				console.log("Docker error: " + stderr);
 			} else {
-				var result = stdout.replace(filename, truncated);
-				res.send({ status:200, message:result });
+				var output = stdout.replace(filename, truncated);
+				var error = stderr.replace(filename, truncated);
+
+				res.send({ statuse:200, stdout:output, stderr:error });
 			}
 
 			tmpfile.removeCallback();
