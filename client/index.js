@@ -76,6 +76,13 @@ function loaded() {
 		if(docStr === "" || docStr === precodes[oldlanguage] ) {
 			doc.setValue(nav.info().precodes[value]);
 		}
+
+		//Need to give knockout time to update
+		//Since they call subscribe before updating dependencies
+		setTimeout(function() {
+			var versions = nav.versions();
+			nav.selectedVersion(versions[versions.length - 1]);
+		}, 10);
 		oldlanguage = value;
 	});
 
