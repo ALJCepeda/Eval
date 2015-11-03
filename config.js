@@ -5,7 +5,9 @@ module.exports = {
 	bowerdir:'/shared/bower_components',
 	mongoURL:'mongodb://localhost:27017/test',
 	lib: {
+		'requirejs.js' : 'require.js',
 		'knockout.js' : 'dist/knockout.js',
+		'backbone.js' : 'backbone-min.js',
 		'mdl.css' : 'material.css',
 		'mdl.js' : 'material.js',
 		'underscore.js' : 'underscore-min.js'

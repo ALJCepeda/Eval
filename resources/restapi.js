@@ -91,6 +91,15 @@ var Restful = function(app) {
 			tmpdir.removeCallback();
 		});
 	});
+
+	app.get("/script/:id", jsoner, function(req, res, next) {
+ 		console.log("Scriptid: " + req.params.id);
+ 		res.send({
+ 			platform:'nodejs',
+ 			version:'latest',
+ 			script:'console.log("Huzzah!");'
+ 		});
+ 	});
 };
 
 module.exports = Restful;

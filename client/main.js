@@ -1,0 +1,2 @@
+requirejs.config({});
+requirejs(['index']);
