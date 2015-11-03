@@ -30,6 +30,7 @@ var Restful = function(app) {
  		var precodes = { };
  		var themes = config.aceThemes;
 
+ 		console.log(req.sessionID);
  		Object.each(docker_descriptions, function(name, descriptor) {	
  			supported[name] = descriptor.versions;
  			precodes[name] = descriptor.precode;
