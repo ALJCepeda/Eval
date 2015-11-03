@@ -1,5 +1,7 @@
+var ISDEV = (process.env.DEV) ? true : false;
+
 module.exports = {
-	port: 8002,
+	port: (ISDEV === true) ? 8802 : 8002,
 	bowerdir:'/shared/bower_components',
 	mongoURL:'mongodb://localhost:27017/test',
 	lib: {
