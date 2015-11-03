@@ -1,5 +1,5 @@
-define(['resources/dataaccess', 'components/navbar'], function(DataAccess, Navbar) {
-	var Controller = function(da, nav, editor) {
+define([], function() {
+	var Controller = function(da, nav, editor, router) {
 		var self = this;
 		this.nav = nav;
 		this.da = da;
@@ -39,8 +39,9 @@ define(['resources/dataaccess', 'components/navbar'], function(DataAccess, Navba
 			da.postScript(platform, version, script).then(function(data) {
 				document.getElementById("stdout_frame").contentDocument.body.innerHTML = data.stdout;
 				document.getElementById("stderr_frame").contentDocument.body.innerHTML = data.stderr;
-
+				debugger;
 				nav.selectedTab('output');
+				router.navigate(data.id, { trigger:false });
 				btn.disabled = false;
 			}).catch(function(message) {
 				alert("There was an error, please try again later");

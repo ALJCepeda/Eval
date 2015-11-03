@@ -7,8 +7,6 @@ require('./resources/staticapi.js')(app);
 require('./resources/restapi.js')(app);
 
 app.get('/', function(req, res){ 
-	req.session.lastPage = '/';
-	
 	res.sendFile(path.join(__dirname, 'index.html'));
 });
 

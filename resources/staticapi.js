@@ -2,19 +2,9 @@ var Staticy = function(app) {
 	var express = require('express');
 	var path = require('path');
 	var config = require('../config.js');
-	var session = require('express-session');
 	var bodyparser = require("body-parser");
 
 	var appDir = path.dirname(require.main.filename);
-
-	app.use(session({
-  		name: 'connect.sid',
-  		secret: 'B9954618C6B579337B63C3C581924',
-  		resave:true,
-  		saveUninitialized:false,
-  		duration: 30 * 60 * 1000,
-  		activeDuration: 5 * 60 * 1000
-	}));
 
 	app.use(bodyparser.urlencoded({     // to support URL-encoded bodies
 	  extended: true

@@ -1,11 +1,8 @@
+
 define(['resources/dataaccess', 'components/navbar', 'resources/controller'], function(DataAccess, Navbar, Controller) {
 	var nav = new Navbar();
 	var da = new DataAccess();
 	var editor = ace.edit("editor");
-	var controller = new Controller(da, nav, editor);
-
-	ko.applyBindings(nav);
-	controller.initialize();
 
 	var Router = Backbone.Router.extend({
 	  	routes: {
@@ -21,7 +18,6 @@ define(['resources/dataaccess', 'components/navbar', 'resources/controller'], fu
 
 	  			nav.selectedPlatform(data.platform);
 	  			nav.selectedVersion(data.version);
-	  			debugger;
 	  			editor.session.getDocument().setValue(data.script);
 	  		});
 	  	},
@@ -32,5 +28,10 @@ define(['resources/dataaccess', 'components/navbar', 'resources/controller'], fu
 	});
 
 	var router = new Router();
+	var controller = new Controller(da, nav, editor, router);
+
+	ko.applyBindings(nav);
+	controller.initialize();
+
 	Backbone.history.start();
 });
