@@ -3,15 +3,15 @@ var fs = require("fs");
 var tmp = require("tmp");
 var path = require("path");
 var uid = require("uid");
-var config = require('../config.js');
-var MongoClient = require('mongodb').MongoClient;
-var Promise = require('promise');
+var config = require("../config.js");
+var MongoClient = require("mongodb").MongoClient;
+var Promise = require("promise");
 
 require("./prototypes/object.js");
 
 var Dockerizer = require("./docker/dockerizer.js");
 var docker_descriptions = require("./docker/descriptors");
-var config = require('../config.js');
+var config = require("../config.js");
 
 var Restful = function(app) {
 	var jsoner = bodyparser.json();
@@ -52,33 +52,34 @@ var Restful = function(app) {
 
  		return new Promise(function(resolve, reject) {
  			MongoClient.connect(config.mongoURL, function(err, db) {
- 				var cursor = db.collection('scripts').find({ id:id });
+ 				var cursor = db.collection("scripts").find({ id:id });
  				cursor.each(function(err, doc) {
- 					if(err != null) {
+ 					if(err !== null) {
  						uid_tries = 0;
- 						reject(err);
- 					} else if(doc != null) {
- 						if(uid_tries >= max) {
- 							uid_tries = 0;
- 							reject(err, doc);
- 						} else {
- 							getUID(max).then(resolve, reject);
- 						}
- 					} else {
+ 						reject(err, doc);
+ 					} else if(doc === null) {
+ 						//Found a free UID, send it back
  						uid_tries = 0;
  						resolve(id);
+ 					} else {
+ 						if(uid_tries >= max) {
+ 							uid_tries = 0;
+ 							reject("getUID: Reached max attempts, aborting", doc);
+ 						}
+
+ 						getUID(max).then(resolve, reject);
  					}
  				});
  			});
  		});
- 	};
+ 	}
 
  	function saveScript(platform, version, script) {
  		return new Promise(function(resolve, reject) {
 	 		getUID().then(function(id) {
 	 			MongoClient.connect(config.mongoURL, function(err, db) {
 		 			var now = Date.now();
-		 			db.collection('scripts').insertOne({
+		 			db.collection("scripts").insertOne({
 		 				id:id,
 		 				platform:platform,
 		 				version:version,
@@ -103,7 +104,7 @@ var Restful = function(app) {
  	function getScript(id) {
  		return new Promise(function(resolve, reject) {
 	 		MongoClient.connect(config.mongoURL, function(err, db) {
-	 			var cursor = db.collection('scripts').find({ id:id });
+	 			var cursor = db.collection("scripts").find({ id:id });
 	 			cursor.each(function(err, doc) {
 	 				if(err) {
 	 					reject(err);
@@ -130,7 +131,7 @@ var Restful = function(app) {
 		docker.configure(descriptor, dockername, version);
 
 		docker.start(filename, function(error, stdout, stderr) {
-			complete(error, stdout, stderr, filename)
+			complete(error, stdout, stderr, filename);
 
 			tmpfile.removeCallback();
 			tmpdir.removeCallback();
@@ -146,16 +147,16 @@ var Restful = function(app) {
 		var version = req.body.version;
 		var script = req.body.script;
 
-		if(script === '') {
-			return res.send({ status:400, message:'Must contain a valid script' });
+		if(script === "") {
+			return res.send({ status:400, message:"Must contain a valid script" });
 		}
 
 		if(!docker_descriptions[platform]) {
-			return res.send({ status:400, message:'Unrecognized language: ' + platform });
+			return res.send({ status:400, message:"Unrecognized language: " + platform });
 		}
 
 		if(!docker_descriptions[platform].hasVersion(version)) {
-			return res.send({ status:400, message:'Unrecognized version: ' + version });
+			return res.send({ status:400, message:"Unrecognized version: " + version });
 		}
 
 		saveScript(platform, version, script).then(function(id) {
@@ -166,16 +167,16 @@ var Restful = function(app) {
 						res.sendStatus(500);
 						console.log("Docker error: " + stderr);
 					} else {
-						var scriptReg = new RegExp('/scripts/'+filename, 'g');
-						var output = stdout.replace(scriptReg, 'Script.js');
-						var error = stderr.replace(scriptReg, 'Script.js');
+						var scriptReg = new RegExp("/scripts/"+filename, "g");
+						var out = stdout.replace(scriptReg, "Script.js");
+						var err = stderr.replace(scriptReg, "Script.js");
 
-						res.send({ status:200, id:id, stdout:output, stderr:error });
+						res.send({ status:200, id:id, stdout:out, stderr:err });
 					}
 			});
 		}).catch(function(err) {
 			console.log("saveScript: " + err);
-			res.send({ status:500, message:'We were unable to save the script, please try again later' });
+			res.send({ status:500, message:"We were unable to save the script, please try again later" });
 		});		
 	});
 
