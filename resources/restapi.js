@@ -47,7 +47,7 @@ var Restful = function(app) {
 
  	var uid_tries = 0;
  	function getUID(max) {
- 		var id = uid(5);
+ 		var id = uid(8);
  		uid_tries++;
 
  		return new Promise(function(resolve, reject) {
