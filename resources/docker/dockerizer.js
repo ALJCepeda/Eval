@@ -2,74 +2,96 @@ var shell = require("child_process");
 var uid = require("uid");
 var path = require("path");
 var _ = require("underscore");
+var fs = require("fs");
+var tmp = require("tmp");
+var path = require("path");
+var docker_descriptions = require("./descriptors");
 
 var Dockerizer = function() {
 	var self = this;
-	this.name = '';
-	this.descriptor;
+	this.name = "";
+	this.descriptor = {};
 	this.shouldRemove = true;
 	this.mounts = [];
 
-	this.command = 'sudo docker run';
-	this.domain = 'literphor';
-	this.hostRoot = '';
-	this.guestRoot = '/scripts';
+	this.command = "sudo docker run";
+	this.domain = "literphor";
+	this.hostRoot = "";
+	this.guestRoot = "/scripts";
 
 	this.configure = function(descriptor, name, version) {
 		self.name = name;
 		self.version = version;
 		self.descriptor = descriptor;
 
-		self.hostRoot = path.join('/var/tmp/eval', descriptor.repository, self.name);
-		self.image = path.join(self.domain, descriptor.repository) + ':' + self.version;
-	}
+		self.hostRoot = path.join("/var/tmp/eval", descriptor.repository, self.name);
+		self.image = path.join(self.domain, descriptor.repository) + ":" + self.version;
+	};
 
 	this.generate = {
-		//Generates docker command based on object's configuration
+		//Generates docker command based on object"s configuration
 		//Dockername is the semantic name for the process running our container
-		//Also determines the folder containing the user's script file
+		//Also determines the folder containing the user"s script file
 		command: function() {
 			//Base docker command
 			var cmd = self.command;
 
 			//Will automatically remove docker container when exits
-			cmd += (self.shouldRemove) ? ' --rm' : '';
+			cmd += (self.shouldRemove) ? " --rm" : "";
 
-			cmd += ' --name ' + self.name;
-			cmd += ' -w ' + self.guestRoot;
+			cmd += " --name " + self.name;
+			cmd += " -w " + self.guestRoot;
 
 			//Mounts folder containing user's script to /script in guest
-			cmd += ' -v ' + self.hostRoot + ':' + self.guestRoot;
+			cmd += " -v " + self.hostRoot + ":" + self.guestRoot;
 
 			//Add all mounts to the command in the form -v host:guest
 			var mounts = self.mounts.concat(self.descriptor.mounts);
 			cmd += mounts.reduce(function(pre, mount) {
-				return pre + ' -v ' + mount.host + ':' + mount.guest; 
-			}, '');
+				return pre + " -v " + mount.host + ":" + mount.guest; 
+			}, "");
 
 			//Add information about the container and command we want to run
-			cmd += ' ' + self.image;
+			cmd += " " + self.image;
 
 			return cmd;
 		}
 	};
+
+	this.doCompilation = function(platform, version, script) {
+		var descriptor = docker_descriptions[platform];
+
+		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", platform, "XXXXXXX"), unsafeCleanup:true});
+		var tmpfile = tmp.fileSync({ mode:0744, postfix:descriptor.ext, dir:tmpdir.name });
+
+		var filename = path.basename(tmpfile.name);
+		var dockername = path.basename(tmpdir.name);
+
+ 		fs.writeSync(tmpfile.fd, script);
+		self.configure(descriptor, dockername, version);
+
+
+		return self.start(filename).then(function(stdout, stderr) {
+			tmpfile.removeCallback();
+			tmpdir.removeCallback();
+		});
+	};
 	
-	this.start = function(file, complete) {
+	this.start = function(file) {
 		//Check if script needs to be compiled first
 		if( _.isFunction(self.descriptor.compile) ) {
 			var command = self.generate.command();
 			command += " " + self.descriptor.compile(file);
 
-			self.exec(command, function(error, stdout, stderr) {
-				if(error) { complete(error, stdout, stderr); }
-				else { self.run(file, complete); }
+			return self.exec(command).then(function(stdout, stderr) {
+				return self.run(file);
 			});
 		} else {
-			self.run(file, complete);
+			return self.run(file);
 		}
 	};
 
-	this.run = function(file, complete) {
+	this.run = function(file) {
 		var command = self.generate.command();
 		if( _.isFunction(self.descriptor.command )) {
 			command += " " + self.descriptor.command(file, uid);
@@ -79,15 +101,23 @@ var Dockerizer = function() {
 			command += " " + self.descriptor.repository + " " + file;
 		}
 
-		self.exec(command, complete);
-	}
+		return self.exec(command);
+	};
 
-	this.exec = function(command, complete) {
+	this.exec = function(command) {
 		console.log("Command: " + command);
 
 		//Execute docker command
-		shell.exec(command, complete);
-	}
+		return new Promise(function(resolve, reject) {
+			shell.exec(command, function(error, stdout, stderr) {
+				if(error && error.kill === true) {
+					reject(error, stderr);
+				} else {
+					resolve(stdout, stderr);
+				}
+			});
+		});	
+	};
 };
 
 module.exports = Dockerizer;

@@ -1,14 +1,10 @@
 var bodyparser = require("body-parser");
-var fs = require("fs");
-var tmp = require("tmp");
-var path = require("path");
-var uid = require("uid");
 var config = require("../config.js");
-var MongoClient = require("mongodb").MongoClient;
-var Promise = require("promise");
+
 
 require("./prototypes/object.js");
 
+var ScriptManager = require("./scriptmanager.js");
 var Dockerizer = require("./docker/dockerizer.js");
 var docker_descriptions = require("./docker/descriptors");
 var config = require("../config.js");
@@ -45,99 +41,6 @@ var Restful = function(app) {
  		});
  	});
 
- 	var uid_tries = 0;
- 	function getUID(max) {
- 		var id = uid(8);
- 		uid_tries++;
-
- 		return new Promise(function(resolve, reject) {
- 			MongoClient.connect(config.mongoURL, function(err, db) {
- 				var cursor = db.collection("scripts").find({ id:id });
- 				cursor.each(function(err, doc) {
- 					if(err !== null) {
- 						uid_tries = 0;
- 						reject(err, doc);
- 					} else if(doc === null) {
- 						//Found a free UID, send it back
- 						uid_tries = 0;
- 						resolve(id);
- 					} else {
- 						if(uid_tries >= max) {
- 							uid_tries = 0;
- 							reject("getUID: Reached max attempts, aborting", doc);
- 						}
-
- 						getUID(max).then(resolve, reject);
- 					}
- 				});
- 			});
- 		});
- 	}
-
- 	function saveScript(platform, version, script) {
- 		return new Promise(function(resolve, reject) {
-	 		getUID().then(function(id) {
-	 			MongoClient.connect(config.mongoURL, function(err, db) {
-		 			var now = Date.now();
-		 			db.collection("scripts").insertOne({
-		 				id:id,
-		 				platform:platform,
-		 				version:version,
-		 				script:script,
-		 				created:now
-		 			}, function(err, result) {
-		 				if(err) {
-		 					reject(err);
-		 				} else {
-		 					resolve(id, result);
-		 				}
-		 				db.close();
-	 				});
-				});
-	 		}).catch(function(err){
-				console.log("getUID: " + err);
-			});
- 		});
- 		
- 	}
-
- 	function getScript(id) {
- 		return new Promise(function(resolve, reject) {
-	 		MongoClient.connect(config.mongoURL, function(err, db) {
-	 			var cursor = db.collection("scripts").find({ id:id });
-	 			cursor.each(function(err, doc) {
-	 				if(err) {
-	 					reject(err);
-	 				} else {
-	 					resolve(doc);
-	 				}
-	 				db.close();
-	 			});
-	 		});
-	 	});
- 	}
-
- 	function doCompilation(platform, version, script, complete) {
- 		var docker = new Dockerizer();
-		var descriptor = docker_descriptions[platform];
-
-		var tmpdir = tmp.dirSync({ mode:0744, template:path.join("/var/tmp/eval", platform, "XXXXXXX"), unsafeCleanup:true});
-		var tmpfile = tmp.fileSync({ mode:0744, postfix:descriptor.ext, dir:tmpdir.name });
-
-		var filename = path.basename(tmpfile.name);
-		var dockername = path.basename(tmpdir.name);
-
- 		fs.writeSync(tmpfile.fd, script);
-		docker.configure(descriptor, dockername, version);
-
-		docker.start(filename, function(error, stdout, stderr) {
-			complete(error, stdout, stderr, filename);
-
-			tmpfile.removeCallback();
-			tmpdir.removeCallback();
-		});
- 	}
-
 	app.post("/compile", jsoner, function(req, res) {
 		if(!req.body || !req.body.platform || !req.body.version) {
 			return res.sendStatus(400);
@@ -159,9 +62,12 @@ var Restful = function(app) {
 			return res.send({ status:400, message:"Unrecognized version: " + version });
 		}
 
-		saveScript(platform, version, script).then(function(id) {
+		var scripter = new ScriptManager(config.mongoURL);
+		scripter.saveScript(platform, version, script).then(function(id) {
 			console.log("Saved script " + id);
-			doCompilation(platform, version, script, 
+
+			var docker = new Dockerizer();
+			docker.doCompilation(platform, version, script, 
 				function(error, stdout, stderr, filename) {
 					if( error  && error.kill === true) {
 						res.sendStatus(500);
@@ -180,10 +86,11 @@ var Restful = function(app) {
 		});		
 	});
 
-	app.get("/script/:id", jsoner, function(req, res, next) {
+	app.get("/script/:id", jsoner, function(req, res) {
  		console.log("Scriptid: " + req.params.id);
 
- 		getScript(req.params.id).then(function(doc) {
+ 		var scripter = new ScriptManager(config.mongoURL);
+ 		scripter.getScript(req.params.id).then(function(doc) {
  			res.send(doc);
  		}).catch(function(err) {
  			res.send(err);
