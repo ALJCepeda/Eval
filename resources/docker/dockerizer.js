@@ -1,13 +1,13 @@
-var shell = require("child_process");
-var uid = require("uid");
-var path = require("path");
-var _ = require("underscore");
-var fs = require("fs");
-var tmp = require("tmp");
-var path = require("path");
-var docker_descriptions = require("./descriptors");
-
 var Dockerizer = function(historian) {
+	var shell = require("child_process");
+	var uid = require("uid");
+	var path = require("path");
+	var _ = require("underscore");
+	var fs = require("fs");
+	var tmp = require("tmp");
+	var path = require("path");
+	var docker_descriptions = require("./descriptors");
+
 	var self = this;
 	this.name = "";
 	this.descriptor = {};

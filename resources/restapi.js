@@ -4,6 +4,7 @@ var RestAPI = function(book) {
 	var Dockerizer = require("./docker/dockerizer.js");
 	var docker_descriptions = require("./docker/descriptors");
 	var config = require("../config.js");
+	var keeper = book.keeper('RestAPI');
 
 	var self = this;
 	this.jsoner = bodyparser.json();
@@ -63,11 +64,11 @@ var RestAPI = function(book) {
 
 			var scripter = new ScriptManager(config.urls.mongo);
 			scripter.saveScript(platform, version, script).then(function(buf) {
-				console.log("saveScript saved: " + buf.id);
+				keeper.record("saveScript", buf.id, true);
 
 				var docker = new Dockerizer();
 				docker.doCompilation(platform, version, script).then(function(data) {
-					//book.record("restapi", "doCompilation", data.command);
+					keeper.record("doCompilation", data.command);
 
 					var scriptReg = new RegExp("/scripts/"+data.filename, "g");
 					var out = data.stdout.replace(scriptReg, "Script.js");
@@ -76,11 +77,10 @@ var RestAPI = function(book) {
 					res.send({ status:200, id:buf.id, stdout:out, stderr:err });
 				}).catch(function(data) {
 					res.sendStatus(500);
-					//book.record("restapi", )
-					console.log("doCompilation error: " + data);
+					keeper.record('doCompilation', data, true);
 				});
 			}).catch(function(buf) {
-				console.log("saveScript error: " + buf);
+				keeper.record('saveScript', buf, true);
 				res.send({ status:500, message:"We were unable to save the script, please try again later" });
 			});		
 		});	
@@ -88,13 +88,13 @@ var RestAPI = function(book) {
 
 	this.routes.scriptID = function(app, method) {
 		app[method]("/script/:id", self.jsoner, function(req, res) {
-	 		console.log("Scriptid: " + req.params.id);
-
 	 		var scripter = new ScriptManager(config.urls.mongo);
 	 		scripter.getScript(req.params.id).then(function(buf) {
+	 			req.session.last = req.params.id;
 	 			res.send(buf.doc);
 	 		}).catch(function(buf) {
-	 			res.send(buf.err);
+	 			keeper.record('getScript', buf, true);
+	 			res.send(buf.error);
 	 		});
 	 	});
 	};

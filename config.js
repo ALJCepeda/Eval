@@ -1,9 +1,9 @@
-var ISLIVE = (process.env.LIVE) ? true : false;
+global.ISLIVE = (process.env.LIVE) ? true : false;
 
 module.exports = {
 	port: 8002,
 	dirs: {
-		root: (ISLIVE === true ) ? '/var/www/eval' : '/shared/eval',
+		root: (global.ISLIVE === true ) ? '/var/www/eval' : '/shared/eval',
 		bower: '/shared/bower_components'
 	},
 	urls: {

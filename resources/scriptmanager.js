@@ -21,7 +21,7 @@ var ScriptManager = function(url) {
  					} else if(doc === null) {
  						//Found a free UID, send it back
  						uid_tries = 0;
- 						resolve(id);
+ 						resolve({ id:id });
  					} else {
  						if(uid_tries >= max) {
  							uid_tries = 0;
@@ -37,12 +37,12 @@ var ScriptManager = function(url) {
 
  	this.saveScript = function(platform, version, script) {
  		return new Promise(function(resolve, reject) {
-	 		self.getUID().then(function(id) {
+	 		self.getUID().then(function(buf) {
 
 	 			MongoClient.connect(self.url, function(err, db) {
 		 			var now = Date.now();
 		 			db.collection("scripts").insertOne({
-		 				id:id,
+		 				id:buf.id,
 		 				platform:platform,
 		 				version:version,
 		 				script:script,
@@ -51,7 +51,7 @@ var ScriptManager = function(url) {
 		 				if(err) {
 		 					reject({ error:err });
 		 				} else {
-		 					resolve({ id:id, result:result });
+		 					resolve({ id:buf.id, result:result });
 		 				}
 		 				db.close();
 	 				});
