@@ -69,8 +69,11 @@ var Restful = function(app) {
 			var docker = new Dockerizer();
 			docker.doCompilation(platform, version, script).then(function(stdout, stderr, filename) {
 				var scriptReg = new RegExp("/scripts/"+filename, "g");
-				var out = stdout.replace(scriptReg, "Script.js");
-				var err = stderr.replace(scriptReg, "Script.js");
+				var out = stdout || "";
+				var err = stderr || "";
+
+				out = out.replace(scriptReg, "Script.js");
+				err = err.replace(scriptReg, "Script.js");
 
 				res.send({ status:200, id:id, stdout:out, stderr:err });
 			}).catch(function(error, stderr) {
