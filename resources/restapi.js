@@ -67,18 +67,15 @@ var Restful = function(app) {
 			console.log("Saved script " + id);
 
 			var docker = new Dockerizer();
-			docker.doCompilation(platform, version, script, 
-				function(error, stdout, stderr, filename) {
-					if( error  && error.kill === true) {
-						res.sendStatus(500);
-						console.log("Docker error: " + stderr);
-					} else {
-						var scriptReg = new RegExp("/scripts/"+filename, "g");
-						var out = stdout.replace(scriptReg, "Script.js");
-						var err = stderr.replace(scriptReg, "Script.js");
+			docker.doCompilation(platform, version, script).then(function(stdout, stderr, filename) {
+				var scriptReg = new RegExp("/scripts/"+filename, "g");
+				var out = stdout.replace(scriptReg, "Script.js");
+				var err = stderr.replace(scriptReg, "Script.js");
 
-						res.send({ status:200, id:id, stdout:out, stderr:err });
-					}
+				res.send({ status:200, id:id, stdout:out, stderr:err });
+			}).catch(function(error, stderr) {
+				res.sendStatus(500);
+				console.log("Docker error: " + error);
 			});
 		}).catch(function(err) {
 			console.log("saveScript: " + err);

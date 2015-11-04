@@ -74,6 +74,7 @@ var Dockerizer = function() {
 		return self.start(filename).then(function(stdout, stderr) {
 			tmpfile.removeCallback();
 			tmpdir.removeCallback();
+			return Promise.resolve(stdout, stderr, filename);
 		});
 	};
 	
