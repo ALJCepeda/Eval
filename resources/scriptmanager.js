@@ -1,83 +1,88 @@
 var ScriptManager = function(url) {
-	var MongoClient = require('./mongo/mongoclient.js');
+	var MongoClient = require("./mongo/mongoclient.js");
+	var Promise = require("promise");
+	var _ = require("underscore");
 	var uid = require("uid");
- 	var crypto = require("crypto").createHash('md5');
+ 	var crypto = require("crypto").createHash("md5");
 
- 	var mongo = new MongoClient(url);
 	var self = this;
-	var uid_tries = 0;
 
 	this.mongo = new MongoClient(url);
-	this.connect = 
- 	this.getUID = function(max) {
+
+ 	this.getUID = function(max, tries) {
  		var id = uid(8);
- 		uid_tries++;
+ 		tries = _.isUndefined(tries) ? 1 : tries;
 
- 		return self.mongo.connect().then(function(buf) {
+ 		return self.mongo.database().then(function(db) {
  			return new Promise(function(resolve, reject) {
-	 			var cursor = db.collection("scripts").find({ id:id });
-				cursor.each(function(err, doc) {
-					if(err !== null) {
-						uid_tries = 0;
-						reject({ error:err, doc:doc });
-					} else if(doc === null) {
-						//Found a free UID, send it back
-						uid_tries = 0;
-						resolve({ id:id });
-					} else {
-						if(uid_tries >= max) {
-							uid_tries = 0;
-							reject({ error:"getUID: Reached max attempts, aborting", doc:doc });
-						}
+ 				var coll = db.collection("Script");
+ 				coll.find({ id:id })
+					.count(function(err, count) {
+		 				if(err) { throw err; }
 
-						self.getUID(max).then(resolve, reject);
-					}
-				});
-			});
+		 				if(count <= 0) {
+		 					resolve(id);
+		 				} else if(tries >= max) {
+		 					reject("getUID: max attempts reached, aborting");
+		 				} else {
+		 					tries++;
+		 					self.getUID(max, tries).then(function(id) {
+		 						resolve(id);
+		 					}).catch(function(error) {
+		 						reject(error);
+		 					});
+		 				}
+		 				
+		 				db.close();
+	 			});
+ 			});
  		});
  	};
-
+/*
  	this.scriptExists = function(platform, version, code) {
 
  	}
-
+*/
  	this.saveScript = function(platform, version, script) {
-	 	return self.getUID().then(function(buf) {
-			 		self.mongo.connect().then(function(blob) {
-			 			var now = Date.now();
-			 			blob.db.collection("scripts").insertOne({
-			 				id:buf.id,
-			 				platform:platform,
-			 				version:version,
-			 				script:script,
-			 				created:now
-			 			}, function(err, result) {
-			 				if(err) {
-			 					reject({ error:err });
-			 				} else {
-			 					resolve({ id:buf.id, result:result });
-			 				}
-			 				blob.db.close();
-		 				});
-					});
-		 		});
+	 	return self.getUID(5).then(function(id) {
+
+ 			return self.mongo.database().then(function(db) {
+ 				return new Promise(function(resolve, reject) {
+ 					var entry = {
+	 					id:id,
+	 					platform:platform,
+	 					version:version,
+	 					script:script,
+	 					created:Date.now()
+	 				};
+
+	 				var coll = db.collection("scripts");
+	 				coll.insertOne(entry, function(error) {
+	 					if(error) { reject(error); }
+	 					else { resolve(id); }
+
+	 					db.close();
+	 				});
+ 				});
+ 			});
+ 		});
+
  	};
 
  	this.getScript = function(id) {
- 		return self.mongo.connect().then(function(buf) {
-		 			var cursor = buf.db.collection("scripts").find({ id:id });
-		 			var promise;
-		 			cursor.each(function(err, doc) {
-		 				if(err) {
-		 					promise = Promise.reject({ error:err });
-		 				} else {
-		 					promise =  Promise.resolve({ doc:doc });
-		 				}
-		 			});
-		 			
-		 			buf.db.close();
-		 			return promise;
-		 		});
+ 		return self.mongo.database().then(function(db) {
+ 			return new Promise(function(resolve, reject) {
+ 				var coll = db.collection("scripts");
+	 			var cursor = coll.find({ id:id });
+
+	 			cursor.nextObject(function(err, doc) {
+	 				if(err) { reject(err); }
+	 				else { resolve(doc); }
+
+	 				db.close();
+	 			});
+	 		});
+ 		});
 	 };
 };
 
