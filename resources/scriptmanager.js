@@ -57,7 +57,7 @@ var ScriptManager = function(url) {
 			 				} else {
 			 					resolve({ id:buf.id, result:result });
 			 				}
-			 				blob.db.close();
+			 				//blob.db.close();
 		 				});
 					});
 		 		});
@@ -67,15 +67,12 @@ var ScriptManager = function(url) {
  		return self.mongo.connect().then(function(buf) {
 		 			var cursor = buf.db.collection("scripts").find({ id:id });
 		 			var promise;
-		 			cursor.each(function(err, doc) {
-		 				if(err) {
-		 					promise = Promise.reject({ error:err });
-		 				} else {
-		 					promise =  Promise.resolve({ doc:doc });
-		 				}
+		 			cursor.forEach(function(doc) {
+		 				console.log(doc);
+		 				promise =  Promise.resolve({ doc:doc });
 		 			});
-		 			
-		 			buf.db.close();
+
+		 			//buf.db.close();
 		 			return promise;
 		 		});
 	 };
