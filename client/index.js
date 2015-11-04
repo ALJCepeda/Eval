@@ -1,13 +1,13 @@
 
-define(['resources/dataaccess', 'components/navbar', 'resources/controller'], function(DataAccess, Navbar, Controller) {
+define(["resources/dataaccess", "components/navbar", "resources/controller"], function(DataAccess, Navbar, Controller) {
 	var nav = new Navbar();
 	var da = new DataAccess();
 	var editor = ace.edit("editor");
 
 	var Router = Backbone.Router.extend({
 	  	routes: {
-			':id':'idRoute',
-			':id/:page':'pageRoute'
+			":id":"idRoute",
+			":id/:page":"pageRoute"
 		},
 	  	
 	  	idRoute: function(id) {
@@ -18,7 +18,7 @@ define(['resources/dataaccess', 'components/navbar', 'resources/controller'], fu
 
 	  			nav.selectedPlatform(data.platform);
 	  			nav.selectedVersion(data.version);
-	  			editor.session.getDocument().setValue(data.script);
+	  			editor.session.getDocument().setValue(data.code);
 	  		});
 	  	},
 

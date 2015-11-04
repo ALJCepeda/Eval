@@ -39,7 +39,7 @@ define([], function() {
 			da.postScript(platform, version, script).then(function(data) {
 				document.getElementById("stdout_frame").contentDocument.body.innerHTML = data.stdout;
 				document.getElementById("stderr_frame").contentDocument.body.innerHTML = data.stderr;
-				debugger;
+				
 				nav.selectedTab('output');
 				router.navigate(data.id, { trigger:false });
 				btn.disabled = false;
