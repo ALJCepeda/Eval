@@ -2,7 +2,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var config = require('./config.js');
 var session = require('express-session');
-var MongoStore = require('./resources/mongostore.js');
+var MongoStore = require('./resources/mongo/mongostore.js');
 
 var store = new MongoStore(config.urls.mongo);
 

@@ -18,7 +18,8 @@ var RecordBook = function() {
 		self.entries[domain][action].push(result);
 
 		if(inform === true || global.ISLIVE === false) {
-			console.log(action + ": " + result);
+			console.log(action + ":");
+			console.dir(result);
 		}
 	};
 };
