@@ -42,6 +42,10 @@ var RestAPI = function(book) {
 
 	this.routes.compile = function(app, method) {
 		app[method]("/compile", self.jsoner, function(req, res) {
+			if(req.session.lastScript) {
+				console.log(req.session.lastScript);
+			}
+			
 			if(!req.body || !req.body.platform || !req.body.version) {
 				return res.sendStatus(400);
 			}
@@ -83,7 +87,6 @@ var RestAPI = function(book) {
 				keeper.record("saveScript", error, true);
 				res.send({ status:500, message:"We were unable to complete your request, please try again later" });
 			});
-
 		});	
 	};
 
@@ -91,6 +94,10 @@ var RestAPI = function(book) {
 		app[method]("/script/:id", self.jsoner, function(req, res) {
 	 		var scripter = new ScriptManager(config.urls.mongo);
 	 		scripter.getScript(req.params.id).then(function(doc) {
+	 			if(doc !== null) {
+	 				req.session.lastScript = req.params.id;
+	 			}
+
 	 			res.send(doc);
 	 		}).catch(function(error) {
 	 			keeper.record("getScript", error, true);

@@ -2,13 +2,12 @@ var app = require("express")();
 var http = require("http").Server(app);
 var config = require("./config.js");
 var session = require("express-session");
-//var MongoStore = require("./resources/mongo/mongostore.js");
+var MongoStore = require("./resources/mongo/store.js");
 
-//var store = new MongoStore(config.urls.mongo);
-
+var store = new MongoStore(config.urls.mongo);
 app.use(session({
   	secret: "D58C9FFB11DAC",
-  	//store: store,
+  	store: store,
   	resave: false,
   	saveUninitialized: false
 }));
@@ -29,7 +28,5 @@ rest.bootstrap(app);
 rest.routes.info(app, "get");
 rest.routes.compile(app, "post");
 rest.routes.scriptID(app, "get");
-
-
 
 http.listen(config.port, function() { console.log("listening on *: " + config.port); });

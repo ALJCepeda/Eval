@@ -1,5 +1,5 @@
 var ScriptManager = function(url) {
-	var MongoClient = require("./mongo/mongoclient.js");
+	var MongoClient = require("./mongo/client.js");
 	var Promise = require("promise");
 	var _ = require("underscore");
 	var uid = require("uid");
