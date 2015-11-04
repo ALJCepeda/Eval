@@ -48,11 +48,11 @@ var RestAPI = function(book) {
 
 			var platform = req.body.platform;
 			var version = req.body.version;
-			var script = req.body.script;
+			var code = req.body.code;
 			var last = req.body.last || "";
 
-			if(script === "") {
-				return res.send({ status:400, message:"Must contain a valid script" });
+			if(code === "") {
+				return res.send({ status:400, message:"Must contain valid code" });
 			}
 
 			if(!docker_descriptions[platform]) {
@@ -63,12 +63,13 @@ var RestAPI = function(book) {
 				return res.send({ status:400, message:"Unrecognized version: " + version });
 			}
 
+			console.log("Last: " + last);
 			var scripter = new ScriptManager(config.urls.mongo);
-			scripter.saveScript(platform, version, script, last).then(function(id) {
+			scripter.saveScript(platform, version, code, last).then(function(id) {
 				keeper.record("saveScript", id, true);
 
 				var docker = new Dockerizer();
-				docker.doCompilation(platform, version, script).then(function(data) {
+				docker.doCompilation(platform, version, code).then(function(data) {
 					keeper.record("doCompilation", data.command);
 
 					var scriptReg = new RegExp("/scripts/"+data.filename, "g");
