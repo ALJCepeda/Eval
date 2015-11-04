@@ -1,7 +1,6 @@
 var bodyparser = require("body-parser");
 var config = require("../config.js");
 
-
 require("./prototypes/object.js");
 
 var ScriptManager = require("./scriptmanager.js");
@@ -18,11 +17,6 @@ var Restful = function(app) {
     	res.sendStatus(400);
     	next(error);
 	});
- 	
- 	app.all("/:action", jsoner, function(req, res, next) {
- 		console.log("Action: " + req.params.action);
- 		next();
- 	});
 
  	app.get("/info", jsoner, function(req, res) {
  		var supported = { };
@@ -63,25 +57,23 @@ var Restful = function(app) {
 		}
 
 		var scripter = new ScriptManager(config.mongoURL);
-		scripter.saveScript(platform, version, script).then(function(id) {
-			console.log("Saved script " + id);
+		scripter.saveScript(platform, version, script).then(function(buf) {
+			console.log("saveScript saved: " + buf.id);
 
 			var docker = new Dockerizer();
-			docker.doCompilation(platform, version, script).then(function(stdout, stderr, filename) {
-				var scriptReg = new RegExp("/scripts/"+filename, "g");
-				var out = stdout || "";
-				var err = stderr || "";
+			docker.doCompilation(platform, version, script).then(function(data) {
+				var scriptReg = new RegExp("/scripts/"+data.filename, "g");
 
-				out = out.replace(scriptReg, "Script.js");
-				err = err.replace(scriptReg, "Script.js");
+				var out = data.stdout.replace(scriptReg, "Script.js");
+				var err = data.stderr.replace(scriptReg, "Script.js");
 
-				res.send({ status:200, id:id, stdout:out, stderr:err });
-			}).catch(function(error, stderr) {
+				res.send({ status:200, id:buf.id, stdout:out, stderr:err });
+			}).catch(function(data) {
 				res.sendStatus(500);
-				console.log("Docker error: " + error);
+				console.log("doCompilation error: " + data);
 			});
-		}).catch(function(err) {
-			console.log("saveScript: " + err);
+		}).catch(function(buf) {
+			console.log("saveScript error: " + buf);
 			res.send({ status:500, message:"We were unable to save the script, please try again later" });
 		});		
 	});
@@ -90,10 +82,10 @@ var Restful = function(app) {
  		console.log("Scriptid: " + req.params.id);
 
  		var scripter = new ScriptManager(config.mongoURL);
- 		scripter.getScript(req.params.id).then(function(doc) {
- 			res.send(doc);
- 		}).catch(function(err) {
- 			res.send(err);
+ 		scripter.getScript(req.params.id).then(function(buf) {
+ 			res.send(buf.doc);
+ 		}).catch(function(buf) {
+ 			res.send(buf.err);
  		});
  	});
 };

@@ -70,11 +70,12 @@ var Dockerizer = function() {
  		fs.writeSync(tmpfile.fd, script);
 		self.configure(descriptor, dockername, version);
 
-
-		return self.start(filename).then(function(stdout, stderr) {
+		return self.start(filename).then(function(data) {
 			tmpfile.removeCallback();
 			tmpdir.removeCallback();
-			return Promise.resolve(stdout, stderr, filename);
+
+			data.filename = filename;
+			return Promise.resolve(data);
 		});
 	};
 	
@@ -84,7 +85,7 @@ var Dockerizer = function() {
 			var command = self.generate.command();
 			command += " " + self.descriptor.compile(file);
 
-			return self.exec(command).then(function(stdout, stderr) {
+			return self.exec(command).then(function(data) {
 				return self.run(file);
 			});
 		} else {
@@ -106,19 +107,21 @@ var Dockerizer = function() {
 	};
 
 	this.exec = function(command) {
-		console.log("Command: " + command);
+		//history.record(this, { command:command });
 
 		//Execute docker command
 		return new Promise(function(resolve, reject) {
 			shell.exec(command, function(error, stdout, stderr) {
 				if(error && error.kill === true) {
-					reject(error, stderr);
+					reject({ error:error, stderr:stderr });
 				} else {
-					resolve(stdout, stderr);
+					resolve({ stdout:stdout, stderr:stderr });
 				}
 			});
 		});	
 	};
 };
+
+Dockerizer.history = [];
 
 module.exports = Dockerizer;

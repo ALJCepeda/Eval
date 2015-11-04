@@ -38,6 +38,7 @@ var ScriptManager = function(url) {
  	this.saveScript = function(platform, version, script) {
  		return new Promise(function(resolve, reject) {
 	 		self.getUID().then(function(id) {
+	 			
 	 			MongoClient.connect(self.url, function(err, db) {
 		 			var now = Date.now();
 		 			db.collection("scripts").insertOne({
@@ -48,9 +49,9 @@ var ScriptManager = function(url) {
 		 				created:now
 		 			}, function(err, result) {
 		 				if(err) {
-		 					reject(err);
+		 					reject({ error:err });
 		 				} else {
-		 					resolve(id, result);
+		 					resolve({ id:id, result:result });
 		 				}
 		 				db.close();
 	 				});
@@ -68,9 +69,9 @@ var ScriptManager = function(url) {
 	 			var cursor = db.collection("scripts").find({ id:id });
 	 			cursor.each(function(err, doc) {
 	 				if(err) {
-	 					reject(err);
+	 					reject({ error:err });
 	 				} else {
-	 					resolve(doc);
+	 					resolve({ doc:doc });
 	 				}
 	 				db.close();
 	 			});
