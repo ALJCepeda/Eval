@@ -1,13 +1,19 @@
 var app = require('express')();
-var path = require('path');
 var http = require('http').Server(app);
 var config = require('./config.js');
+require("./resources/prototypes/object.js");
 
-require('./resources/staticapi.js')(app);
-require('./resources/restapi.js')(app);
+var StaticAPI = require('./resources/staticapi.js');
+var staticy = new StaticAPI();
+staticy.bootstrap(app);
+staticy.routes.library(app, 'get');
+staticy.routes.index(app, 'get');
 
-app.get('/', function(req, res){ 
-	res.sendFile(path.join(__dirname, 'index.html'));
-});
+var RestAPI= require('./resources/restapi.js');
+var rest = new RestAPI();
+rest.bootstrap(app);
+rest.routes.info(app, 'get');
+rest.routes.compile(app, 'post');
+rest.routes.scriptID(app, 'get');
 
 http.listen(config.port, function() { console.log('listening on *: ' + config.port)});

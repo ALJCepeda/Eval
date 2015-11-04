@@ -1,8 +1,8 @@
-var MongoClient = require("mongodb").MongoClient;
-var Promise = require("promise");
-var uid = require("uid");
-
 var ScriptManager = function(url) {
+	var MongoClient = require("mongodb").MongoClient;
+	var Promise = require("promise");
+	var uid = require("uid");
+
 	var self = this;
 	var uid_tries = 0;
 
@@ -17,7 +17,7 @@ var ScriptManager = function(url) {
  				cursor.each(function(err, doc) {
  					if(err !== null) {
  						uid_tries = 0;
- 						reject(err, doc);
+ 						reject({ error:err, doc:doc });
  					} else if(doc === null) {
  						//Found a free UID, send it back
  						uid_tries = 0;
@@ -25,7 +25,7 @@ var ScriptManager = function(url) {
  					} else {
  						if(uid_tries >= max) {
  							uid_tries = 0;
- 							reject("getUID: Reached max attempts, aborting", doc);
+ 							reject({ error:"getUID: Reached max attempts, aborting", doc:doc });
  						}
 
  						self.getUID(max).then(resolve, reject);
@@ -38,7 +38,7 @@ var ScriptManager = function(url) {
  	this.saveScript = function(platform, version, script) {
  		return new Promise(function(resolve, reject) {
 	 		self.getUID().then(function(id) {
-	 			
+
 	 			MongoClient.connect(self.url, function(err, db) {
 		 			var now = Date.now();
 		 			db.collection("scripts").insertOne({

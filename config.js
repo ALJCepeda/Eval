@@ -1,9 +1,14 @@
-var ISDEV = (process.env.DEV) ? true : false;
+var ISLIVE = (process.env.LIVE) ? true : false;
 
 module.exports = {
-	port: (ISDEV === true) ? 8802 : 8002,
-	bowerdir:'/shared/bower_components',
-	mongoURL:'mongodb://localhost:27017/eval',
+	port: 8002,
+	dirs: {
+		root: (ISLIVE === true ) ? '/var/www/eval' : '/shared/eval',
+		bower: '/shared/bower_components'
+	},
+	urls: {
+		mongo:'mongodb://localhost:27017/eval'
+	},
 	lib: {
 		'requirejs.js' : 'require.js',
 		'knockout.js' : 'dist/knockout.js',

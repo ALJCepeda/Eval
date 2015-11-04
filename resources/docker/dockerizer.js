@@ -7,7 +7,7 @@ var tmp = require("tmp");
 var path = require("path");
 var docker_descriptions = require("./descriptors");
 
-var Dockerizer = function() {
+var Dockerizer = function(historian) {
 	var self = this;
 	this.name = "";
 	this.descriptor = {};
@@ -107,21 +107,18 @@ var Dockerizer = function() {
 	};
 
 	this.exec = function(command) {
-		//history.record(this, { command:command });
 
 		//Execute docker command
 		return new Promise(function(resolve, reject) {
 			shell.exec(command, function(error, stdout, stderr) {
 				if(error && error.kill === true) {
-					reject({ error:error, stderr:stderr });
+					reject({ error:error, stderr:stderr, command:command });
 				} else {
-					resolve({ stdout:stdout, stderr:stderr });
+					resolve({ stdout:stdout, stderr:stderr, command:command });
 				}
 			});
 		});	
 	};
 };
-
-Dockerizer.history = [];
 
 module.exports = Dockerizer;
