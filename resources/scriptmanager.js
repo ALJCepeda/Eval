@@ -3,7 +3,7 @@ var ScriptManager = function(url) {
 	var Promise = require("promise");
 	var _ = require("underscore");
 	var uid = require("uid");
- 	var crypto = require("crypto").createHash("md5");
+ 	
 
 	var self = this;
 
@@ -38,21 +38,53 @@ var ScriptManager = function(url) {
  			});
  		});
  	};
-/*
- 	this.scriptExists = function(platform, version, code) {
 
- 	}
-*/
- 	this.saveScript = function(platform, version, script) {
-	 	return self.getUID(5).then(function(id) {
+ 	this.digest = function(code) {
+ 		return require("crypto").createHash("md5").update(code).digest("hex");
+ 	};
 
+ 	this.exists = function(id, code) {
+ 		return self.mongo.database().then(function(db) {
+ 			return new Promise(function(resolve, reject) {
+ 				var coll = db.collection("scripts");
+ 				var md5 = self.digest(code);
+
+	 			coll.find({ id:id, md5:md5 }).nextObject(function(error, obj) {
+	 				if(error) { reject(error); }
+	 				else if( obj === null ) {
+	 					resolve(false);
+	 				} else {
+	 					resolve(obj.md5 === md5);
+	 				}
+
+	 				db.close();
+	 			});
+ 			});
+ 		});
+ 	};
+
+ 	this.saveScript = function(platform, version, code, lastID) {
+ 		return self.exists(lastID, code).then(function(exists) {
+ 			if(exists === true) {
+ 				return Promise.resolve(lastID);
+ 			} else {
+ 				return self.doSave(platform, version, code);
+ 			}
+ 		});
+ 	};
+
+ 	this.doSave = function(platform, version, code) {
+ 		return self.getUID(5).then(function(id) {
  			return self.mongo.database().then(function(db) {
  				return new Promise(function(resolve, reject) {
+ 					var md5 = self.digest(code);
+
  					var entry = {
 	 					id:id,
 	 					platform:platform,
 	 					version:version,
-	 					script:script,
+	 					md5:md5,
+	 					code:code,
 	 					created:Date.now()
 	 				};
 
@@ -66,7 +98,6 @@ var ScriptManager = function(url) {
  				});
  			});
  		});
-
  	};
 
  	this.getScript = function(id) {

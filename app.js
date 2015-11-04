@@ -1,16 +1,6 @@
 var app = require("express")();
 var http = require("http").Server(app);
 var config = require("./config.js");
-var session = require("express-session");
-var MongoStore = require("./resources/mongo/store.js");
-
-var store = new MongoStore(config.urls.mongo);
-app.use(session({
-  	secret: "D58C9FFB11DAC",
-  	store: store,
-  	resave: false,
-  	saveUninitialized: false
-}));
 
 require("./resources/prototypes/object.js");
 var RecordBook = require("./resources/recordbook.js");

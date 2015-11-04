@@ -42,10 +42,6 @@ var RestAPI = function(book) {
 
 	this.routes.compile = function(app, method) {
 		app[method]("/compile", self.jsoner, function(req, res) {
-			if(req.session.lastScript) {
-				console.log(req.session.lastScript);
-			}
-			
 			if(!req.body || !req.body.platform || !req.body.version) {
 				return res.sendStatus(400);
 			}
@@ -53,6 +49,7 @@ var RestAPI = function(book) {
 			var platform = req.body.platform;
 			var version = req.body.version;
 			var script = req.body.script;
+			var last = req.body.last || "";
 
 			if(script === "") {
 				return res.send({ status:400, message:"Must contain a valid script" });
@@ -67,7 +64,7 @@ var RestAPI = function(book) {
 			}
 
 			var scripter = new ScriptManager(config.urls.mongo);
-			scripter.saveScript(platform, version, script).then(function(id) {
+			scripter.saveScript(platform, version, script, last).then(function(id) {
 				keeper.record("saveScript", id, true);
 
 				var docker = new Dockerizer();
@@ -94,10 +91,6 @@ var RestAPI = function(book) {
 		app[method]("/script/:id", self.jsoner, function(req, res) {
 	 		var scripter = new ScriptManager(config.urls.mongo);
 	 		scripter.getScript(req.params.id).then(function(doc) {
-	 			if(doc !== null) {
-	 				req.session.lastScript = req.params.id;
-	 			}
-
 	 			res.send(doc);
 	 		}).catch(function(error) {
 	 			keeper.record("getScript", error, true);
