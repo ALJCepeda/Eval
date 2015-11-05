@@ -48,7 +48,7 @@ var haskell = new Descriptor({
 		return file.substring(0, file.indexOf('.'));
 	},
 	compile: function(file) {
-		return 'ghc -o ' + name + ' ' + this.compileName(file);
+		return 'ghc -o ' + this.compileName(file) + ' ' + file;
 	}
 });
 

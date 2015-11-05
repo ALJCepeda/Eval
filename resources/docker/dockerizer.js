@@ -138,7 +138,6 @@ var Dockerizer = function(historian) {
 	};
 
 	this.exec = function(command) {
-		console.log(command);
 		//Execute docker command
 		return new Promise(function(resolve, reject) {
 			shell.exec(command, function(error, stdout, stderr) {
