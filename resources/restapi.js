@@ -63,7 +63,6 @@ var RestAPI = function(book) {
 				return res.send({ status:400, message:"Unrecognized version: " + version });
 			}
 
-			console.log("Last: " + last);
 			var scripter = new ScriptManager(config.urls.mongo);
 			scripter.saveScript(platform, version, code, last).then(function(id) {
 				keeper.record("saveScript", id, true);
@@ -92,7 +91,7 @@ var RestAPI = function(book) {
 		app[method]("/script/:id", self.jsoner, function(req, res) {
 	 		var scripter = new ScriptManager(config.urls.mongo);
 	 		scripter.getScript(req.params.id).then(function(doc) {
-	 			res.send(doc);
+	 			res.send(doc || {});
 	 		}).catch(function(error) {
 	 			keeper.record("getScript", error, true);
 	 			res.send({ status:500, message:"We were unable to complete your request, please try again later"});

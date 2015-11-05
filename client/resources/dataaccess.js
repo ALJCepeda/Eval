@@ -18,10 +18,7 @@ define(['resources/ajaxer'], function(Ajaxer) {
 		};
 
 		this.getScript = function(id) {
-			return self.ajax.get("/script/"+id).then(JSON.parse).then(function(data) {
-				self.last = id;
-				return Promise.resolve(data);
-			});
+			return self.ajax.get("/script/"+id).then(JSON.parse);
 		};
 
 		this.postScript = function(platform, version, code, last) {

@@ -15,7 +15,7 @@ define(["resources/dataaccess", "components/navbar", "resources/controller"], fu
 	  		da.getScript(id).then(function(data) {
 	  			if(!_.isUndefined(data.error)) {
 	  				console.log("Unabled to find script with id: " + id);
-	  			} else {
+	  			} else if(!_.isUndefined(data.code)){
 	  				nav.selectedPlatform(data.platform);
 	  				nav.selectedVersion(data.version);
 	  				editor.session.getDocument().setValue(data.code);
