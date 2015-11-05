@@ -76,6 +76,19 @@ var Dockerizer = function(historian) {
 
 			data.filename = filename;
 			return Promise.resolve(data);
+		}).then(function(data) {
+			descriptor.removals.forEach(function(removal) {
+				var rem = new RegExp(removal, 'g');
+				data.stderr = data.stderr.replace(rem, '');
+				data.stdout = data.stdout.replace(rem, '');
+			});
+
+			var linebreak = new RegExp('\n', 'g');
+			var tab = new RegExp('\t', 'g');
+			data.stderr = data.stderr.replace(linebreak,'</br>').replace(tab,'&nbsp&nbsp&nbsp&nbsp');
+			data.stdout = data.stdout.replace(linebreak,'</br>').replace(tab,'&nbsp&nbsp&nbsp&nbsp');
+
+			return Promise.resolve(data);
 		});
 	};
 	

@@ -9,6 +9,7 @@ var Descriptor = function(data) {
 	this.compile = '';
 	this.compileName = '';
 	this.mounts = [];
+	this.removals = [];
 	this.precode = '';
 
 	Object.assign(this, data);
@@ -57,9 +58,9 @@ var pascal = new Descriptor({
 	versions: [ '2.6.4', 'latest' ],
 	precode: 'program Hello;\nbegin\n\twriteln ("Hello World!");\nend.',
 	command: './',
-	remove: [
-		'Free Pascal Compiler version 2.6.4 [2014/03/03] for i386 Copyright (c) 1993-2014 by Florian Klaempfl and others Target OS: Linux for i386',
-		'(normal if you did not specify a source file to be compiled)'
+	removals: [
+		'Free((.*)\n(.*)\n(.*))i386\n',
+		'\(normal if you did not specify a source file to be compiled\)'
 	],
 	compileName:function(file) {
 		return file.substring(0, file.indexOf('.'));
