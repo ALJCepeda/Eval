@@ -4,15 +4,17 @@ var MongoClient = function(url) {
 
 	var self = this;
 	this.url = url;
-	this.connect = function() {
+	this.database = function() {
 		return new Promise(function(resolve, reject) {
-			MongoClient.connect(self.url, function(err, db) {
-				if(err) {
-					return reject({ error:err, db:db });
+			MongoClient.connect(self.url, function(error, db) {
+				if(error) {
+					return reject(error);
 				} 
 
-				return resolve({ error:err, db:db });
+				return resolve(db);
 			});
+		}).catch(function(error) {
+			console.log("Error encountered while connecting to mongo: " + error);
 		});
 	};
 };
