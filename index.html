@@ -50,12 +50,11 @@
 	</div>
 
 	<div id="editor_container" data-bind="visible:selectedTab() === 'editor'">
-		<div style="position:absolute; top:0; right:0; z-index:2">
-			<div>
+		<div class="col-nw m-center c-between" style="position:absolute; top:0; right:0; z-index:2">
 				<select required data-bind="	options: platforms,
 									value: selectedPlatform,
 									optionsCaption: 'Platform...'"></select>
-
+									
 				<select required data-bind=" options:versions,
 									value: selectedVersion,
 									optionsCaption: 'Version...'"></select>
@@ -63,7 +62,6 @@
 				<select data-bind=" options:themes,
 									value:selectedTheme,
 									optionsCaption: 'Theme...'"></select>
-			</div>
 		</div>
 
 		 <pre class="page" id="editor"></pre>

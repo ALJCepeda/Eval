@@ -8,8 +8,8 @@ define(['resources/ajaxer'], function(Ajaxer) {
 				var data = JSON.parse(message);
 				nav.info(data);
 
-				nav.selectedPlatform("php");
-				nav.selectedVersion("5.6");
+				nav.selectedPlatform("nodejs");
+				nav.selectedVersion("latest");
 				nav.selectedTheme("twilight");
 			}, function(message) {
 				alert("There was an issue contacting the server, please try reloading the page");
