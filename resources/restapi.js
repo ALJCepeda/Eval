@@ -59,7 +59,7 @@ var RestAPI = function(book) {
 				return res.send({ status:400, message:"Unrecognized language: " + platform });
 			}
 
-			if(!docker_descriptions[platform].hasVersion(version)) {
+			if(docker_descriptions[platform].hasVersion(version) === false) {
 				return res.send({ status:400, message:"Unrecognized version: " + version });
 			}
 
