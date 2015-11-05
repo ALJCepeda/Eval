@@ -1,9 +1,10 @@
-global.ISLIVE = (process.env.LIVE) ? true : false;
-var port = (process.env.DEV) ? 8802 : 8002;
+global.ONLINE = (process.argv.indexOf('--online') !== -1) ? true : false;
+global.DEV = (process.argv.indexOf('--dev') !== -1) ? true : false;
+
 module.exports = {
-	port: port,
+	port: (global.DEV === true) ? 8802 : 8002,
 	dirs: {
-		root: (global.ISLIVE === true ) ? '/var/www/eval' : '/shared/eval',
+		root: (global.ONLINE === true ) ? '/var/www/eval' : '/shared/eval',
 		bower: '/shared/bower_components'
 	},
 	urls: {
