@@ -56,7 +56,7 @@ var pascal = new Descriptor({
 	repository:'pascal',
 	ext:'.pas',
 	versions: [ '2.6.4', 'latest' ],
-	precode: 'program Hello;\nbegin\n\twriteln ("Hello World!");\nend.',
+	precode: 'program Hello;\nbegin\n\twriteln (\'Hello World!\');\nend.',
 	command: './',
 	removals: [
 		'Free((.*)\n(.*)\n(.*))i386\n',
