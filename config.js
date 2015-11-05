@@ -8,7 +8,7 @@ module.exports = {
 		bower: '/shared/bower_components'
 	},
 	urls: {
-		mongo:'mongodb://localhost:27017/eval'
+		mongo:(global.DEV === true) ? 'mongodb://localhost:27017/deveval' : 'mongodb://localhost:27017/eval'
 	},
 	lib: {
 		'requirejs.js' : 'require.js',
