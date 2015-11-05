@@ -45,7 +45,7 @@ var RestAPI = function(book) {
 			if(!req.body || !req.body.platform || !req.body.version) {
 				return res.sendStatus(400);
 			}
-
+			
 			var platform = req.body.platform;
 			var version = req.body.version;
 			var code = req.body.code;

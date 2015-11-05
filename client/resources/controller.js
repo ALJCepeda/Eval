@@ -1,9 +1,11 @@
 define([], function() {
-	var Controller = function(da, nav, editor, router) {
+	var Controller = function(da, nav, editor) {
 		var self = this;
 		this.nav = nav;
 		this.da = da;
 		this.editor = editor;
+		this.lastID = '';
+		this.router = null;
 
 		this.initialize = function() {
 			self.editor.$blockScrolling = Infinity;
@@ -16,6 +18,7 @@ define([], function() {
 			var platform = self.nav.selectedPlatform();
 			var version = self.nav.selectedVersion();
 			var script = doc.getValue();
+			var last = self.lastID;
 
 			var error = [];
 			if(_.isUndefined(platform)) {
@@ -36,12 +39,13 @@ define([], function() {
 			}
 
 			btn.disabled = true;
-			da.postScript(platform, version, script).then(function(data) {
+			da.postScript(platform, version, script, last).then(function(data) {
 				document.getElementById("stdout_frame").contentDocument.body.innerHTML = data.stdout;
 				document.getElementById("stderr_frame").contentDocument.body.innerHTML = data.stderr;
 				
 				nav.selectedTab('output');
-				router.navigate(data.id, { trigger:false });
+				self.router.navigate(data.id, { trigger:false });
+				self.lastID = data.id;
 				btn.disabled = false;
 			}).catch(function(message) {
 				alert("There was an error, please try again later");

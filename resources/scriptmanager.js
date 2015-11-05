@@ -3,8 +3,7 @@ var ScriptManager = function(url) {
 	var Promise = require("promise");
 	var _ = require("underscore");
 	var uid = require("uid");
- 	
-
+	
 	var self = this;
 
 	this.mongo = new MongoClient(url);

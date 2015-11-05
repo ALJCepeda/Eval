@@ -24,12 +24,12 @@ define(['resources/ajaxer'], function(Ajaxer) {
 			});
 		};
 
-		this.postScript = function(platform, version, code) {
+		this.postScript = function(platform, version, code, last) {
 			return self.ajax.post("/compile", {
 				platform:platform,
 				version:version,
 				code:code,
-				last:self.last
+				last:last
 			}).then(JSON.parse);
 		};
 	};
