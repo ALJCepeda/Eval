@@ -71,8 +71,8 @@ var Dockerizer = function(historian) {
 		self.configure(descriptor, dockername, version);
 
 		return self.start(filename, tmpdir).then(function(data) {
-			//tmpfile.removeCallback();
-			//tmpdir.removeCallback();
+			tmpfile.removeCallback();
+			tmpdir.removeCallback();
 
 			data.filename = filename;
 			return Promise.resolve(data);
