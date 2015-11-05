@@ -70,23 +70,41 @@ var Dockerizer = function(historian) {
  		fs.writeSync(tmpfile.fd, script);
 		self.configure(descriptor, dockername, version);
 
-		return self.start(filename).then(function(data) {
-			tmpfile.removeCallback();
-			tmpdir.removeCallback();
+		return self.start(filename, tmpdir).then(function(data) {
+			//tmpfile.removeCallback();
+			//tmpdir.removeCallback();
 
 			data.filename = filename;
 			return Promise.resolve(data);
 		});
 	};
 	
-	this.start = function(file) {
+	this.start = function(file, tmpdir) {
 		//Check if script needs to be compiled first
 		if( _.isFunction(self.descriptor.compile) ) {
 			var command = self.generate.command();
 			command += " " + self.descriptor.compile(file);
 
 			return self.exec(command).then(function(data) {
-				return self.run(file);
+				//Check if compiled file has been created
+				var compiledName = self.descriptor.compileName(file);
+				var compiledFile = path.join(tmpdir.name, compiledName);
+
+				return new Promise(function(resolve, stat) {
+					fs.stat(compiledFile, function(err, stat) {
+						if(!stat) {
+							//Compilation failed return output
+							resolve(data);
+						} else {
+							//Compilation success, run compiled filed
+							self.run(compiledName).then(function(data) {
+								resolve(data);
+							}).catch(function(error) {
+								reject(error);
+							});
+						}
+					});	
+				});
 			});
 		} else {
 			return self.run(file);
@@ -98,7 +116,7 @@ var Dockerizer = function(historian) {
 		if( _.isFunction(self.descriptor.command )) {
 			command += " " + self.descriptor.command(file, uid);
 		} else if( _.isString(self.descriptor.command )) {
-			command += " " + self.descriptor.command + " " + file;
+			command += " " + self.descriptor.command + file;
 		} else {
 			command += " " + self.descriptor.repository + " " + file;
 		}
@@ -107,7 +125,7 @@ var Dockerizer = function(historian) {
 	};
 
 	this.exec = function(command) {
-
+		console.log(command);
 		//Execute docker command
 		return new Promise(function(resolve, reject) {
 			shell.exec(command, function(error, stdout, stderr) {
