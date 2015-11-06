@@ -50,33 +50,34 @@ var RestAPI = function(book) {
 			var version = req.body.version;
 			var code = req.body.code;
 			var last = req.body.last || "";
-
+			var descriptor = docker_descriptions[platform];
 			if(code === "") {
 				return res.send({ status:400, message:"Must contain valid code" });
 			}
 
-			if(!docker_descriptions[platform]) {
+			if(!descriptor) {
 				return res.send({ status:400, message:"Unrecognized language: " + platform });
 			}
 
-			if(docker_descriptions[platform].hasVersion(version) === false) {
+			if(descriptor.hasVersion(version) === false) {
 				return res.send({ status:400, message:"Unrecognized version: " + version });
 			}
 
+			descriptor.version = version;
 			var scripter = new ScriptManager(config.urls.mongo);
 			scripter.saveScript(platform, version, code, last).then(function(id) {
 				keeper.record("saveScript", id, true);
 
 				var docker = new Dockerizer();
-				docker.doCompilation(platform, version, code).then(function(data) {
+				docker.doCompilation(code, descriptor).then(function(data) {
 					keeper.record("doCompilation", data.command);
 					var filename = data.filename;
 					var name = filename.substring(0, filename.indexOf('.'));
-					var scriptReg = new RegExp(name, "g");
-					var out = data.stdout.replace(scriptReg, "Script");
-					var err = data.stderr.replace(scriptReg, "Script");
+					//var scriptReg = new RegExp(name, "g");
+					//var out = data.stdout.replace(scriptReg, "Script");
+					//var err = data.stderr.replace(scriptReg, "Script");
 
-					res.send({ status:200, id:id, stdout:out, stderr:err });
+					res.send({ status:200, id:id, stdout:data.stdout, stderr:data.stderr });
 				}).catch(function(error) {
 					keeper.record("doCompilation", error, true);
 					res.sendStatus({ status:500, message:"We were unable to complete your request, please try again later" });

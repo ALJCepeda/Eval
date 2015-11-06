@@ -1,6 +1,6 @@
 var MongoClient = function(url) {
-	var MongoClient = require("mongodb").MongoClient;
 	var Promise = require("promise");
+	var MongoClient = require("mongodb").MongoClient;
 
 	var self = this;
 	this.url = url;

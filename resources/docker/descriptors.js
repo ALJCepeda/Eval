@@ -1,5 +1,5 @@
 require('../prototypes/object.js');
-
+var _ = require('underscore');
 var Descriptor = function(data) {
 	var self = this;
 	this.repository = '';
@@ -7,7 +7,6 @@ var Descriptor = function(data) {
 	this.versions = [];
 	this.command = '';
 	this.compile = '';
-	this.compileName = '';
 	this.mounts = [];
 	this.removals = [];
 	this.precode = '';
@@ -15,6 +14,14 @@ var Descriptor = function(data) {
 	Object.assign(this, data);
 	this.hasVersion = function(version) {
 		return self.versions.indexOf(version) !== -1;
+	};
+
+	this.compiledName = function(file) {
+		return file.substring(0, file.indexOf('.'));
+	};
+
+	this.needsCompile = function() {
+		return self.compile !== '';
 	}
 };
 
@@ -44,12 +51,10 @@ var haskell = new Descriptor({
 	versions: [ '7.10.2', 'latest' ],
 	precode: 'main = putStrLn "Hello World!";',
 	command: './',
-	compileName:function(file) {
-		return file.substring(0, file.indexOf('.'));
-	},
 	compile: function(file) {
-		return 'ghc -o ' + this.compileName(file) + ' ' + file;
+		return 'ghc -o ' + this.compiledName(file) + ' ' + file;
 	}
+
 });
 
 var pascal = new Descriptor({
@@ -58,16 +63,11 @@ var pascal = new Descriptor({
 	versions: [ '2.6.4', 'latest' ],
 	precode: 'program Hello;\nbegin\n\twriteln (\'Hello World!\');\nend.',
 	command: './',
+	compile:'fpc ',
 	removals: [
 		'Free((.*)\n(.*)\n(.*))i386\n',
 		'\(normal if you did not specify a source file to be compiled\)'
 	],
-	compileName:function(file) {
-		return file.substring(0, file.indexOf('.'));
-	},
-	compile: function(file) {
-		return 'fpc ' + file;
-	}
 });
 
 module.exports = {
