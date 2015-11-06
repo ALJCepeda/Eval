@@ -3,7 +3,7 @@ var Fork = function() {
 	var shell = require("child_process");
 	var _ = require("underscore");
 	this.process = '';
-	this.timeout = 200;
+	this.timeout = 10000;
 
 	this.exec = function(command, timeout) {
 		//Execute docker command
