@@ -13,10 +13,10 @@ var Dockerizer = function(historian) {
 	this.mounts = [];
 
 	this.command = "sudo docker run";
+	this.killCMD = "sudo docker kill";
 	this.domain = "literphor";
 	this.tmpDir = "/var/tmp/eval";
 	this.guestRoot = "/scripts";
-
 	this.running = '';
 
 	this.generate = {
@@ -126,21 +126,38 @@ var Dockerizer = function(historian) {
 		});
 	};
 
+	this.kill = function(name) {
+		var command = self.killCMD;
+		command += " " + name;
+
+		var fork = new Fork();
+		return fork.exec(command);
+	}
+
 	this.compile = function(name, file, descriptor) {
 		var command = self.generate.docker(name, descriptor);
 		command += " " + self.generate.compile(file, descriptor);
-			
-		self.running = new Fork();
-		return self.running.exec(command);
+		return self.exec(name, command);
 	};
 
 	this.run = function(name, file, descriptor) {
 		var command = self.generate.docker(name, descriptor);
 		command += " " + self.generate.command(file, descriptor);
+		return self.exec(name, command);
+	};
 
-		console.log(file);
-		self.running = new Fork();
-		return self.running.exec(command);
+	this.exec = function(name, command) {
+		var fork = new Fork();
+		self.running = fork;
+
+		return new Promise(function(resolve, reject) {
+			fork.exec(command, function() {
+				//Docker process has run longer than timeout
+				self.kill(name).then(function() {
+					resolve({ stdout:'', stderr:"Process exceeded timeout and was murdered in cold blood", command:command });
+				});
+			});
+		});
 	};
 };
 

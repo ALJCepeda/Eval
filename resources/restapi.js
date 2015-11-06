@@ -73,9 +73,10 @@ var RestAPI = function(book) {
 					keeper.record("doCompilation", data.command);
 					var filename = data.filename;
 					var name = filename.substring(0, filename.indexOf('.'));
-					//var scriptReg = new RegExp(name, "g");
-					//var out = data.stdout.replace(scriptReg, "Script");
-					//var err = data.stderr.replace(scriptReg, "Script");
+					
+					var scriptReg = new RegExp(name, "g");
+					var out = data.stdout.replace(scriptReg, "Script");
+					var err = data.stderr.replace(scriptReg, "Script");
 
 					res.send({ status:200, id:id, stdout:data.stdout, stderr:data.stderr });
 				}).catch(function(error) {
