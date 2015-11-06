@@ -151,10 +151,11 @@ var Dockerizer = function(historian) {
 		self.running = fork;
 
 		return new Promise(function(resolve, reject) {
-			fork.exec(command, function() {
+			fork.exec(command, function(process) {
 				//Docker process has run longer than timeout
+				var stdout = process.stdout;
 				self.kill(name).then(function() {
-					resolve({ stdout:'', stderr:"Process exceeded timeout and was murdered in cold blood", command:command });
+					resolve({ stdout:stdout, stderr:"Process exceeded timeout and was murdered in cold blood", command:command });
 				});
 			});
 		});
