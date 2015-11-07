@@ -23,7 +23,7 @@ var Fork = function() {
 				setTimeout(function() {
 					if(self.process !== '') {
 						if(_.isFunction(timeout)) {
-							timeout(self.process);
+							timeout(self.process, resolve, reject);
 						}
 					}
 				}, self.timeout);
