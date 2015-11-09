@@ -12,7 +12,7 @@ describe('Dockerizer', function() {
 		const infout = "while(true) { console.log('Hello World!'); }";
 
 		var tmpDir = "/var/tmp/eval";
-		/*
+		
 		it('should create a nodejs container and output', function(done) {
 			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
@@ -24,9 +24,11 @@ describe('Dockerizer', function() {
 				should.exist(result);
 				(result.stdout).should.equal('Hello World!\n');
 				done();
-			});d]
+			}).catch(function(error) {
+				done(error);
+			});
 		}); 
-*/
+
 		it('should exist', function(done) {
 			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
@@ -38,10 +40,12 @@ describe('Dockerizer', function() {
 				dockerizer.exists().then(function(exists) {
 					(exists).should.equal(true);
 					done();
+				}).catch(function(error) {
+					done(error);
 				});
-			}, 10);
+			}, 50);
 		});
-		/*
+		
 		it('should kill', function(done) {
 			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
@@ -54,10 +58,12 @@ describe('Dockerizer', function() {
 						(exists).should.equal(false);
 						done();
 					});
+				}).catch(function(error) {
+					done(error);
 				});
 			}, 25);
-		});*/
-
+		});
+/*
 		it('should timeout', function(done) {
 			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
@@ -65,6 +71,6 @@ describe('Dockerizer', function() {
 			dockerizer.execute(delay, 'latest', nodejs, function() {
 
 			});
-		});
+		});*/
 	});
 });

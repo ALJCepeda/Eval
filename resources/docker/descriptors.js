@@ -32,7 +32,7 @@ var Descriptor = function(data) {
 
 var php = new Descriptor({
 	repository:'php',
-	ext: '.php',
+	ext: 'php',
 	versions: [ '5.4', '5.5', '5.6' ],
 	command: 'php ',
 	mounts: [{
@@ -44,7 +44,7 @@ var php = new Descriptor({
 
 var nodejs = new Descriptor({
 	repository:'nodejs',
-	ext: '.js',
+	ext: 'js',
 	versions: [ '0.12.7', 'latest' ],
 	command: 'node ',
 	precode:'console.log("Hello World!");'
@@ -52,7 +52,7 @@ var nodejs = new Descriptor({
 
 var haskell = new Descriptor({
 	repository:'haskell',
-	ext: '.hs',
+	ext: 'hs',
 	versions: [ '7.10.2', 'latest' ],
 	precode: 'main = putStrLn "Hello World!";',
 	command: './',
@@ -64,7 +64,7 @@ var haskell = new Descriptor({
 
 var pascal = new Descriptor({
 	repository:'pascal',
-	ext:'.pas',
+	ext:'pas',
 	versions: [ '2.6.4', 'latest' ],
 	precode: 'program Hello;\nbegin\n\twriteln (\'Hello World!\');\nend.',
 	command: './',

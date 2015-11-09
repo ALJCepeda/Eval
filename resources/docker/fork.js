@@ -43,7 +43,7 @@ DockerFork.prototype.start = function(timeout) {
 	}
 };
 
-DockerForm.prototype.kill = function() {
+DockerFork.prototype.kill = function() {
 	var generator = new Generator(this.tmpDir, this.guestRoot);
 	var command = generator.kill(this.name);
 
@@ -78,6 +78,8 @@ DockerFork.prototype.fork = function(command, timeout, delay) {
 			}
 		});
 	});
+
+	return promise;
 };
 
 module.exports = DockerFork;

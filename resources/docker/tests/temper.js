@@ -17,6 +17,7 @@ describe("Temper", function() {
 			console.log(folder.name);
 
 			fs.stat(folder.name, function(err, stats) {
+				should.not.exist(err);
 				should.exist(stats);
 
 				temper.cleanup();
@@ -40,6 +41,7 @@ describe("Temper", function() {
 			(ext).should.equal(".js");
 
 			fs.stat(file.name, function(err, stats) {
+				should.not.exist(err);
 				should.exist(stats);
 
 				temper.cleanup();
