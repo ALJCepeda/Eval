@@ -17,7 +17,12 @@ var Descriptor = function(data) {
 	};
 
 	this.compiledName = function(file) {
-		return file.substring(0, file.indexOf('.'));
+		var index = file.indexOf('.');
+		if(index === -1) {
+			return file;
+		}
+
+		return file.substring(0, index);
 	};
 
 	this.needsCompile = function() {
