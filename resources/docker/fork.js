@@ -14,7 +14,12 @@ var DockerFork = function(name, descriptor, tmp) {
 	this.guestRoot = "/scripts";
 	this.timeout = 10000;
 
-	this.process = null;
+	var process = null;
+	this.process = function(value) {
+		if( !_.isUndefined(value) ) { process = value; }
+		
+		return process;
+	};
 };
 
 DockerFork.prototype.compiled = function(path) {
@@ -58,8 +63,8 @@ DockerFork.prototype.stop = function() {
 	var command = generator.stop(this.name);
 
 	return this.fork(command).then(function(result) {
-		this.process = "";
-		return result;
+		this.process(null);
+		return Promise.resolve(result);
 	}.bind(this));
 };
 
@@ -80,7 +85,8 @@ DockerFork.prototype.compile = function(timeout) {
 	var generator = this.generator();
 	var command = " " + generator.create(this.tmp.filename, this.descriptor, "compile");
 
-	return this.fork(command, timeout).then(function(data) {
+	return this.fork(command, timeout, this.process).then(function(data) {
+		this.process(null);
 		var filename = descriptor.compiledName(this.tmp.filename);
 		return this.compiled(filename);
 	}.bind(this));
@@ -91,15 +97,16 @@ DockerFork.prototype.execute = function(timeout) {
 	var command = generator.docker(this.name, this.descriptor.version, this.descriptor.repository);
 	command += " " + generator.create(this.tmp.filename, this.descriptor, "command");
 
-	return this.fork(command, timeout);
+	return this.fork(command, timeout, this.process).then(function(result) {
+		this.process(null);
+		return Promise.resolve(result);
+	}.bind(this));
 };
 
-DockerFork.prototype.fork = function(command, timeout, delay) {
+DockerFork.prototype.fork = function(command, timeout, process) {
 	//Execute docker command
 	var promise = new Promise(function(resolve, reject) {
-		this.process = shell.exec(command, function(error, stdout, stderr) {
-			this.process = null;
-
+		var child = shell.exec(command, function(error, stdout, stderr) {
 			if(error && error.kill === true) {
 				reject({ error:error, stderr:stderr, command:command });
 			} else {
@@ -107,14 +114,22 @@ DockerFork.prototype.fork = function(command, timeout, delay) {
 			}
 		}.bind(this));
 
-		if(_.isFunction(timeout) && delay > 0) {
-			setTimeout(function() {
-				if(this.process !== null) {
-					timeout(this);
-				}
-			}.bind(this), delay);
+		if(_.isFunction(process)) {
+			process(child);
 		}
 	}.bind(this));
+
+	if(_.isFunction(timeout) && this.timeout > 0) {
+		setTimeout(function() {
+			if(this.process() !== null) {
+				return this.stop().then(function(data) {
+					timeout(data);
+				}).catch(function(error) {
+					console.log(error);
+				});
+			}
+		}.bind(this), this.timeout);
+	}
 
 	return promise;
 };

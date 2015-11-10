@@ -1,39 +1,39 @@
-var assert = require('assert');
-var should = require('should');
+var assert = require("assert");
+var should = require("should");
 
-var DockerFork = require('../fork');
-var Temper = require('../temper');
-var descriptors = require('../descriptors');
+var DockerFork = require("../fork");
+var Temper = require("../temper");
+var descriptors = require("../descriptors");
 
-describe('Dockerizer', function() {
-	describe('Container Creation', function() {
+describe("Dockerizer", function() {
+	describe("Container Creation", function() {
 		const output = "console.log('Hello World!');";
-		const delay = "setTimeout(function() { console.log('Hello World!'); }, 100);";
+		const delay = "setTimeout(function() { console.log('Hello World!'); }, 500);";
 		const infinite = "while(true) { }";
 		const infout = "while(true) { console.log('Hello World!'); }";
 
 		var tmpDir = "/var/tmp/eval";
-	
-		it('should create a nodejs container and output', function(done) {
+		
+		it("should create a nodejs container and output", function(done) {
 			var nodejs = descriptors.nodejs;
-			nodejs.version = 'latest';
+			nodejs.version = "latest";
 
 			var temper = new Temper(tmpDir);
-			var tmp = temper.createCode(delay, 'js', 'test');
+			var tmp = temper.createCode(delay, "js", "test");
 			
 			var dockerfork = new DockerFork("test", nodejs, tmp);
 			
 			dockerfork.execute().then(function(result) {
 				(result.stdout).should.equal("Hello World!\n");
-				should.not.exist(dockerfork.process);
+				should.not.exist(dockerfork.process());
 
 				done();
 			}).catch(done).finally(temper.cleanup);
 
-			should.exist(dockerfork.process);
+			should.exist(dockerfork.process());
 		});
 
-		it('should exist', function(done) {
+		it("should exist", function(done) {
 			var nodejs = descriptors.nodejs;
 			nodejs.version = "latest";
 
@@ -43,7 +43,7 @@ describe('Dockerizer', function() {
 			var dockerfork = new DockerFork("test", nodejs, tmp);
 
 			dockerfork.execute().then(function(result) {
-				should.not.exist(dockerfork.process);
+				should.not.exist(dockerfork.process());
 
 				dockerfork.exists().then(function(exists) {
 					(exists).should.equal(false);
@@ -59,7 +59,7 @@ describe('Dockerizer', function() {
 			}, 75);
 		});
 		
-		it('should stop', function(done) {
+		it("should stop", function(done) {
 			var nodejs = descriptors.nodejs;
 			nodejs.version = "latest";
 
@@ -74,17 +74,17 @@ describe('Dockerizer', function() {
 			should.exist(dockerfork.process);
 			setTimeout(function() {
 				dockerfork.stop().then(function(data) {
-					should.exist(dockerfork.process);
+					should.not.exist(dockerfork.process());
 
 					return dockerfork.exists().then(function(exists) {
-						should.not.exist(dockerfork.process);
 						(exists).should.equal(false);	
 					});
 				}).catch(done);
 			}, 50);
 		});
-
-		it('should timeout', function(done) {
+/*
+		it("should timeout", function(done) {
+			this.timeout(20000);
 			var nodejs = descriptors.nodejs;
 			nodejs.version = "latest";
 
@@ -93,16 +93,14 @@ describe('Dockerizer', function() {
 
 			var dockerfork = new DockerFork("test", nodejs, tmp);
 			dockerfork.timeout = 500;
-			dockerfork.execute(function() {
-				should.exist(dockerfork.process);
 
-				return dockerfork.stop().then(function(data) {
-					should.not.exist(dockerfork.process);
-
-					done();
-				});
+			dockerfork.execute(function(data) {
+				console.log(data);
+			}).then(function(result) {
+				console.log(result);
+				done();
 			}).catch(done).finally(temper.cleanup);
 		});
-
+*/
 	});
 });
