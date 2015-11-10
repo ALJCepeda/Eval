@@ -25,9 +25,12 @@ describe('Dockerizer', function() {
 			
 			dockerfork.execute().then(function(result) {
 				(result.stdout).should.equal("Hello World!\n");
+				should.not.exist(dockerfork.process);
+
 				done();
-				//return dockerfork.remove();
 			}).catch(done).finally(temper.cleanup);
+
+			should.exist(dockerfork.process);
 		});
 
 		it('should exist', function(done) {
@@ -40,8 +43,13 @@ describe('Dockerizer', function() {
 			var dockerfork = new DockerFork("test", nodejs, tmp);
 
 			dockerfork.execute().then(function(result) {
-				done();
-			}).catch(done).finally(temper.cleanup);
+				should.not.exist(dockerfork.process);
+
+				dockerfork.exists().then(function(exists) {
+					(exists).should.equal(false);
+					done();
+				}).catch(done).finally(temper.cleanup);
+			}).catch(done);
 
 			//Give docker a chance to create the container before querying it
 			setTimeout(function() {
@@ -63,23 +71,38 @@ describe('Dockerizer', function() {
 				done();
 			}).catch(done).finally(temper.cleanup);
 
+			should.exist(dockerfork.process);
 			setTimeout(function() {
 				dockerfork.stop().then(function(data) {
+					should.exist(dockerfork.process);
+
 					return dockerfork.exists().then(function(exists) {
-						(exists).should.equal(true);	
+						should.not.exist(dockerfork.process);
+						(exists).should.equal(false);	
 					});
 				}).catch(done);
 			}, 50);
 		});
-/*
+
 		it('should timeout', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
+			nodejs.version = "latest";
 
-			dockerizer.execute(delay, 'latest', nodejs, function() {
+			var temper = new Temper(tmpDir);
+			var tmp = temper.createCode(delay, "js", "test");
 
-			});
+			var dockerfork = new DockerFork("test", nodejs, tmp);
+			dockerfork.timeout = 500;
+			dockerfork.execute(function() {
+				should.exist(dockerfork.process);
+
+				return dockerfork.stop().then(function(data) {
+					should.not.exist(dockerfork.process);
+
+					done();
+				});
+			}).catch(done).finally(temper.cleanup);
 		});
-*/
+
 	});
 });

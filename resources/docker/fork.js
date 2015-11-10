@@ -13,6 +13,8 @@ var DockerFork = function(name, descriptor, tmp) {
 	this.Generator = Generator;
 	this.guestRoot = "/scripts";
 	this.timeout = 10000;
+
+	this.process = null;
 };
 
 DockerFork.prototype.compiled = function(path) {
@@ -55,7 +57,10 @@ DockerFork.prototype.stop = function() {
 	var generator = this.generator();
 	var command = generator.stop(this.name);
 
-	return this.fork(command);
+	return this.fork(command).then(function(result) {
+		this.process = "";
+		return result;
+	}.bind(this));
 };
 
 DockerFork.prototype.exists = function() {
@@ -92,14 +97,24 @@ DockerFork.prototype.execute = function(timeout) {
 DockerFork.prototype.fork = function(command, timeout, delay) {
 	//Execute docker command
 	var promise = new Promise(function(resolve, reject) {
-		var result = shell.exec(command, function(error, stdout, stderr) {
+		this.process = shell.exec(command, function(error, stdout, stderr) {
+			this.process = null;
+
 			if(error && error.kill === true) {
 				reject({ error:error, stderr:stderr, command:command });
 			} else {
 				resolve({ stdout:stdout, stderr:stderr, command:command });
 			}
-		});
-	});
+		}.bind(this));
+
+		if(_.isFunction(timeout) && delay > 0) {
+			setTimeout(function() {
+				if(this.process !== null) {
+					timeout(this);
+				}
+			}.bind(this), delay);
+		}
+	}.bind(this));
 
 	return promise;
 };
