@@ -13,7 +13,7 @@ describe('Dockerizer', function() {
 		const infout = "while(true) { console.log('Hello World!'); }";
 
 		var tmpDir = "/var/tmp/eval";
-		/*
+	
 		it('should create a nodejs container and output', function(done) {
 			var nodejs = descriptors.nodejs;
 			nodejs.version = 'latest';
