@@ -6,6 +6,7 @@ var Generator = function() {
 
 	this.runCMD = "sudo docker run";
 	this.killCMD = "sudo docker kill";
+	this.removeCMD = "sudo docker rm";
 	this.existsCMD = "sudo docker ps | grep";
 
 	this.workDir = "";
@@ -43,10 +44,10 @@ Generator.prototype.docker = function(name, version, repository) {
 	return parts.join(" ");
 };
 
-Generator.prototype.addMount = function(guest, host) {
+Generator.prototype.addMount = function(host, guest) {
 	this.mounts.push({
-		guest:guest,
-		host:host
+		host:host,
+		guest:guest
 	});
 }
 
@@ -56,6 +57,10 @@ Generator.prototype.kill = function(name) {
 
 Generator.prototype.exists = function(name) {
 	return this.existsCMD + " " + "'" + name + "'";
+};
+
+Generator.prototype.remove = function(name) {
+	return this.removeCMD + " " + name;
 };
 
 Generator.prototype.create = function(filename, descriptor, action) {
