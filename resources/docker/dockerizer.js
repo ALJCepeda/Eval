@@ -1,7 +1,6 @@
 var path = require("path");
 var fs = require("fs");
 
-//var docker_descriptions = require("./descriptors");
 var Temper = require("./temper");
 var Generator = require("./generator");
 var Fork = require("./fork");
