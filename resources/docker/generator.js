@@ -5,7 +5,7 @@ var Generator = function() {
 	this.domain = "literphor";
 
 	this.runCMD = "sudo docker run";
-	this.killCMD = "sudo docker kill";
+	this.stopCMD = "sudo docker stop";
 	this.removeCMD = "sudo docker rm";
 	this.existsCMD = "sudo docker ps | grep";
 
@@ -51,8 +51,8 @@ Generator.prototype.addMount = function(host, guest) {
 	});
 }
 
-Generator.prototype.kill = function(name) {
-	return this.killCMD + " " + name;
+Generator.prototype.stop = function(name) {
+	return this.stopCMD + " " + name;
 };
 
 Generator.prototype.exists = function(name) {

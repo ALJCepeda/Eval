@@ -51,9 +51,9 @@ DockerFork.prototype.remove = function() {
 	return this.fork(command);
 };
 
-DockerFork.prototype.kill = function() {
+DockerFork.prototype.stop = function() {
 	var generator = this.generator();
-	var command = generator.kill(this.name);
+	var command = generator.stop(this.name);
 
 	return this.fork(command);
 };

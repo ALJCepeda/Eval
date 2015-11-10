@@ -40,36 +40,36 @@ describe('Dockerizer', function() {
 			var dockerfork = new DockerFork("test", nodejs, tmp);
 
 			dockerfork.execute().then(function(result) {
-				temper.cleanup();
 				done();
-			}).catch(done);
+			}).catch(done).finally(temper.cleanup);
 
 			//Give docker a chance to create the container before querying it
 			setTimeout(function() {
 				dockerfork.exists().then(function(exists) {
 					(exists).should.equal(true);
 				}).catch(done);
-			}, 50);
-		});/*
+			}, 75);
+		});
 		
-		it('should kill', function(done) {
-			var nodejs = descriptor.nodejs;
+		it('should stop', function(done) {
+			var nodejs = descriptors.nodejs;
 			nodejs.version = "latest";
 
 			var temper = new Temper(tmpDir);
 			var tmp = temper.createCode(delay, "js", "test");
 
 			var dockerfork = new DockerFork("test", nodejs, tmp);
-			dockerfork.execute().catch(done);
+			dockerfork.execute().then(function(result) {
+				done();
+			}).catch(done).finally(temper.cleanup);
 
 			setTimeout(function() {
-				dockerfork.kill().then(function(data) {
-					dockerfork.exists().then(function(exists) {
-						(exists).should.equal(false);
-						done();
+				dockerfork.stop().then(function(data) {
+					return dockerfork.exists().then(function(exists) {
+						(exists).should.equal(true);	
 					});
-				}).catch(done).finally(temper.cleanup);
-			}, 25);
+				}).catch(done);
+			}, 50);
 		});
 /*
 		it('should timeout', function(done) {
