@@ -12,8 +12,6 @@ var Dockerizer = function() {
 	this.descriptor = "";
 
 	this.running = "";
-	this.tmpDir = "/var/tmp/eval";
-	this.guestRoot = "/scripts";
 };
 
 Dockerizer.prototype.start = function(timeout) {
