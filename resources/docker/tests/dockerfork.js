@@ -1,8 +1,9 @@
 var assert = require('assert');
 var should = require('should');
 
-var Dockerizer = require('../fork.js');
-var descriptors = require('../descriptors.js');
+var DockerFork = require('../fork');
+var Temper = require('../temper');
+var descriptors = require('../descriptors');
 
 describe('Dockerizer', function() {
 	describe('Container Creation', function() {
@@ -14,19 +15,18 @@ describe('Dockerizer', function() {
 		var tmpDir = "/var/tmp/eval";
 		
 		it('should create a nodejs container and output', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
 			var nodejs = descriptors.nodejs;
+			nodejs.version = 'latest';
+			
+			var temper = new Temper(tmpDir);
+			var tmp = temper.createCode(output, 'js', 'test');
+			
+			var dockerfork = new DockerFork(tmp.dirname, nodejs, tmp);
 
-			should.exist(dockerizer);
-			should.exist(nodejs);
-
-			dockerizer.execute(output, 'latest', nodejs).then(function(result) {
-				should.exist(result);
-				(result.stdout).should.equal('Hello World!\n');
+			dockerfork.execute().then(function(result) {
+				(result.stdout).should.equal("Hello World!\n");
 				done();
-			}).catch(function(error) {
-				done(error);
-			});
+			}).catch(done).finally(temper.cleanup);
 		}); 
 /*
 		it('should exist', function(done) {

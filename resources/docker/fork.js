@@ -5,46 +5,17 @@ var Promise = require("promise");
 var _ = require("underscore");
 var Generator = require("./generator");
 
-var DockerFork = function() {
+var DockerFork = function(name, descriptor, tmp) {
 	this.cmd = "sudo docker run";
 	this.killCMD = "sudo docker kill";
 	
-	this.tmpDir = "/var/tmp/eval";
 	this.guestRoot = "/scripts";
 
-	this.name = "";
-	this.tmp = "";
-	this.descriptor = "";
-
-	this.timeout = 10000;
-};
-
-
-DockerFork.prototype.start = function(name, tmp, descriptor, timeout) {
-	//Check if script needs to be compiled first
-	var self = this;
 	this.name = name;
 	this.tmp = tmp;
 	this.descriptor = descriptor;
 
-	if( descriptor.needsCompile() ) {
-		return self.compile(descriptor, timeout).then(function(data) {
-			//Check if compiled file has been created
-			var compiledName = descriptor.compiledName(tmp.filename);
-			var compiledFile = path.join(tmp.dirname, compiledName);
-
-			return self.compiled(compiledFile).then(function(compiled) {
-				if(compiled === false) {
-					//Failed to compile, send output
-					return Promise.resolve(data);
-				} 
-
-				return self.exec(descriptor, timeout);
-			});
-		});
-	} else {
-		return self.exec(descriptor, timeout);
-	}
+	this.timeout = 10000;
 };
 
 DockerFork.prototype.compiled = function(path) {
@@ -52,23 +23,37 @@ DockerFork.prototype.compiled = function(path) {
 		fs.stat(path, function(err, stat) {
 			if(err) { reject(err); }
 			else if(!stat) {
-				resolve(false);
+				return resolve(false);
 			} else {
-				resolve(true);
+				return resolve(true);
 			}
 		});
 	});
 };
 
+DockerFork.prototype.command = function(action) {
+	var generator = new Generator();
+	generator.mounts.push({
+		host:this.tmp.dir.name,
+		guest:this.guestRoot
+	});
+	generator.mounts.concat(this.descriptor.mounts);
+	generator.workDir = this.guestRoot;
+
+	var command = generator.docker(this.name, this.descriptor.version, this.descriptor.repository);
+	command += " " + generator.create(this.tmp.filename, this.descriptor, action);
+	return command;
+};
+
 DockerFork.prototype.kill = function() {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
+	var generator = new Generator(this.tmp.dir.name, this.guestRoot);
 	var command = generator.kill(this.name);
 
 	return this.fork(command);
 };
 
 DockerFork.prototype.exists = function() {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
+	var generator = new Generator(this.tmp.dir.name, this.guestRoot);
 	var command = generator.exists(this.name);
 
 	return this.fork(command).then(function(data) {
@@ -81,17 +66,16 @@ DockerFork.prototype.exists = function() {
 };
 
 DockerFork.prototype.compile = function(timeout) {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.docker(this.name, this.version, this.descriptor);
-	command += " " + generator.compile(this.tmp.filename, this.descriptor);
+	var command = this.command("compile");
 
-	return this.fork(command, timeout);
+	return this.fork(command, timeout).then(function(data) {
+		var filename = descriptor.compiledName(this.tmp.filename);
+		return this.compiled(filename);
+	}.bind(this));
 };
 
 DockerFork.prototype.execute = function(timeout) {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.docker(this.name, this.version, this.descriptor);
-	command += " " + generator.execute(this.tmp.filename, this.descriptor);
+	var command = this.command("command");
 
 	return this.fork(command, timeout);
 };

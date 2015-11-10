@@ -10,51 +10,31 @@ var Dockerizer = function() {
 	this.name = "";
 	this.tmp = "";
 	this.descriptor = "";
-
-	this.running = "";
 };
 
-Dockerizer.prototype.start = function(timeout) {
-	//Check if script needs to be compiled first
-	var file = this.tmp.file;
-	var descriptor = this.descriptor; 
-
-	if( this.descriptor.needsCompile() ) {
-		return this.compile(descriptor, timeout).then(function(data) {
-			//Check if compiled file has been created
-			var compiledName = descriptor.compiledName(file);
-			var compiledFile = path.join(this.tmp.dirname, compiledName);
-
-			return this.compiled(compiledFile).then(function(compiled) {
-				if(compiled === false) {
-					//Failed to compile, send output
-					return Promise.resolve(data);
-				} 
-
-				return this.exec(descriptor, timeout);
-			}.bind(this));
-		}.bind(this));
-	} else {
-		return this.exec(descriptor, timeout);
-	}
-};	
-
-Dockerizer.prototype.execute = function(code, version, descriptor, timeout) {
+Dockerizer.prototype.execute = function(code, descriptor, timeout) {
 	var temper = new Temper(this.tmpDir);
 	var info = temper.createCode(code, descriptor.ext, descriptor.repository);
 	
 	this.tmp = info;
 	this.name = info.dirname;
-	this.version = version;
 	this.descriptor = descriptor;
 
-	return this.start(timeout).then(function(data) {
-		data.filename = info.filename;
+	var fork = new DockerFork(name, descriptor.version, descriptor, info);
+	var promise;
+	if( descriptor.needsCompile() ) {
+		promise = fork.compile(timeout).then(function(data) {
+			if(data.status === 'failed') {
+				return Promise.resolve(data);
+			}
 
-		data.stderr = this.prettify(data.stderr, descriptor);
+			return fork.execute(timeout);
+		});
+	} else {
+		promise = fork.execute(timeout);
+	}
 
-		return Promise.resolve(data);
-	}.bind(this)).finally(function() {
+	return promise.finally(function() {
 		temper.cleanup();
 	});
 };
@@ -84,46 +64,6 @@ Dockerizer.prototype.compiled = function(path) {
 			}
 		});
 	});
-};
-
-Dockerizer.prototype.exists = function() {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.exists(this.name);
-
-	var fork = new Fork();
-	return fork.fork(command).then(function(data) {
-		if(data.stdout !== "") {
-			return Promise.resolve(true);
-		} else {
-			return Promise.resolve(false);
-		}
-	});
-};
-
-Dockerizer.prototype.kill = function() {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.kill(this.name);
-
-	var fork = new Fork();
-	return fork.fork(command);
-};
-
-Dockerizer.prototype.compile = function(timeout) {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.docker(this.name, this.version, this.descriptor);
-	command += " " + generator.compile(this.tmp.filename, this.descriptor);
-
-	var fork = new Fork();
-	return fork.fork(command, timeout);
-};
-
-Dockerizer.prototype.exec = function(timeout) {
-	var generator = new Generator(this.tmpDir, this.guestRoot);
-	var command = generator.docker(this.name, this.version, this.descriptor);
-	command += " " + generator.command(this.tmp.filename, this.descriptor);
-
-	var fork = new Fork();
-	return fork.fork(command, timeout);
 };
 
 module.exports = Dockerizer;

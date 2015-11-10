@@ -1,4 +1,4 @@
-var Generator = function(tmpDir, guestRoot) {      
+var Generator = function() {      
 	var self = this;
 	this.shouldRemove = true;
 	this.mounts = [];
@@ -8,8 +8,7 @@ var Generator = function(tmpDir, guestRoot) {
 	this.killCMD = "sudo docker kill";
 	this.existsCMD = "sudo docker ps | grep";
 
-	this.tmpDir = tmpDir;
-	this.guestRoot = guestRoot;
+	this.workDir = "";
 };
 
 var path = require("path");
@@ -18,30 +17,38 @@ var _ = require("underscore");
 //Generates docker command based on object"s configuration
 //Dockername is the semantic name for the process running our container
 //Also determines the folder containing the user"s script file
-Generator.prototype.docker = function(name, version, descriptor) {
+Generator.prototype.docker = function(name, version, repository) {
 	//Base docker command
 	var parts = [];
-	var hostRoot = path.join(this.tmpDir, descriptor.repository, name);
-	var image = path.join(this.domain, descriptor.repository) + ":" + version;
+	var image = path.join(this.domain, repository) + ":" + version;
 
-	var mounts = this.mounts.concat(descriptor.mounts).reduce(function(pre, mount) {
+	var mounts = this.mounts.reduce(function(pre, mount) {
 		return pre + " -v " + mount.host + ":" + mount.guest; 
 	}, "");
 
 	parts.push(this.runCMD);
+	parts.push(" --name " + name);
 
 	if(this.shouldRemove === true) {
 		parts.push(" --rm");
 	}
 
-	parts.push(" --name " + name);
-	parts.push(" -w " + this.guestRoot);
-	parts.push(" -v " + hostRoot + ":" + this.guestRoot);
+	if(this.workDir !== "") {
+		parts.push(" -w " + this.workDir);
+	}
+	
 	parts.push(mounts);
 	parts.push(image);
 
 	return parts.join(" ");
 };
+
+Generator.prototype.addMount = function(guest, host) {
+	this.mounts.push({
+		guest:guest,
+		host:host
+	});
+}
 
 Generator.prototype.kill = function(name) {
 	return this.killCMD + " " + name;
@@ -51,19 +58,11 @@ Generator.prototype.exists = function(name) {
 	return this.existsCMD + " " + "'" + name + "'";
 };
 
-Generator.prototype.command = function(file, descriptor) {
-	if( _.isFunction(descriptor.command) ) {
-	 	return descriptor.command(file, uid);
+Generator.prototype.create = function(filename, descriptor, action) {
+	if( _.isFunction(descriptor[action]) ) {
+		return descriptor[action](filename, uid);
 	} else {
-		return descriptor.command + file;
-	}
-};
-
-Generator.prototype.compile = function(file, descriptor) {
-	if( _.isFunction(descriptor.compile) ) {
-		return descriptor.compile(file, uid);
-	} else {
-		return descriptor.compile + file;
+		return descriptor[action] + filename;
 	}
 };
 

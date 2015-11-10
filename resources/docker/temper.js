@@ -25,7 +25,7 @@ Temper.prototype.createCode = function(code, ext, folder) {
 	folder = folder || "";
 
 	var dir = this.createFolder(folder);
-	var file = this.createFile(dir.name);
+	var file = this.createFile(dir.name, ext);
 	var dirname = path.basename(dir.name);
 	var filename = path.basename(file.name);
 
