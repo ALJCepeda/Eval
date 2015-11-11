@@ -5,8 +5,8 @@ var DockerFork = require("../fork");
 var Temper = require("../temper");
 var descriptors = require("../descriptors");
 
-describe("Dockerizer", function() {
-	describe("Container Creation", function() {
+describe("DockerFork", function() {
+	describe("Process Creation", function() {
 		const output = "console.log('Hello World!');";
 		const delay = "setTimeout(function() { console.log('Hello World!'); }, 500);";
 		const infinite = "while(true) { }";
@@ -82,25 +82,5 @@ describe("Dockerizer", function() {
 				}).catch(done);
 			}, 50);
 		});
-/*
-		it("should timeout", function(done) {
-			this.timeout(20000);
-			var nodejs = descriptors.nodejs;
-			nodejs.version = "latest";
-
-			var temper = new Temper(tmpDir);
-			var tmp = temper.createCode(delay, "js", "test");
-
-			var dockerfork = new DockerFork("test", nodejs, tmp);
-			dockerfork.timeout = 500;
-
-			dockerfork.execute(function(data) {
-				console.log(data);
-			}).then(function(result) {
-				console.log(result);
-				done();
-			}).catch(done).finally(temper.cleanup);
-		});
-*/
 	});
 });

@@ -22,19 +22,6 @@ var DockerFork = function(name, descriptor, tmp) {
 	};
 };
 
-DockerFork.prototype.compiled = function(path) {
-	return new Promise(function(resolve, reject) {
-		fs.stat(path, function(err, stat) {
-			if(err) { reject(err); }
-			else if(!stat) {
-				return resolve(false);
-			} else {
-				return resolve(true);
-			}
-		});
-	});
-};
-
 DockerFork.prototype.generator = function() {
 	var generator = new this.Generator();
 	generator.addMount(this.tmp.dir.name, this.guestRoot);
@@ -81,29 +68,31 @@ DockerFork.prototype.exists = function() {
 	});
 };
 
-DockerFork.prototype.compile = function(timeout) {
+DockerFork.prototype.compile = function() {
 	var generator = this.generator();
 	var command = " " + generator.create(this.tmp.filename, this.descriptor, "compile");
 
-	return this.fork(command, timeout, this.process).then(function(data) {
+	return this.fork(command, this.process).then(function(data) {
 		this.process(null);
 		var filename = descriptor.compiledName(this.tmp.filename);
-		return this.compiled(filename);
+		data.compiledname = filename;
+
+		return Promise.resolve(data);
 	}.bind(this));
 };
 
-DockerFork.prototype.execute = function(timeout) {
+DockerFork.prototype.execute = function() {
 	var generator = this.generator();
 	var command = generator.docker(this.name, this.descriptor.version, this.descriptor.repository);
 	command += " " + generator.create(this.tmp.filename, this.descriptor, "command");
 
-	return this.fork(command, timeout, this.process).then(function(result) {
+	return this.fork(command, this.process).then(function(result) {
 		this.process(null);
 		return Promise.resolve(result);
 	}.bind(this));
 };
 
-DockerFork.prototype.fork = function(command, timeout, process) {
+DockerFork.prototype.fork = function(command, process) {
 	//Execute docker command
 	var promise = new Promise(function(resolve, reject) {
 		var child = shell.exec(command, function(error, stdout, stderr) {
@@ -118,18 +107,6 @@ DockerFork.prototype.fork = function(command, timeout, process) {
 			process(child);
 		}
 	}.bind(this));
-
-	if(_.isFunction(timeout) && this.timeout > 0) {
-		setTimeout(function() {
-			if(this.process() !== null) {
-				return this.stop().then(function(data) {
-					timeout(data);
-				}).catch(function(error) {
-					console.log(error);
-				});
-			}
-		}.bind(this), this.timeout);
-	}
 
 	return promise;
 };

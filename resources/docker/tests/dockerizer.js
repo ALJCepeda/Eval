@@ -2,75 +2,54 @@ var assert = require('assert');
 var should = require('should');
 
 var Dockerizer = require('../dockerizer.js');
-var descriptors = require('../descriptors.js');
 
 describe('Dockerizer', function() {
 	describe('Container Creation', function() {
 		const output = "console.log('Hello World!');";
-		const delay = "setTimeout(function() { console.log('done'); }, 1000);";
-		const infinite = "while(true) { }";
-		const infout = "while(true) { console.log('Hello World!'); }";
+		const delay = "setTimeout(function() { console.log('finished'); }, 10000);";
+		const infinite = "console.log('infinite'); while(true) { }";
 
-		var tmpDir = "/var/tmp/eval";
+		var tmpDir = "/var/tmp/eval/test";
 		
 		it('should create a nodejs container and output', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
-			var nodejs = descriptors.nodejs;
+			var docker = new Dockerizer(tmpDir);
 
-			should.exist(dockerizer);
-			should.exist(nodejs);
-
-			dockerizer.execute(output, 'latest', nodejs).then(function(result) {
+			docker.execute(output, "latest", "nodejs").then(function(result) {
 				should.exist(result);
 				(result.stdout).should.equal('Hello World!\n');
 				done();
-			}).catch(function(error) {
-				done(error);
-			});
+			}).catch(done);
 		}); 
 
-		it('should exist', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
-			var nodejs = descriptors.nodejs;
+		it("should not timeout", function(done) {
+			this.timeout(30000);
 
-			dockerizer.execute(delay, 'latest', nodejs);
+			var docker = new Dockerizer(tmpDir);
+			docker.stopAfter = 500;
 
-			//Give docker a chance to create the container before querying it
-			setTimeout(function() {
-				dockerizer.exists().then(function(exists) {
-					(exists).should.equal(true);
-					done();
-				}).catch(function(error) {
-					done(error);
-				});
-			}, 50);
+			docker.execute(delay, "latest", "nodejs", function(result) {
+				//This is actually being called after the promise resolved
+				(result.stdout).should.equal(docker.name + "\n");
+				should.not.exist(docker.fork.process());
+			}).then(function(result) {
+				//Docker stop needs time to complete and script is able to finish
+				(result.stdout).should.equal("finished\n");
+			}).catch(done).finally(done);			
 		});
 		
-		it('should kill', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
-			var nodejs = descriptors.nodejs;
+		it("should timeout", function(done) {
+			this.timeout(30000);
 
-			dockerizer.execute(delay, 'latest', nodejs);
+			var docker= new Dockerizer(tmpDir);
+			docker.stopAfter = 500;
 
-			setTimeout(function() {
-				dockerizer.kill().then(function(data) {
-					dockerizer.exists().then(function(exists) {
-						(exists).should.equal(false);
-						done();
-					});
-				}).catch(function(error) {
-					done(error);
-				});
-			}, 25);
+			docker.execute(infinite, "latest", "nodejs", function(result) {
+				(result.stdout).should.equal(docker.name + "\n");
+				should.not.exist(docker.fork.process());
+			}).then(function(result) {
+				//Should still resolve with output from container, if there was any
+				(result.stdout).should.equal("infinite\n");
+			}).catch(done).finally(done);
 		});
-/*
-		it('should timeout', function(done) {
-			var dockerizer = new Dockerizer(tmpDir);
-			var nodejs = descriptors.nodejs;
-
-			dockerizer.execute(delay, 'latest', nodejs, function() {
-
-			});
-		});*/
 	});
 });

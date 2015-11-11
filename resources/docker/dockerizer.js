@@ -1,41 +1,75 @@
 var path = require("path");
 var fs = require("fs");
+var _ = require("underscore");
 
 var Temper = require("./temper");
 var Generator = require("./generator");
-var Fork = require("./fork");
+var DockerFork = require("./fork");
+var descriptors = require('./descriptors');
+
 var Promise = require("promise");
 
-var Dockerizer = function() {
+var Dockerizer = function(root) {
 	this.name = "";
-	this.tmp = "";
-	this.descriptor = "";
+	this.tmp = null;
+	this.root = root;
+	this.descriptor = null;
+	this.fork = null;
 };
 
-Dockerizer.prototype.execute = function(code, descriptor, timeout) {
-	var temper = new Temper(this.tmpDir);
-	var info = temper.createCode(code, descriptor.ext, descriptor.repository);
-	
+Dockerizer.prototype.execute = function(code, version, platform, timeout) {
+	var temper = new Temper(this.root);
+	var descriptor = descriptors[platform];
+	descriptor.version = version;
+
+	var info = temper.createCode(code, descriptor.ext, platform);
+
 	this.tmp = info;
 	this.name = info.dirname;
 	this.descriptor = descriptor;
 
-	var fork = new DockerFork(name, descriptor.version, descriptor, info);
 	var promise;
+	var fork = new DockerFork(this.name, descriptor, info);
+	this.fork = fork;
+
 	if( descriptor.needsCompile() ) {
 		promise = fork.compile(timeout).then(function(data) {
-			if(data.status === 'failed') {
-				return Promise.resolve(data);
-			}
-
-			return fork.execute(timeout);
-		});
+			return this.compiled(data.compiledname).then(function(exists) {
+				if(exists === true) {
+					return fork.execute();
+				} else {
+					return Promise.resolve(data);
+				}
+			});
+		}.bind(this));
 	} else {
-		promise = fork.execute(timeout);
+		promise = fork.execute();
+	}
+
+	if( _.isFunction(timeout)) {
+		if(this.stopAfter > 0) {
+			setTimeout(function() {
+				if(this.fork.process !== null) {
+					this.fork.stop().then(function(result) {
+						timeout(result);
+					});
+				}
+			}.bind(this), this.stopAfter);
+		}
+
+		if(this.killAfter > 0) {
+			setTimeout(function() {
+				if(this.fork.process !== null) {
+					this.fork.kill().then(function(result) {
+						timeout(result);
+					});
+				}
+			}.bind(this), this.killAfter);
+		}
 	}
 
 	return promise.finally(function() {
-		temper.cleanup();
+		temper.cleanup
 	});
 };
 
