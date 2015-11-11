@@ -50,37 +50,38 @@ var RestAPI = function(book) {
 			var version = req.body.version;
 			var code = req.body.code;
 			var last = req.body.last || "";
-			var descriptor = docker_descriptions[platform];
+			var docker = new Dockerizer(config.dirs.temp);
+
 			if(code === "") {
 				return res.send({ status:400, message:"Must contain valid code" });
 			}
 
-			if(!descriptor) {
-				return res.send({ status:400, message:"Unrecognized language: " + platform });
+			if(!docker.canExecute(platform, version)) {
+				return res.send({ status:400, message:"Unrecognized platform or version" });
 			}
 
-			if(descriptor.hasVersion(version) === false) {
-				return res.send({ status:400, message:"Unrecognized version: " + version });
-			}
-
-			descriptor.version = version;
 			var scripter = new ScriptManager(config.urls.mongo);
 			scripter.saveScript(platform, version, code, last).then(function(id) {
 				keeper.record("saveScript", id, true);
 
-				var docker = new Dockerizer();
-				docker.doCompilation(code, descriptor).then(function(data) {
-					keeper.record("doCompilation", data.command);
-					var filename = data.filename;
+				var error = "";
+				docker.stopAfter = 5000;
+				docker.execute(code, platform, version, function(result) {
+					//Called when container exceeds timeout
+					error = "<p style='color:red'>\n\nScript exceeded the timeout of " + docker.stopAfter + "ms and was murdered in cold blood</p>";
+				}).then(function(result) {
+					//Successful execution of script
+					keeper.record("execute", result.command);
+					var filename = result.filename;
 					var name = filename.substring(0, filename.indexOf('.'));
-					
-					var scriptReg = new RegExp(name, "g");
-					var out = data.stdout.replace(scriptReg, "Script");
-					var err = data.stderr.replace(scriptReg, "Script");
 
-					res.send({ status:200, id:id, stdout:data.stdout, stderr:data.stderr });
+					var scriptReg = new RegExp(name, "g");
+					var out = result.stdout.replace(scriptReg, "index");
+					var err = result.stderr.replace(scriptReg, "index");
+
+					res.send({ status:200, id:id, stdout:out, stderr:err + error });
 				}).catch(function(error) {
-					keeper.record("doCompilation", error, true);
+					keeper.record("execute", error, true);
 					res.sendStatus({ status:500, message:"We were unable to complete your request, please try again later" });
 				});
 			}).catch(function(error) {

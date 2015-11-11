@@ -14,7 +14,7 @@ describe('Dockerizer', function() {
 		it('should create a nodejs container and output', function(done) {
 			var docker = new Dockerizer(tmpDir);
 
-			docker.execute(output, "latest", "nodejs").then(function(result) {
+			docker.execute(output, "nodejs", "latest").then(function(result) {
 				should.exist(result);
 				(result.stdout).should.equal('Hello World!\n');
 				done();
@@ -27,7 +27,7 @@ describe('Dockerizer', function() {
 			var docker = new Dockerizer(tmpDir);
 			docker.stopAfter = 500;
 
-			docker.execute(delay, "latest", "nodejs", function(result) {
+			docker.execute(delay, "nodejs", "latest", function(result) {
 				//This is actually being called after the promise resolved
 				(result.stdout).should.equal(docker.name + "\n");
 				should.not.exist(docker.fork.process());
@@ -43,7 +43,7 @@ describe('Dockerizer', function() {
 			var docker= new Dockerizer(tmpDir);
 			docker.stopAfter = 500;
 
-			docker.execute(infinite, "latest", "nodejs", function(result) {
+			docker.execute(infinite, "nodejs", "latest", function(result) {
 				(result.stdout).should.equal(docker.name + "\n");
 				should.not.exist(docker.fork.process());
 			}).then(function(result) {

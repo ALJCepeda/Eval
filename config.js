@@ -5,7 +5,8 @@ module.exports = {
 	port: (global.DEV === true) ? 8802 : 8002,
 	dirs: {
 		root: (global.ONLINE === true ) ? '/var/www/eval' : '/shared/eval',
-		bower: '/shared/bower_components'
+		bower: '/shared/bower_components',
+		temp: '/var/tmp/eval'
 	},
 	urls: {
 		mongo:(global.DEV === true) ? 'mongodb://localhost:27017/deveval' : 'mongodb://localhost:27017/eval'

@@ -1,3 +1,7 @@
+var path = require("path");
+var _ = require("underscore");
+var uid = require("uid");
+
 var Generator = function() {      
 	var self = this;
 	this.shouldRemove = true;
@@ -11,9 +15,6 @@ var Generator = function() {
 
 	this.workDir = "";
 };
-
-var path = require("path");
-var _ = require("underscore");
 
 //Generates docker command based on object"s configuration
 //Dockername is the semantic name for the process running our container

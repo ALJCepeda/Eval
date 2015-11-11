@@ -68,26 +68,30 @@ DockerFork.prototype.exists = function() {
 	});
 };
 
-DockerFork.prototype.compile = function() {
-	var generator = this.generator();
-	var command = " " + generator.create(this.tmp.filename, this.descriptor, "compile");
-
-	return this.fork(command, this.process).then(function(data) {
-		this.process(null);
-		var filename = descriptor.compiledName(this.tmp.filename);
-		data.compiledname = filename;
-
-		return Promise.resolve(data);
-	}.bind(this));
-};
-
-DockerFork.prototype.execute = function() {
+DockerFork.prototype.compile = function(filename) {
 	var generator = this.generator();
 	var command = generator.docker(this.name, this.descriptor.version, this.descriptor.repository);
-	command += " " + generator.create(this.tmp.filename, this.descriptor, "command");
+	command += " " + generator.create(filename, this.descriptor, "compile");
 
 	return this.fork(command, this.process).then(function(result) {
 		this.process(null);
+		var url = this.descriptor.compiledName(this.tmp.file.name);
+
+		result.compiledurl = url;
+		result.compiledname = path.basename(url);
+
+		return Promise.resolve(result);
+	}.bind(this));
+};
+
+DockerFork.prototype.execute = function(filename) {
+	var generator = this.generator();
+	var command = generator.docker(this.name, this.descriptor.version, this.descriptor.repository);
+	command += " " + generator.create(filename, this.descriptor, "command");
+
+	return this.fork(command, this.process).then(function(result) {
+		this.process(null);
+		result.filename = filename;
 		return Promise.resolve(result);
 	}.bind(this));
 };

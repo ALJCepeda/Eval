@@ -11,19 +11,21 @@ var Promise = require("promise");
 
 var Dockerizer = function(root) {
 	this.name = "";
+	this.stopAfter = 0;
+	this.killAfter = 0;
+
 	this.tmp = null;
 	this.root = root;
 	this.descriptor = null;
 	this.fork = null;
 };
 
-Dockerizer.prototype.execute = function(code, version, platform, timeout) {
+Dockerizer.prototype.execute = function(code, platform, version, timeout) {
 	var temper = new Temper(this.root);
 	var descriptor = descriptors[platform];
 	descriptor.version = version;
 
 	var info = temper.createCode(code, descriptor.ext, platform);
-
 	this.tmp = info;
 	this.name = info.dirname;
 	this.descriptor = descriptor;
@@ -33,17 +35,17 @@ Dockerizer.prototype.execute = function(code, version, platform, timeout) {
 	this.fork = fork;
 
 	if( descriptor.needsCompile() ) {
-		promise = fork.compile(timeout).then(function(data) {
-			return this.compiled(data.compiledname).then(function(exists) {
+		promise = fork.compile(info.filename).then(function(data) {
+			return this.compiled(data.compiledurl).then(function(exists) {
 				if(exists === true) {
-					return fork.execute();
+					return fork.execute(data.compiledname);
 				} else {
 					return Promise.resolve(data);
 				}
 			});
 		}.bind(this));
 	} else {
-		promise = fork.execute();
+		promise = fork.execute(info.filename);
 	}
 
 	if( _.isFunction(timeout)) {
@@ -68,14 +70,21 @@ Dockerizer.prototype.execute = function(code, version, platform, timeout) {
 		}
 	}
 
-	return promise.finally(function() {
-		temper.cleanup
+	return promise.then(function(data) {
+		this.modifyOutput(data);
+		return Promise.resolve(data);
+	}.bind(this)).finally(function() {
+		temper.cleanup();
 	});
 };
 
-Dockerizer.prototype.prettify = function(str, descriptor) {
+Dockerizer.prototype.modifyOutput = function(data) {
+	data.stderr = this.prettify(data.stderr);
+};
+
+Dockerizer.prototype.prettify = function(str) {
 	var result = str;
-	descriptor.removals.forEach(function(removal) {
+	this.descriptor.removals.forEach(function(removal) {
 		var rem = new RegExp(removal, "g");
 		result = result.replace(rem, "");
 	});
@@ -99,5 +108,13 @@ Dockerizer.prototype.compiled = function(path) {
 		});
 	});
 };
+
+Dockerizer.prototype.canExecute = function(platform, version) {
+	if( _.isUndefined(descriptors[platform]) || !descriptors[platform].hasVersion(version) ) {
+		return false;
+	}
+
+	return true;
+}
 
 module.exports = Dockerizer;
