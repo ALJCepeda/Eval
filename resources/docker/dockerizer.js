@@ -49,7 +49,7 @@ Dockerizer.prototype.execute = function(code, version, platform, timeout) {
 	if( _.isFunction(timeout)) {
 		if(this.stopAfter > 0) {
 			setTimeout(function() {
-				if(this.fork.process !== null) {
+				if(this.fork.process() !== null) {
 					this.fork.stop().then(function(result) {
 						timeout(result);
 					});
@@ -59,7 +59,7 @@ Dockerizer.prototype.execute = function(code, version, platform, timeout) {
 
 		if(this.killAfter > 0) {
 			setTimeout(function() {
-				if(this.fork.process !== null) {
+				if(this.fork.process() !== null) {
 					this.fork.kill().then(function(result) {
 						timeout(result);
 					});
