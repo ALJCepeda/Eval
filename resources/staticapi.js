@@ -34,6 +34,7 @@ var StaticAPI = function() {
 				}
 
 				//Send file or exception
+				console.log("Name: " +path.join(config.dirs.bower, name, script));
 				res.sendFile(path.join(config.dirs.bower, name, script));
 			} else {
 				//No dependency by that name

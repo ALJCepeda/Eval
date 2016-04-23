@@ -1,5 +1,6 @@
 
 define(["resources/dataaccess", "components/navbar", "resources/controller"], function(DataAccess, Navbar, Controller) {
+	debugger;
 	var nav = new Navbar();
 	var da = new DataAccess();
 	var editor = ace.edit("editor");
@@ -32,6 +33,7 @@ define(["resources/dataaccess", "components/navbar", "resources/controller"], fu
 	var router = new Router();
 	controller.router = router;
 
+	debugger;
 	ko.applyBindings(nav);
 	controller.initialize();
 	Backbone.history.start();
