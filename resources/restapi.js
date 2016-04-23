@@ -50,7 +50,7 @@ var RestAPI = function(book) {
 			var version = req.body.version;
 			var code = req.body.code;
 			var last = req.body.last || "";
-			var docker = new Dockerizer(config.dirs.temp, docker_descriptions);
+			var docker = new Dockerizer("ajrelic", config.dirs.temp, docker_descriptions);
 
 			if(code === "") {
 				return res.send({ status:400, message:"Must contain valid code" });
@@ -66,7 +66,7 @@ var RestAPI = function(book) {
 
 				var error = "";
 				docker.stopAfter = 5000;
-				docker.execute(code, platform, version, function(result) {
+				docker.execute(platform, version, code, function(result) {
 					//Called when container exceeds timeout
 					error = "<p style='color:red'>\n\nScript exceeded the timeout of " + docker.stopAfter + "ms and was murdered in cold blood</p>";
 				}).then(function(result) {
