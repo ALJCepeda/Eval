@@ -11,6 +11,7 @@ var StaticAPI = function() {
 		}));
 
 		app.use(express.static(path.join(config.dirs.root, 'client')));
+		app.use(express.static(path.join(config.dirs.root, 'bower_components')));
 	};
 
 	this.routes.index = function(app, method) {
