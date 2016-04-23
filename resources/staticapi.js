@@ -16,7 +16,7 @@ var StaticAPI = function() {
 
 	this.routes.index = function(app, method) {
 		app.get('/', function(req, res){ 
-			res.sendFile(path.join(config.dirs.root, 'index.html'));
+			res.sendFile(path.join(config.dirs.root, 'client', 'index.html'));
 		});
 	};
 
