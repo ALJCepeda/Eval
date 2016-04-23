@@ -1,4 +1,4 @@
-require('../prototypes/object.js');
+require('./prototypes/object.js');
 var _ = require('underscore');
 var Descriptor = function(data) {
 	var self = this;

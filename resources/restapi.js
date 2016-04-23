@@ -1,8 +1,8 @@
 var RestAPI = function(book) {
 	var bodyparser = require("body-parser");
 	var ScriptManager = require("./scriptmanager.js");
-	var Dockerizer = require("./docker/dockerizer.js");
-	var docker_descriptions = require("./docker/descriptors");
+	var Dockerizer = require("../libs/dockerizer/dockerizer.js");
+	var docker_descriptions = require("./descriptors");
 	var config = require("../config.js");
 	var keeper = book.keeper("RestAPI");
 
@@ -50,7 +50,7 @@ var RestAPI = function(book) {
 			var version = req.body.version;
 			var code = req.body.code;
 			var last = req.body.last || "";
-			var docker = new Dockerizer(config.dirs.temp);
+			var docker = new Dockerizer(config.dirs.temp, docker_descriptions);
 
 			if(code === "") {
 				return res.send({ status:400, message:"Must contain valid code" });
