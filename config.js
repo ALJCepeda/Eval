@@ -2,6 +2,7 @@ global.LOCAL = (process.argv.indexOf('--local') !== -1) ? true : false;
 global.DEV = (process.argv.indexOf('--dev') !== -1) ? true : false;
 
 if(global.LOCAL === true) {
+	console.log("-------------Started local app-------------");
 	global.ROOT = '/shared/eval';
 } else {
 	global.ROOT = '/var/www/eval';

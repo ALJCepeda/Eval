@@ -1,3 +1,5 @@
+debugger;
+requirejs.config({});
 
 define(["resources/dataaccess", "components/navbar", "resources/controller"], function(DataAccess, Navbar, Controller) {
 	debugger;
