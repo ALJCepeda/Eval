@@ -9,7 +9,6 @@ var book = new RecordBook();
 var StaticAPI = require("./resources/staticapi.js");
 var staticy = new StaticAPI(book);
 staticy.bootstrap(app);
-staticy.routes.library(app, "get");
 staticy.routes.index(app, "get");
 
 var RestAPI= require("./resources/restapi.js");
