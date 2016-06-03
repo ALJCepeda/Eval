@@ -42,7 +42,7 @@
 <div id="content_container" style="position:absolute; left:150px; right:0; top:0; bottom:0;">
 	<div class="page" id="output_container" data-bind="visible:selectedTab() === 'output'">
 	  	<iframe id="stdout_frame" style="width:100%; height:80%;"></iframe>
-	  
+
 	  	<iframe id="stderr_frame" style="width:100%; height:20%; border-top:1px solid black;"></iframe>
 	</div>
 
@@ -51,7 +51,7 @@
 				<select required data-bind="	options: platforms,
 									value: selectedPlatform,
 									optionsCaption: 'Platform...'"></select>
-									
+
 				<select required data-bind=" options:versions,
 									value: selectedVersion,
 									optionsCaption: 'Version...'"></select>

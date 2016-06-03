@@ -1,3 +1,22 @@
+var zmq = require("zmq"),
+	req = zmq.socket("req");
+
+WORK_URL = "tcp://localhost:3000";
+
+req.connect(WORK_URL);
+
+req.on("message", function(msg) {
+	console.log("response: ", msg.toString());
+});
+
+var workid = 0;
+setInterval(function(){
+	workid++;
+  	console.log("request: ", workid);
+  	req.send(workid.toString());
+}, 500);
+
+/*
 var app = require("express")();
 var http = require("http").Server(app);
 var config = require("./config.js");
@@ -19,3 +38,4 @@ rest.routes.compile(app, "post");
 rest.routes.scriptID(app, "get");
 
 http.listen(config.port, function() { console.log("listening on *: " + config.port); });
+*/
