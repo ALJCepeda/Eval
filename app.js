@@ -1,7 +1,7 @@
 var zmq = require("zmq"),
 	req = zmq.socket("req");
 
-WORK_URL = "tcp://localhost:3000";
+WORK_URL = "tcp://127.0.0.1:3000";
 
 req.connect(WORK_URL);
 
