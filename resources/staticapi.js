@@ -10,11 +10,10 @@ var StaticAPI = function() {
 		}));
 
 		app.use(express.static(path.join(global.ROOT, 'client')));
-		app.use(express.static(path.join(global.ROOT, 'bower_components')));
 	};
 
 	this.routes.index = function(app, method) {
-		app.get('/', function(req, res){ 
+		app.get('/', function(req, res){
 			res.sendFile(path.join(global.ROOT, 'client', 'index.html'));
 		});
 	};

@@ -1,17 +1,21 @@
-var RestAPI = function(book) {
+var RestAPI = function(workurl, book) {
 	var bodyparser = require("body-parser");
 	var ScriptManager = require("./scriptmanager.js");
-	var Dockerizer = require("../libs/dockerizer/dockerizer.js");
-	var docker_descriptions = require("./descriptors");
+	var descriptors = require("./descriptors");
 	var config = require("../config.js");
 	var keeper = book.keeper("RestAPI");
-
 	var self = this;
+
+	var zmq = require("zmq");
+	var req = zmq.socket("req");
+	req.identity = "client" + process.pid;
+
 	this.jsoner = bodyparser.json();
+	this.workurl = workurl;
 	//this.keeper = book.keeper("restapi");
 	this.routes = {};
 
-	this.bootstrap = function(app) { 
+	this.bootstrap = function(app) {
 		app.use(self.jsoner);
 		app.use(function (error, req, res, next){
 	    	//Catch json error
@@ -27,7 +31,7 @@ var RestAPI = function(book) {
 	 		var precodes = { };
 	 		var themes = config.aceThemes;
 
-	 		Object.each(docker_descriptions, function(name, descriptor) {	
+	 		Object.each(docker_descriptions, function(name, descriptor) {
 	 			supported[name] = descriptor.versions;
 	 			precodes[name] = descriptor.precode;
 	 		});
@@ -45,50 +49,35 @@ var RestAPI = function(book) {
 			if(!req.body || !req.body.platform || !req.body.version) {
 				return res.sendStatus(400);
 			}
-			
-			var platform = req.body.platform;
-			var version = req.body.version;
-			var code = req.body.code;
-			var last = req.body.last || "";
-			var docker = new Dockerizer("ajrelic", config.dirs.temp, docker_descriptions);
 
-			if(code === "") {
-				return res.send({ status:400, message:"Must contain valid code" });
-			}
+			var id = "php_test";
+			var project = {
+				id:id, //Need to get random unique id
+				language:req.body.platform,
+				version:req.body.version,
+				documents: {
+					index: {
+						ext:"php",
+						content:req.body.code
+					}
+				}
+			};
 
-			if(!docker.canExecute(platform, version)) {
-				return res.send({ status:400, message:"Unrecognized platform or version" });
-			}
+			req.bind(this.workurl, function(err) {
+				if(err) throw err;
 
-			var scripter = new ScriptManager(config.urls.mongo);
-			scripter.saveScript(platform, version, code, last).then(function(id) {
-				keeper.record("saveScript", id, true);
+				req.on("message", function(data) {
+					var response = JSON.parse(data);
 
-				var error = "";
-				docker.stopAfter = 5000;
-				docker.execute(platform, version, code, function(result) {
-					//Called when container exceeds timeout
-					error = "<p style='color:red'>\n\nScript exceeded the timeout of " + docker.stopAfter + "ms and was murdered in cold blood</p>";
-				}).then(function(result) {
-					//Successful execution of script
-					keeper.record("execute", result.command);
-					var filename = result.filename;
-					var name = filename.substring(0, filename.indexOf('.'));
-
-					var scriptReg = new RegExp(name, "g");
-					var out = result.stdout.replace(scriptReg, "index");
-					var err = result.stderr.replace(scriptReg, "index");
-
-					res.send({ status:200, id:id, stdout:out, stderr:err + error });
-				}).catch(function(error) {
-					keeper.record("execute", error, true);
-					res.sendStatus({ status:500, message:"We were unable to complete your request, please try again later" });
+					res.send({ status:200, id:id, stdout:response.stdout, stderr:response.stderr });
+					console.log("Reponse " + count + ":", response.stdout);
+					send();
 				});
-			}).catch(function(error) {
-				keeper.record("saveScript", error, true);
-				res.send({ status:500, message:"We were unable to complete your request, please try again later" });
+
+				var data = JSON.stringify(project);
+				req.send(data);
 			});
-		});	
+		}.bind(this));
 	};
 
 	this.routes.scriptID = function(app, method) {
