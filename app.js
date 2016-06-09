@@ -1,4 +1,4 @@
-var express = require("express")
+var express = require("express");
 var app = express();
 var zmq = require("zmq");
 var http = require("http").Server(app);
@@ -22,10 +22,10 @@ rest.routes.info(app, "get");
 rest.routes.compile(app, "post");
 rest.routes.scriptID(app, "get");
 
-Bare.expose("./node_modules/knockout/build/output/knockout-latest.js", "/knockout.js", app);
-Bare.expose("./node_modules/underscore/underscore-min.js", "/underscore.js", app);
-Bare.expose("./node_modules/requirejs/require.js", "/require.js", app);
-Bare.expose("./node_modules/backbone/backbone-min.js", "/backbone.js", app);
-app.use(express.static("./node_modules/ace-builds"));
+app.use("/require.js", express.static("./node_modules/requirejs/require.js"));
+app.use("/knockout.js", express.static("./node_modules/knockout/build/output/knockout-latest.js"));
+app.use("/underscore.js", express.static("./node_modules/underscore/underscore-min.js"));
+app.use("/backbone.js", express.static("./node_modules/backbone/backbone-min.js"));
+app.use("/ace-builds", express.static("./node_modules/ace-builds"));
 
 http.listen(config.port, function() { console.log("listening on *: " + config.port); });

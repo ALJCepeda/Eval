@@ -1,20 +1,22 @@
-var RestAPI = function(workurl, book) {
-	var bodyparser = require("body-parser");
-	var ScriptManager = require("./scriptmanager.js");
-	var descriptors = require("./descriptors");
-	var config = require("../config.js");
-	var keeper = book.keeper("RestAPI");
-	var self = this;
+var bodyparser = require("body-parser");
+var ScriptManager = require("./scriptmanager.js");
+var config = require("../config.js");
+var zmq = require("zmq");
 
-	var zmq = require("zmq");
+var RestAPI = function(workurl, info, book) {
+	var self = this;
+	var keeper = book.keeper("RestAPI");
+
 	var req = zmq.socket("req");
 	req.identity = "client" + process.pid;
 
+	this.info = info;
 	this.jsoner = bodyparser.json();
 	this.workurl = workurl;
 	//this.keeper = book.keeper("restapi");
 	this.routes = {};
 
+	this.info.themes = config.aceThemes;
 	this.bootstrap = function(app) {
 		app.use(self.jsoner);
 		app.use(function (error, req, res, next){
@@ -27,26 +29,14 @@ var RestAPI = function(workurl, book) {
 
 	this.routes.info = function(app, method) {
 		app[method]("/info", self.jsoner, function(req, res) {
-	 		var supported = { };
-	 		var precodes = { };
-	 		var themes = config.aceThemes;
-
-	 		Object.each(docker_descriptions, function(name, descriptor) {
-	 			supported[name] = descriptor.versions;
-	 			precodes[name] = descriptor.precode;
-	 		});
-
-	 		res.send({
-	 			supported:supported,
-	 			precodes:precodes,
-	 			themes:themes
-	 		});
-	 	});
+	 		res.send(this.info);
+	 	}.bind(this));
 	};
 
 	this.routes.compile = function(app, method) {
 		app[method]("/compile", self.jsoner, function(req, res) {
 			if(!req.body || !req.body.platform || !req.body.version) {
+				console.log("Invalid body, platform, or version");
 				return res.sendStatus(400);
 			}
 
