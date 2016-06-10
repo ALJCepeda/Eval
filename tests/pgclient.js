@@ -3,16 +3,39 @@ var tape = require('tape');
 var url = 'postgres://vagrant:password@localhost/eval';
 
 var pg = new PGClient(url);
-tape("connect", function(t) {
-	pg.info().then(function(info) {
-		console.log(info.NodeJS.documents);
-		//console.log(rows);
-		/*var row = rows[0];
 
-		t.equal( row.name, 'PHP', 'Primary key' );
-		t.equal( row.platform, 'PHP', 'Name of the platform' );
-		t.equal( row.tag, 'latest', 'latest is default tag of demo projects' );
+tape("info", function(t) {
+	pg.info()
+		.then(t.pass)
+		.catch(t.fail)
+	 	.done(t.end);
+});
+tape("project_names", function(t) {
+	pg.project_names()
+		.then(t.pass)
+		.catch(t.fail)
+		.done(t.end);
+});
 
-		t.end();*/
-	}).catch(t.fail);
+tape("project_insert/project_delete", function(t) {
+	var project = {
+		name:"phpTest",
+		platform:"PHP",
+		tag:"5.6",
+		documents: {
+			index: {
+				ext:"php",
+				content:"<?php \n\techo \"This is a test script\";"
+			}
+		}
+	};
+
+	pg.project_insert(project)
+		.then(t.pass)
+		.catch(t.fail);
+
+	pg.project_delete(project)
+		.then(t.pass)
+		.catch(t.fail)
+		.done(t.end);
 });

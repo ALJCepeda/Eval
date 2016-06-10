@@ -9,21 +9,38 @@ var PGClient = function(url) {
 	this.url = url;
 };
 
-PGClient.prototype.info = function() {
+PGClient.prototype.query = function(name, args) {
+	args  = args || [];
 	return new Promise(function(resolve, reject) {
 		pg.connect(this.url, function(err, client, done) {
 			if(err) return reject(err);
 
-			SQL.read('info').then(function(query) {
-				client.query(query, function(err, result) {
+			SQL.read(name).then(function(query) {
+				client.query(query, args, function(err, result) {
 					if(err) return reject(err);
 
-					resolve(result.rows);
 					done();
+					resolve(result.rows);
 				});
-			}).catch(reject);
+			});
 		});
-	}.bind(this)).reduce(function(info, row) {
+	}.bind(this));
+};
+
+PGClient.prototype.project_insert = function(project) {
+	return this.query('project_insert', [ project.name, project.platform, project.tag ]);
+};
+
+PGClient.prototype.project_delete = function(project) {
+	return this.query('project_delete', [ project.name ]);
+};
+
+PGClient.prototype.project_names = function() {
+	return this.query('project_names');
+};
+
+PGClient.prototype.info = function() {
+	return this.query('info').reduce(function(info, row) {
 		var name = row.name;
 
 		if(Val.undefined(info[name]) === true) {
