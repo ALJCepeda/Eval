@@ -48,7 +48,6 @@ tape('project_names', function(t) {
 	}).catch(t.fail).done(t.end);
 });
 
-/*
 tape('project_insert/project_delete', function(t) {
 	var project = {
 		name:'phpTest',
@@ -68,20 +67,16 @@ tape('project_insert/project_delete', function(t) {
 		]
 	};
 
-	pg.project_insert(project).then(function(result) {
-		console.log(result);
-		t.pass("Inserted project");
+	pg.project_insert(project).then(function(count) {
+		t.equal(count, 1, 'Inserted 1 project');
 		return pg.document_insert_many(project.name, project.documents);
-	}).then(function(result) {
-		console.log(result);
-		t.pass("Inserted documents");
+	}).then(function(count) {
+		t.equal(count, 2, 'Inserted 2 documents');
 		return pg.document_delete_many(project.name, project.documents);
-	}).then(function(result) {
-		console.log(result);
-		t.pass("Deleted documents");
+	}).then(function(count) {
+		t.equal(count, 2, 'Deleted 2 documents');
 		return pg.project_delete(project);
-	}).then(function(result) {
-		console.log(result);
-		t.pass("Deleted project");
+	}).then(function(count) {
+		t.equal(count, 1, 'Deleted 1 project');
 	}).catch(t.fail).done(t.end);
-});*/
+});

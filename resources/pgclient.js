@@ -3,8 +3,10 @@ var File = require('./file');
 var Promise = require('bluebird');
 var Val = require('bareutil').Val;
 
+/* Read sql file and delivers query */
 var SQL = new File('./queries', 'sql');
 
+/* Wrapper around PG for app specific queries */
 var PGClient = function(url) {
 	this.url = url;
 };
@@ -61,7 +63,7 @@ PGClient.prototype.document_insert_many = function(projectName, documents) {
 		return [ projectName, document.name, document.extension, document.content ];
 	});
 
-	return this.query_many('document_insert', multiArgs).reduce(rowCount_reduce);
+	return this.query_many('document_insert', multiArgs).reduce(rowCount_reduce, 0);
 };
 
 PGClient.prototype.document_delete_many = function(projectName, documents) {
@@ -69,7 +71,7 @@ PGClient.prototype.document_delete_many = function(projectName, documents) {
 		return [ projectName, document.name ];
 	});
 
-	return this.query_many('document_delete', multiArgs).reduce(rowCount_reduce);
+	return this.query_many('document_delete', multiArgs).reduce(rowCount_reduce, 0);
 };
 
 PGClient.prototype.document_insert = function(projectName, document) {
