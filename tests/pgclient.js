@@ -38,14 +38,17 @@ tape('info', function(t) {
 	}).catch(t.fail).done(t.end);
 });
 
-/*
 tape('project_names', function(t) {
-	pg.project_names()
-		.then(t.pass)
-		.catch(t.fail)
-		.done(t.end);
+	pg.project_names().then(function(names) {
+		t.deepEqual(
+			names,
+			[ 'PHP', 'NodeJS', 'Haskell', 'Pascal' ],
+			'Array of project names'
+		);
+	}).catch(t.fail).done(t.end);
 });
 
+/*
 tape('project_insert/project_delete', function(t) {
 	var project = {
 		name:'phpTest',

@@ -99,7 +99,11 @@ PGClient.prototype.project_delete = function(project) {
 };
 
 PGClient.prototype.project_names = function() {
-	return this.query('project_names').then(rows);
+	return this.query('project_names')
+			.then(rows)
+			.map(function(row) {
+				return row.name;
+			});
 };
 
 PGClient.prototype.info = function() {
