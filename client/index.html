@@ -34,6 +34,14 @@
 			right: 0;
 			z-index: -1;
 		}
+
+		.modal-content > h1, h2, h3, h4, h5, h6 {
+			padding-bottom: 10px;
+		}
+
+		.modal-large {
+			min-height: 50%;
+		}
 	</style>
 </head>
 
@@ -67,24 +75,41 @@
 		<pre class="page" id="editor"></pre>
 
 		<div id="modal1" class="modal">
-			<div class="modal-content">
+			<div class="modal-content" style="min-height: 300px;">
 				<h4>New Project</h4>
 
 				<div class="row">
 					<form class="col s12">
 						<div class="row">
-							<div class="input-fild col s6">
-								<input id="project" type="text" class="validate">
-								<label for="project">Project</label>
+							<div class="input-field col s6">
+							    <select>
+								      <option value="" disabled selected>Choose your platform</option>
+								      <option value="1">PHP</option>
+								      <option value="2">NodeJS</option>
+								      <option value="3">Haskell</option>
+							    </select>
+							    <label>Platform select</label>
+							</div>
+
+							<div class="input-field col s6">
+							    <select>
+								      <option value="" disabled selected>Choose your version</option>
+								      <option value="1">5.4</option>
+								      <option value="2">5.5</option>
+								      <option value="3">5.6</option>
+									  <option value="3">5.6</option>
+									  <option value="3">5.6</option>
+									  <option value="3">5.6</option>
+							    </select>
+							    <label>Version select</label>
 							</div>
 						</div>
 					</form>
-					<p>A bunch of text</p>
 				</div>
 			</div>
 
 			<div class="modal-footer">
-				<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+				<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Start</a>
 			</div>
 		</div>
 	</div>
@@ -96,6 +121,7 @@
 		editor.setTheme("ace/theme/monokai");
 
 		$('#modal1').openModal();
+		$('select').material_select();
 	</script>
 </body>
 
