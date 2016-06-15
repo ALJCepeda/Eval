@@ -9,7 +9,7 @@ define(["resources/dataaccess", "components/navbar", "resources/controller"], fu
 			":id":"idRoute",
 			":id/:page":"pageRoute"
 		},
-	  	
+
 	  	idRoute: function(id) {
 	  		da.getScript(id).then(function(data) {
 	  			if(!_.isUndefined(data.error)) {

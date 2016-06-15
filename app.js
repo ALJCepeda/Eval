@@ -1,10 +1,10 @@
 var express = require("express");
 var app = express();
-var zmq = require("zmq");
 var http = require("http").Server(app);
+
 var config = require("./config.js");
-var Bare = require("./libs/bareutil");
-var WORK_URL = "tcp://127.0.0.1:3000";
+var PGClient = require("./libs/eval_pgclient");
+var pgclient = new PGClient('postgres://vagrant:password@localhost/eval');
 
 require("./resources/prototypes/object.js");
 var RecordBook = require("./resources/recordbook.js");
@@ -15,17 +15,24 @@ var staticy = new StaticAPI(book);
 staticy.bootstrap(app);
 staticy.routes.index(app, "get");
 
-var RestAPI= require("./resources/restapi.js");
-var rest = new RestAPI(WORK_URL, book);
-rest.bootstrap(app);
-rest.routes.info(app, "get");
-rest.routes.compile(app, "post");
-rest.routes.scriptID(app, "get");
-
+app.use("/materialize", express.static("./node_modules/materialize-css/dist"));
+app.use("/jquery.js", express.static("./node_modules/jquery/dist/jquery.min.js"));
 app.use("/require.js", express.static("./node_modules/requirejs/require.js"));
 app.use("/knockout.js", express.static("./node_modules/knockout/build/output/knockout-latest.js"));
 app.use("/underscore.js", express.static("./node_modules/underscore/underscore-min.js"));
 app.use("/backbone.js", express.static("./node_modules/backbone/backbone-min.js"));
 app.use("/ace-builds", express.static("./node_modules/ace-builds"));
 
-http.listen(config.port, function() { console.log("listening on *: " + config.port); });
+var zmq = require("zmq");
+var WORK_URL = "tcp://127.0.0.1:3000";
+var req = zmq.socket("req");
+req.identity = "client" + process.pid;
+
+req.bind(WORK_URL, function(err) {
+	if(err) throw err;
+
+	var RestAPI= require("./resources/restapi.js");
+	var rest = new RestAPI(req, pgclient, app);
+
+	http.listen(config.port, function() { console.log("listening on *: " + config.port); });
+})

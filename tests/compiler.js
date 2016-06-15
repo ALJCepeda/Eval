@@ -27,30 +27,42 @@ tape("client", function(t) {
 		}
 	};
 
-	var count = 0;
-	var send = function() {
-		var data;
-		if(count % 2 === 0) {
-			data = JSON.stringify(nodejs);
-		} else {
-			data = JSON.stringify(php);
-		}
+	// socket to talk to server
+	var sockets = [];
 
-		count++;
-		req.send(data);
-	};
+	for(var workers = 0; workers < 10; workers ++) {
+		var req = zmq.socket('req');
+		var identity = "client" + process.pid + "_" + workers;
+		req.identity =  identity;
 
-	var req = zmq.socket("req");
-	req.identity = "client" + process.pid;
-	req.bind(WORK_URL, function(err) {
-		if(err) throw err;
-
-		req.on("message", function(data) {
-			var response = JSON.parse(data);
-			console.log("Reponse " + count + ":", response.stdout);
-			send();
+		var x = 0;
+		req.on("message", function(reply) {
+			var result = JSON.parse(reply);
+		  	console.log("Received reply #"+ x++ +":", result.stdout);
 		});
 
-		send();
+		req.connect("tcp://localhost:5555");
+
+		for (var i = 0; i < 5; i++) {
+			var project;
+			if(i % 2 === 0) {
+				project = nodejs;
+			} else {
+				project =  php;
+			}
+			project.id = identity + "_" + i;
+			var data = JSON.stringify(project);
+
+			console.log("Sending:", data);
+			req.send(data);
+		}
+
+		sockets.push(req);
+	}
+
+	process.on('SIGINT', function() {
+		sockets.forEach(function(sock) {
+			sock.close();
+		});
 	});
 });
