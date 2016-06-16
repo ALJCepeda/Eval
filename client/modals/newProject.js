@@ -4,6 +4,7 @@ define(['data/info'], function(info) {
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstVersion = { value: '', text: 'Choose your version', disable:true };
 
+		this.id = '';
 		this.selectedPlatform = ko.observable('');
 		this.selectedVersion = ko.observable('');
 
@@ -32,6 +33,8 @@ define(['data/info'], function(info) {
 		this.setVersionDisable = function(option, version) {
 			ko.applyBindingsToNode(option, {disable: version.disable}, version);
 		};
+
+		this.trigger = function() { $('#toggle_'+this.id).trigger('click'); };
 
 		this.didRender = function(element) {
 			element.className += ' modal';
