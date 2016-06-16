@@ -3,13 +3,13 @@
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>Editor</title>
+	<title>3val</title>
 
+	<script src="/jquery.js" type="text/javascript"></script>
 	<script src="/knockout.js" type="text/javascript"></script>
 	<script src="/ace-builds/src-min-noconflict/ace.js" type="text/javascript"></script>
 	<script src="/underscore.js" type="text/javascript"></script>
 	<script src="/backbone.js" type="text/javascript"></script>
-	<script src="/jquery.js" type="text/javascript"></script>
     <script src="/materialize/js/materialize.js" type="text/javascript"></script>
 
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -74,7 +74,7 @@
 	<div class="container">
 		<pre class="page" id="editor"></pre>
 
-		<div id="modal1" class="modal">
+		<div id="modal-newProject" class="modal">
 			<div class="modal-content" style="min-height: 300px;">
 				<h4>New Project</h4>
 
@@ -82,25 +82,24 @@
 					<form class="col s12">
 						<div class="row">
 							<div class="input-field col s6">
-							    <select>
-								      <option value="" disabled selected>Choose your platform</option>
-								      <option value="1">PHP</option>
-								      <option value="2">NodeJS</option>
-								      <option value="3">Haskell</option>
-							    </select>
+							    <select id='selectPlatform' data-bind="options: platforms,
+								 					optionsText: 'text',
+													optionsValue: 'value',
+													value: selectedPlatform,
+													optionsAfterRender: setPlatformDisable">
+								</select>
+
 							    <label>Platform select</label>
 							</div>
 
 							<div class="input-field col s6">
-							    <select>
-								      <option value="" disabled selected>Choose your version</option>
-								      <option value="1">5.4</option>
-								      <option value="2">5.5</option>
-								      <option value="3">5.6</option>
-									  <option value="3">5.6</option>
-									  <option value="3">5.6</option>
-									  <option value="3">5.6</option>
+								<select id='selectVersion' data-bind="options: versions,
+								 					optionsText: 'text',
+													optionsValue: 'value',
+													value: selectedVersion,
+													optionsAfterRender: setVersionDisable">
 							    </select>
+
 							    <label>Version select</label>
 							</div>
 						</div>
@@ -120,46 +119,57 @@
 		editor.session.setMode("ace/mode/php");
 		editor.setTheme("ace/theme/monokai");
 
-		$('#modal1').openModal();
+		var info = {
+			php: { text:'PHP', tags: [ '5.4', '5.5', '5.6' ] },
+			nodejs: { text:'NodeJS', tags: [ '0.12.4' ] },
+			haskell: { text:'Haskell', tags: [ 'latest' ] },
+			pascal: { text:'Pascal', tags: [ '2.6.4' ]}
+		};
+
+		var model = function() {
+			var self = this;
+			var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
+			var firstVersion = { value: '', text: 'Choose your version', disable:true };
+
+			this.selectedPlatform = ko.observable('');
+			this.selectedVersion = ko.observable('');
+
+			this.platforms = ko.observableArray([ firstPlatform ]);
+			this.versions = ko.computed(function() {
+				var platform = this.selectedPlatform();
+				var tags = [ firstVersion ];
+
+				if(platform === "") { return tags; }
+
+				[].push.apply(tags, info[platform].tags.map(function(tag) {
+					return { value: tag, text: tag, disable: false };
+				}));
+
+				this.selectedVersion('');
+				setTimeout(function() {
+					$('#selectVersion').material_select();
+				});
+
+				return tags;
+			}.bind(this));
+
+			this.setPlatformDisable = function(option, platform) {
+            	ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
+        	};
+			this.setVersionDisable = function(option, version) {
+				ko.applyBindingsToNode(option, {disable: version.disable}, version);
+			};
+
+			for(var key in info) {
+				var platform = { value:key, text:info[key].text, disable:false };
+				this.platforms.push(platform);
+			}
+		}
+		ko.applyBindings(new model());
+
+		$('#modal-newProject').openModal();
 		$('select').material_select();
 	</script>
 </body>
-
-<!--
-<div id="navbar" class="col-nw m-start c-center" style="width:150px; height:100%; position:absolute; left:0; top:0; border-right:1px solid black; background:black;">
-	<div class="col-nw m-start c-stretch" style="width:100%; height:95%;" data-bind="foreach: tabs">
-		<button style="height:5%; width:100%" data-bind="text: text, click: click"></button>
-	</div>
-
-	<button id="output" data-bind="click: outputClicked" style="height:5%; width:100%;">Output</button>
-	<button id="submit" style="height:5%; width:100%;">Submit</button>
-</div>
-
-<div id="content_container" style="position:absolute; left:150px; right:0; top:0; bottom:0;">
-	<div class="page" id="output_container" data-bind="visible:selectedTab() === 'output'">
-	  	<iframe id="stdout_frame" style="width:100%; height:80%;"></iframe>
-
-	  	<iframe id="stderr_frame" style="width:100%; height:20%; border-top:1px solid black;"></iframe>
-	</div>
-
-	<div id="editor_container" data-bind="visible:selectedTab() === 'editor'">
-		<div class="col-nw m-center c-between" style="position:absolute; top:0; right:0; z-index:2">
-				<select required data-bind="	options: platforms,
-									value: selectedPlatform,
-									optionsCaption: 'Platform...'"></select>
-
-				<select required data-bind=" options:versions,
-									value: selectedVersion,
-									optionsCaption: 'Version...'"></select>
-
-				<select data-bind=" options:themes,
-									value:selectedTheme,
-									optionsCaption: 'Theme...'"></select>
-		</div>
-
-		 <pre class="page" id="editor"></pre>
-	</div>
-</div>
--->
 
 </html>
