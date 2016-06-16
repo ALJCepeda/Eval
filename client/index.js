@@ -1,4 +1,4 @@
-define(['scripts/injector', 'modals/newProject'], function(Injector, modal_newProject) {
+define(['scripts/injector', 'app', 'modals/newProject'], function(Injector, app, modal_newProject) {
 	var editor = ace.edit('editor');
 	editor.$blockScrolling = Infinity;
 	editor.session.setMode('ace/mode/plain_text');
@@ -7,6 +7,8 @@ define(['scripts/injector', 'modals/newProject'], function(Injector, modal_newPr
 	var injector = new Injector('/');
 	injector.injectVM('#modal_newProject', 'modals/newProject');
 	modal_newProject.id = 'modal_newProject';
+
+	ko.applyBindings(app, document.getElementById("root"));
 
 	$('.modal-trigger').leanModal({
     	dismissible: false
