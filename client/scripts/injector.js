@@ -31,7 +31,7 @@ define([ 'scripts/ajaxer' ], function(Ajaxer) {
 					if(typeof model.didRender !== 'undefined') {
 						model.didRender(element);
 					}
-					
+
 					return element;
 				});
 			}
@@ -63,5 +63,5 @@ define([ 'scripts/ajaxer' ], function(Ajaxer) {
 		};
 	};
 
-	return Injector;
+	return new Injector('/');
 });
