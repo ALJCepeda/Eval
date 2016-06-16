@@ -38,7 +38,13 @@ define(['app'], function(app) {
 			var platform = this.selectedPlatform();
 			var tag = this.selectedTag();
 
-			app.createProject(platform, tag);
+			var project = app.createProject(platform, tag);
+
+			if(project === false) {
+				setTimeout(function() {
+					app.router.navigate('create', {trigger: true});
+				}.bind(this), 500);
+			}
 		};
 
 		this.trigger = function() { $('#toggle_'+this.id).trigger('click'); };

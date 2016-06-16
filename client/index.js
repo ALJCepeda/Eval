@@ -12,4 +12,6 @@ define(['app',
 
 	ko.applyBindings(app, document.getElementById("root"));
 	$('.modal-trigger').leanModal({ dismissible: false });
+
+	app.router = router.build();
 });

@@ -1,6 +1,7 @@
-define([], function() {
+define(['underscore'], function(_) {
 	var App = function() {
 		this.title = '3val';
+		this.router = '';
 		this.meta = {
 			project: {
 				php: { text:'PHP', tags: [ '5.4', '5.5', '5.6' ] },
@@ -10,6 +11,7 @@ define([], function() {
 			}
 		};
 
+
 		this.project = ko.observable({
 			platform:'',
 			tag:'',
@@ -17,6 +19,10 @@ define([], function() {
 		});
 
 		this.createProject = function(platform, tag) {
+			if( platform === '' || tag === '') {
+				return false;
+			}
+
 			var project = {
 				platform:platform,
 				tag:tag,
@@ -30,6 +36,7 @@ define([], function() {
 			};
 
 			this.project(project);
+			return project;
 		};
 	};
 
