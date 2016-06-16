@@ -1,0 +1,35 @@
+<div class="modal-content" style="min-height: 300px;">
+	<h4>New Project</h4>
+
+	<div class="row">
+		<form class="col s12">
+			<div class="row">
+				<div class="input-field col s6">
+					<select id='selectPlatform' data-bind="options: platforms,
+										optionsText: 'text',
+										optionsValue: 'value',
+										value: selectedPlatform,
+										optionsAfterRender: setPlatformDisable">
+					</select>
+
+					<label>Platform select</label>
+				</div>
+
+				<div class="input-field col s6">
+					<select id='selectVersion' data-bind="options: versions,
+										optionsText: 'text',
+										optionsValue: 'value',
+										value: selectedVersion,
+										optionsAfterRender: setVersionDisable">
+					</select>
+
+					<label>Version select</label>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal-footer">
+	<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Start</a>
+</div>

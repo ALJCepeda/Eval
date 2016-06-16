@@ -3,11 +3,11 @@ define([], function() {
 		var self = this;
 		this.get = function(url, data, modify) {
 			return self.ajax('GET', url, data, modify);
-		}
+		};
 
 		this.post = function(url, data, modify) {
 			return self.ajax('POST', url, data, modify);
-		}
+		};
 
 		this.ajax  = function(method, url, data, modify) {
 			var promise = new Promise(function(resolve, reject) {
@@ -21,20 +21,20 @@ define([], function() {
 						} else {
 							reject(request.responseText, request);
 						}
-					} 
-				}
+					}
+				};
 
-				if(_.isFunction(modify)) {
+				if(typeof modify !== 'undefined') {
 					modify(request, data);
 				}
 
 				var json = JSON.stringify(data);
 				request.send(json);
 			});
-			
+
 			return promise;
-		}
-	}
+		};
+	};
 
 	return Ajaxer;
 });
