@@ -1,4 +1,4 @@
-defined([], function() {
+define(['modals/newProject'], function(modal_newProject) {
 	var Router = Backbone.Router.extend({
 	  	routes: {
 			":action":"actionRoute",
@@ -12,7 +12,7 @@ defined([], function() {
 				break;
 
 				case 'start':
-
+					modal_newProject.submit();
 				break;
 
 				case 'settings':

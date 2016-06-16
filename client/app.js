@@ -28,6 +28,8 @@ define([], function() {
 					}
 				]
 			};
+
+			this.project(project);
 		};
 	};
 
