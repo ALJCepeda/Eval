@@ -1,6 +1,19 @@
-define(['modals/newProject'], function(modal_newProject) {
+define(['app', 'modals/newProject'], function(app, modal_newProject) {
 	return {
-		build:function() {
+		init:function() {
+			modal_newProject.didPressSubmit = function() {
+				var modal = modal_newProject;
+				var platform = modal.selectedPlatform();
+				var tag = modal.selectedTag();
+
+				var willCreate = app.shouldCreateProject(platform, tag);
+				if(willCreate === false) {
+					setTimeout(function() {
+						app.shouldNavigate('create', {trigger: true});
+					}.bind(this), 500);
+				}
+			};
+
 			var Router = Backbone.Router.extend({
 			  	routes: {
 					":action":"actionRoute",
@@ -10,8 +23,7 @@ define(['modals/newProject'], function(modal_newProject) {
 			  	actionRoute: function(action) {
 			  		switch(action) {
 						case 'create':
-							$('#toggle_modal_newProject').trigger('click');
-							//modal_newProject.trigger();
+							modal_newProject.trigger();
 						break;
 
 						case 'start':

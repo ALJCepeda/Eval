@@ -15,7 +15,7 @@ define(['app'], function(app) {
 
 			if(platform === "") { return tags; }
 
-			[].push.apply(tags, app.meta.project[platform].tags.map(function(tag) {
+			[].push.apply(tags, this.meta.project[platform].tags.map(function(tag) {
 				return { value: tag, text: tag, disable: false };
 			}));
 
@@ -34,18 +34,7 @@ define(['app'], function(app) {
 			ko.applyBindingsToNode(option, {disable: version.disable}, version);
 		};
 
-		this.submit = function() {
-			var platform = this.selectedPlatform();
-			var tag = this.selectedTag();
-
-			var project = app.createProject(platform, tag);
-
-			if(project === false) {
-				setTimeout(function() {
-					app.router.navigate('create', {trigger: true});
-				}.bind(this), 500);
-			}
-		};
+		this.submit = function() { this.didPressSubmit(); };
 
 		this.trigger = function() { $('#toggle_'+this.id).trigger('click'); };
 
@@ -55,10 +44,14 @@ define(['app'], function(app) {
 			$('select').material_select();
 		};
 
-		for(var key in app.meta.project) {
-			var platform = { value:key, text:app.meta.project[key].text, disable:false };
-			this.platforms.push(platform);
-		}
+		this.updateMeta = function(meta) {
+			this.meta = meta;
+
+			for(var key in this.meta.project) {
+				var platform = { value:key, text:this.meta.project[key].text, disable:false };
+				this.platforms.push(platform);
+			}
+		};
 	};
 
 	return new NewProject();
