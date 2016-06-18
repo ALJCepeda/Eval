@@ -22,7 +22,11 @@ var RestAPI = function(workURL, pgdb, app) {
 	});
 
 	app.get("/info", jsoner, function(req, res) {
- 		res.send(this.info);
+		res.setHeader('content-type', 'application/json');
+		pgdb.info().then(function(info) {
+			var data = JSON.stringify(info);
+			res.send(data);
+		});
  	}.bind(this));
 
 	app.get("/compile", jsoner, function(req, res) {

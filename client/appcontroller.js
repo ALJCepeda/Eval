@@ -22,12 +22,21 @@ define(['app',
                 }.bind(this), 500);
             }
         }.bind(this);
+    };
+    
+    AppController.prototype.init = function() {
+        ko.applyBindings(app, document.getElementById("root"));
 
-        this.app.feed.subscribe('didInit', function() {
-            this.app.selectedTheme.subscribe(function(theme) {
-                documentor.loadTheme(theme);
-            });
-        }.bind(this));
+        this.app.init();
+        this.router.init();
+        this.newProject.init('modal_newProject');
+        this.documentor.init('editor');
+
+        this.app.selectedTheme.subscribe(function(theme) {
+            documentor.loadTheme(theme);
+        });
+
+        this.app.selectedTheme('monokai');
     };
 
     AppController.prototype.shouldCreateProject = function(options) {

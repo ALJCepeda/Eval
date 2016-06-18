@@ -1,6 +1,5 @@
-define(['app', 'appcontroller'], function(app, controller, modal_newProject, router) {
-	ko.applyBindings(app, document.getElementById("root"));
+define(['appcontroller'], function(controller) {
 	$('.modal-trigger').leanModal({ dismissible: false });
 
-	app.init();
+	controller.init();
 });

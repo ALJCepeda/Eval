@@ -40,11 +40,7 @@ define(['feeds/app'], function(appfeed) {
 
 			return tags;
 		}.bind(this));
-
-		appfeed.subscribe('didInit', function(context) {
-			this.init(context.ids.newProject);
-		}.bind(this));
-
+		
 		appfeed.subscribe('fetchedMeta', function(meta) {
 			this.meta(meta);
 		}.bind(this));

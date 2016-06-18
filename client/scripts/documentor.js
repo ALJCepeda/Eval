@@ -4,10 +4,6 @@ define(['feeds/app'], function(appfeed) {
 		this.editor = '';
 		this.documents = [];
 
-		appfeed.subscribe('didInit', function(context) {
-			this.init(context.ids.documentor);
-		}.bind(this));
-
 		appfeed.subscribe('didCreate', function(project) {
 			this.loadProject(project);
 		}.bind(this));

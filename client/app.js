@@ -40,15 +40,6 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 		injector.injectVM('#modal_newProject', 'modals/newProject');
 
 		this.feed.publish('fetchedMeta', this.meta);
-		this.feed.publish('didInit', {
-			ids: {
-				newProject:'modal_newProject',
-				documentor:'editor'
-			}
-		});
-
-		//It's important that app observables are updated after the `didInit` event is sent
-		this.selectedTheme('monokai');
 	};
 
 	App.prototype.platformMeta = function(platform) {
