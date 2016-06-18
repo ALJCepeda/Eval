@@ -31,18 +31,24 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 				}
 			}
 		};
+
+		this.theme = ko.observableArray([ 'terminal', 'monokai', 'twilight', 'vibrant_ink', 'github' ]);
+		this.selectedTheme = ko.observable('');
 	};
 
 	App.prototype.init = function() {
 		injector.injectVM('#modal_newProject', 'modals/newProject');
 
+		this.feed.publish('fetchedMeta', this.meta);
 		this.feed.publish('didInit', {
 			ids: {
-				newProject:'modal_newProject'
+				newProject:'modal_newProject',
+				documentor:'editor'
 			}
 		});
 
-		this.feed.publish('fetchedMeta', this.meta);
+		//It's important that app observables are updated after the `didInit` event is sent
+		this.selectedTheme('monokai');
 	};
 
 	App.prototype.platformMeta = function(platform) {

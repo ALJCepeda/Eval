@@ -1,13 +1,11 @@
 define(['feeds/app'], function(appfeed) {
-	var Documentor = function(id) {
-		var editor = ace.edit(id);
-
-		this.id = id;
-		this.editor = editor;
+	var Documentor = function() {
+		this.id = '';
+		this.editor = '';
 		this.documents = [];
 
-		appfeed.subscribe('didInit', function() {
-			this.init();
+		appfeed.subscribe('didInit', function(context) {
+			this.init(context.ids.documentor);
 		}.bind(this));
 
 		appfeed.subscribe('didCreate', function(project) {
@@ -16,10 +14,12 @@ define(['feeds/app'], function(appfeed) {
 	};
 
 	/* Initial values */
-	Documentor.prototype.init = function() {
+	Documentor.prototype.init = function(id) {
+		console.log(id);
 		this.editor.$blockScrolling = Infinity;
-		this.editor.session.setMode('ace/mode/plain_text');
-		this.editor.setTheme('ace/theme/monokai');
+		this.id = id;
+		this.editor = ace.edit(id);
+		this.loadMode('plain_text');
 	};
 
 	Documentor.prototype.loadProject = function(project) {
@@ -42,7 +42,7 @@ define(['feeds/app'], function(appfeed) {
 
 	Documentor.prototype.loadTheme = function(t) {
 		var theme = 'ace/theme/' + t;
-		this.editor.session.setTheme(theme);
+		this.editor.setTheme(theme);
 	};
 
 	return new Documentor('editor');

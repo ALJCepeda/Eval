@@ -22,6 +22,12 @@ define(['app',
                 }.bind(this), 500);
             }
         }.bind(this);
+
+        this.app.feed.subscribe('didInit', function() {
+            this.app.selectedTheme.subscribe(function(theme) {
+                documentor.loadTheme(theme);
+            });
+        }.bind(this));
     };
 
     AppController.prototype.shouldCreateProject = function(options) {
