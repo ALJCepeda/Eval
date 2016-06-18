@@ -1,36 +1,13 @@
-define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, NewsFeed) {
+define(['underscore',
+		'scripts/injector',
+		'scripts/restful',
+		'newsfeed'], function(_, injector, rest, NewsFeed) {
+
 	var App = function() {
 		this.title = '3val';
+		this.rest = rest;
 		this.feed = new NewsFeed();
-		this.meta = {
-			project: {
-				php: {
-					text:'PHP',
-					aceMode:'php',
-					extension:'php',
-					tags: [ '5.4', '5.5', '5.6' ],
-					demo: '<?php\n\techo "Hello World!";'
-				}, nodejs: {
-					text:'NodeJS',
-					aceMode:'javascript',
-					extension:'js',
-					tags: [ '0.12.4' ],
-					demo: 'console.log("Hello World");'
-				}, haskell: {
-					text:'Haskell',
-					aceMode:'haskell',
-					extension:'hs',
-					tags: [ 'latest' ],
-					demo: 'main = putStrLn "Hello World!";'
-				}, pascal: {
-					text:'Pascal',
-					aceMode:'pascal',
-					extension:'ps',
-					tags: [ '2.6.4' ],
-					demo: 'program Hello;\nbegin\n\twriteln (\'Hello World!\');\nend.'
-				}
-			}
-		};
+		this.meta = '';
 
 		this.theme = ko.observableArray([ 'terminal', 'monokai', 'twilight', 'vibrant_ink', 'github' ]);
 		this.selectedTheme = ko.observable('');
@@ -38,8 +15,15 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 
 	App.prototype.init = function() {
 		injector.injectVM('#modal_newProject', 'modals/newProject');
+		this.fetchMeta();
+	};
 
-		this.feed.publish('fetchedMeta', this.meta);
+	App.prototype.fetchMeta = function() {
+		this.rest.info().then(function(info) {
+			console.log('Meta:', info);
+			this.meta = info;
+			this.feed.publish('fetchedMeta', info);
+		}.bind(this));
 	};
 
 	App.prototype.platformMeta = function(platform) {

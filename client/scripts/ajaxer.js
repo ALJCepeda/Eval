@@ -17,9 +17,9 @@ define([], function() {
 				request.onreadystatechange = function() {
 					if(request.readyState === XMLHttpRequest.DONE) {
 						if(request.status === 200) {
-							resolve(request.responseText, request);
+							resolve(request.responseText);
 						} else {
-							reject(request.responseText, request);
+							reject(request);
 						}
 					}
 				};
