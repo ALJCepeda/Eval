@@ -9,7 +9,7 @@ define(['underscore'], function(_) {
 				php: {
 					text:'PHP',
 					aceMode:'php',
-					tags: [ '5.4', '5.5', '5.6' ] },
+					tags: [ '5.4', '5.5', '5.6' ],
 				}, nodejs: {
 					text:'NodeJS',
 					aceMode:'javascript',
@@ -61,7 +61,7 @@ define(['underscore'], function(_) {
 
 			return project;
 		};
-	});
+	};
 
 	return new App();
 });

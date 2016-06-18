@@ -24,7 +24,7 @@ req.bind(WORK_URL, function(err) {
 	if(err) throw err;
 
 	var StaticAPI = require("./resources/staticapi.js");
-	var staticy = new StaticAPI();
+	var staticy = new StaticAPI(app);
 
 	var RestAPI= require("./resources/restapi.js");
 	var rest = new RestAPI(req, pgclient, app);
