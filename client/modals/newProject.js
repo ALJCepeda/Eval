@@ -1,6 +1,5 @@
 define(['feeds/app'], function(appfeed) {
 	var NewProject = function() {
-		debugger;
 		var self = this;
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
@@ -45,10 +44,14 @@ define(['feeds/app'], function(appfeed) {
 		ko.applyBindingsToNode(option, {disable: version.disable}, version);
 	};
 
-	NewProject.prototype.submit = function() {
+	NewProject.prototype.fields = function() {
 		var platform = this.selectedPlatform();
 		var tag = this.selectedTag();
-		this.didPressSubmit(platform, tag);
+
+		return {
+			platform:platform,
+			tag:tag
+		};
 	};
 
 	NewProject.prototype.trigger = function() {

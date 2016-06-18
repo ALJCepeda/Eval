@@ -1,8 +1,7 @@
 define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, NewsFeed) {
 	var App = function() {
 		this.title = '3val';
-		this.router = '';
-		this.documentor = '';
+		this.controller = '';
 		this.feed = new NewsFeed();
 		this.meta = {
 			project: {
@@ -39,16 +38,10 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 	};
 
 	App.prototype.platformMeta = function(platform) {
-		return this.meta.project[platform];
+		return this.meta.project[platform] || '';
 	};
 
-
-	App.prototype.createProject = function(platform, tag) {
-		if( platform === '' || tag === '') {
-			return false;
-		}
-
-		var meta = this.platformMeta(platform);
+	App.prototype.createProject = function(platform, tag, meta) {
 		var documents = [
 			{
 				name:'index',

@@ -1,46 +1,44 @@
 define(['feeds/app', 'modals/newProject'], function(appfeed, modal_newProject) {
 	var Router = function() {
-		appfeed.subscribe('didInit', function() {
-			modal_newProject.didPressSubmit = function(platform, tag) {
-				var willCreate = app.shouldCreateProject(platform, tag);
-				if(willCreate === false) {
-					setTimeout(function() {
-						app.shouldNavigate('create', {trigger: true});
-					}.bind(this), 500);
+		var self = this;
+		this.router = '';
+		this.gotCreate = function() { console.log('#create'); };
+		this.gotStart = function() { console.log('#start'); };
+		this.gotSettings = function() { console.log('#settings'); };
+
+		var BackRouter = Backbone.Router.extend({
+		  	routes: {
+				":action":"actionRoute",
+				":id/:page":"pageRoute"
+			},
+
+		  	actionRoute: function(action) {
+		  		switch(action) {
+					case 'create':
+						self.gotCreate();
+					break;
+
+					case 'start':
+						self.gotStart();
+					break;
+
+					case 'settings':
+						self.gotSettings();
+					break;
 				}
-			};
+		  	},
 
-			var BackRouter = Backbone.Router.extend({
-			  	routes: {
-					":action":"actionRoute",
-					":id/:page":"pageRoute"
-				},
+		  	pageRoute: function(id, page) {
 
-			  	actionRoute: function(action) {
-			  		switch(action) {
-						case 'create':
-							modal_newProject.trigger();
-						break;
-
-						case 'start':
-							modal_newProject.submit();
-						break;
-
-						case 'settings':
-
-						break;
-					}
-			  	},
-
-			  	pageRoute: function(id, page) {
-
-			  	}
-			});
-
-			var router = new BackRouter();
-			Backbone.history.start();
-			return router;
+		  	}
 		});
+
+		this.router = new BackRouter();
+		Backbone.history.start();
+	};
+
+	Router.prototype.navigate = function(route, options) {
+		this.router.navigate(route, options);
 	};
 
 	return new Router();
