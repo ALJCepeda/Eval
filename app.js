@@ -6,15 +6,7 @@ var config = require("./config.js");
 var PGClient = require("./libs/eval_pgclient");
 var pgclient = new PGClient('postgres://vagrant:password@localhost/eval');
 
-require("./resources/prototypes/object.js");
-var RecordBook = require("./resources/recordbook.js");
-var book = new RecordBook();
-
-var StaticAPI = require("./resources/staticapi.js");
-var staticy = new StaticAPI(book);
-staticy.bootstrap(app);
-staticy.routes.index(app, "get");
-
+app.use("/newsfeed.js", express.static("./libs/newsfeed/index.js"));
 app.use("/materialize", express.static("./node_modules/materialize-css/dist"));
 app.use("/jquery.js", express.static("./node_modules/jquery/dist/jquery.min.js"));
 app.use("/require.js", express.static("./node_modules/requirejs/require.js"));
@@ -30,6 +22,9 @@ req.identity = "client" + process.pid;
 
 req.bind(WORK_URL, function(err) {
 	if(err) throw err;
+
+	var StaticAPI = require("./resources/staticapi.js");
+	var staticy = new StaticAPI();
 
 	var RestAPI= require("./resources/restapi.js");
 	var rest = new RestAPI(req, pgclient, app);
