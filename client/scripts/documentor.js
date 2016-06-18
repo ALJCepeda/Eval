@@ -9,6 +9,10 @@ define(['feeds/app'], function(appfeed) {
 		appfeed.subscribe('didInit', function() {
 			this.init();
 		}.bind(this));
+
+		appfeed.subscribe('didCreate', function(project) {
+			this.loadProject(project);
+		}.bind(this));
 	};
 
 	/* Initial values */

@@ -5,17 +5,31 @@ define(['feeds/app'], function(appfeed) {
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
 
 		this.id = 'modal_newProject';
+		this.meta = ko.observable({});
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
-
 		this.platforms = ko.observableArray([ firstPlatform ]);
+
+		this.platforms = ko.computed(function() {
+			var meta = this.meta();
+			var newPlatforms = [ firstPlatform ];
+
+			for(var key in meta.project) {
+				var platform = { value:key, text:meta.project[key].text, disable:false };
+				newPlatforms.push(platform);
+			}
+
+			return newPlatforms;
+		}.bind(this));
+
 		this.tags = ko.computed(function() {
+			var meta = this.meta();
 			var platform = this.selectedPlatform();
 			var tags = [ firstTag ];
 
 			if(platform === "") { return tags; }
 
-			[].push.apply(tags, this.meta.project[platform].tags.map(function(tag) {
+			[].push.apply(tags, meta.project[platform].tags.map(function(tag) {
 				return { value: tag, text: tag, disable: false };
 			}));
 
@@ -29,6 +43,10 @@ define(['feeds/app'], function(appfeed) {
 
 		appfeed.subscribe('didInit', function(context) {
 			this.init(context.ids.newProject);
+		}.bind(this));
+
+		appfeed.subscribe('fetchedMeta', function(meta) {
+			this.meta(meta);
 		}.bind(this));
 	};
 
@@ -67,10 +85,7 @@ define(['feeds/app'], function(appfeed) {
 	NewProject.prototype.updateMeta = function(meta) {
 		this.meta = meta;
 
-		for(var key in this.meta.project) {
-			var platform = { value:key, text:this.meta.project[key].text, disable:false };
-			this.platforms.push(platform);
-		}
+
 	};
 
 	return new NewProject();

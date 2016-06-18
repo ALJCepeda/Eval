@@ -1,10 +1,11 @@
 define(['app',
         'modals/newProject',
-        'scripts/router'], function(app, modal_newProject, router) {
+        'scripts/documentor',
+        'scripts/router'], function(app, modal_newProject, documentor, router) {
     var AppController = function() {
-        debugger;
         this.app = app;
         this.newProject = modal_newProject;
+        this.documentor = documentor;
         this.router = router;
 
         this.router.gotCreate = function() {

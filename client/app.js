@@ -1,30 +1,36 @@
 define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, NewsFeed) {
 	var App = function() {
 		this.title = '3val';
-		this.controller = '';
 		this.feed = new NewsFeed();
 		this.meta = {
 			project: {
 				php: {
 					text:'PHP',
 					aceMode:'php',
+					extension:'php',
 					tags: [ '5.4', '5.5', '5.6' ],
+					demo: '<?php\n\techo "Hello World!";'
 				}, nodejs: {
 					text:'NodeJS',
 					aceMode:'javascript',
-					tags: [ '0.12.4' ]
+					extension:'js',
+					tags: [ '0.12.4' ],
+					demo: 'console.log("Hello World");'
 				}, haskell: {
 					text:'Haskell',
 					aceMode:'haskell',
-					tags: [ 'latest' ]
+					extension:'hs',
+					tags: [ 'latest' ],
+					demo: 'main = putStrLn "Hello World!";'
 				}, pascal: {
 					text:'Pascal',
 					aceMode:'pascal',
-					tags: [ '2.6.4' ]
+					extension:'ps',
+					tags: [ '2.6.4' ],
+					demo: 'program Hello;\nbegin\n\twriteln (\'Hello World!\');\nend.'
 				}
 			}
 		};
-		this.project = ko.observable({ platform:'', tag:'', documents:[] });
 	};
 
 	App.prototype.init = function() {
@@ -35,6 +41,8 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 				newProject:'modal_newProject'
 			}
 		});
+
+		this.feed.publish('fetchedMeta', this.meta);
 	};
 
 	App.prototype.platformMeta = function(platform) {
@@ -45,8 +53,8 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 		var documents = [
 			{
 				name:'index',
-				extension:'php',
-				content:'<?php\n\techo "Hello World!";'
+				extension:meta.extension,
+				content:meta.demo
 			}
 		];
 
@@ -56,9 +64,7 @@ define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, New
 			documents:documents
 		};
 
-		this.project(project);
-		this.documentor.loadProject(project);
-
+		this.feed.publish('didCreate', project);
 		return project;
 	};
 
