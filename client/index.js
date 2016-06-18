@@ -3,5 +3,4 @@ define(['app', 'modals/newProject', 'scripts/router'], function(app, modal_newPr
 	$('.modal-trigger').leanModal({ dismissible: false });
 
 	app.init();
-	app.router = router.init();
 });

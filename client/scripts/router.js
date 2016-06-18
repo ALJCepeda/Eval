@@ -1,6 +1,6 @@
-define(['app', 'modals/newProject'], function(app, modal_newProject) {
-	return {
-		init:function() {
+define(['feeds/app', 'modals/newProject'], function(appfeed, modal_newProject) {
+	var Router = function() {
+		appfeed.subscribe('didInit', function() {
 			modal_newProject.didPressSubmit = function(platform, tag) {
 				var willCreate = app.shouldCreateProject(platform, tag);
 				if(willCreate === false) {
@@ -10,7 +10,7 @@ define(['app', 'modals/newProject'], function(app, modal_newProject) {
 				}
 			};
 
-			var Router = Backbone.Router.extend({
+			var BackRouter = Backbone.Router.extend({
 			  	routes: {
 					":action":"actionRoute",
 					":id/:page":"pageRoute"
@@ -37,9 +37,11 @@ define(['app', 'modals/newProject'], function(app, modal_newProject) {
 			  	}
 			});
 
-			var router = new Router();
+			var router = new BackRouter();
 			Backbone.history.start();
 			return router;
-		}
+		});
 	};
+
+	return new Router();
 });
