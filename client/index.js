@@ -1,12 +1,7 @@
-define(['app',
-		'scripts/injector',
-		'scripts/documentor',
-	 	'scripts/router' ], function(app, injector, Documentor, router) {
-	app.documentor = new Documentor('editor');
-	app.documentor.init();
-
+define(['app', 'modals/newProject', 'scripts/router'], function(app, modal_newProject, router) {
 	ko.applyBindings(app, document.getElementById("root"));
 	$('.modal-trigger').leanModal({ dismissible: false });
 
+	app.init();
 	app.router = router.init();
 });

@@ -1,11 +1,7 @@
 define(['app', 'modals/newProject'], function(app, modal_newProject) {
 	return {
 		init:function() {
-			modal_newProject.didPressSubmit = function() {
-				var modal = modal_newProject;
-				var platform = modal.selectedPlatform();
-				var tag = modal.selectedTag();
-
+			modal_newProject.didPressSubmit = function(platform, tag) {
 				var willCreate = app.shouldCreateProject(platform, tag);
 				if(willCreate === false) {
 					setTimeout(function() {

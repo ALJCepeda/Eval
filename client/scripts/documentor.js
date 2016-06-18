@@ -1,10 +1,14 @@
-define([], function() {
+define(['feeds/app'], function(appfeed) {
 	var Documentor = function(id) {
 		var editor = ace.edit(id);
 
 		this.id = id;
 		this.editor = editor;
 		this.documents = [];
+
+		appfeed.subscribe('didInit', function() {
+			this.init();
+		}.bind(this));
 	};
 
 	/* Initial values */
@@ -37,5 +41,5 @@ define([], function() {
 		this.editor.session.setTheme(theme);
 	};
 
-	return Documentor;
+	return new Documentor('editor');
 });

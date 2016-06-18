@@ -1,10 +1,11 @@
-define(['app'], function(app) {
+define(['feeds/app'], function(appfeed) {
 	var NewProject = function() {
+		debugger;
 		var self = this;
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
 
-		this.id = '';
+		this.id = 'modal_newProject';
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
 
@@ -27,31 +28,46 @@ define(['app'], function(app) {
 			return tags;
 		}.bind(this));
 
-		this.setPlatformDisable = function(option, platform) {
-			ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
-		};
-		this.setTagDisable = function(option, version) {
-			ko.applyBindingsToNode(option, {disable: version.disable}, version);
-		};
+		appfeed.subscribe('didInit', function(context) {
+			this.init(context.ids.newProject);
+		}.bind(this));
+	};
 
-		this.submit = function() { this.didPressSubmit(); };
+	NewProject.prototype.init = function(id) {
+		this.id = id;
+	};
 
-		this.trigger = function() { $('#toggle_'+this.id).trigger('click'); };
+	NewProject.prototype.setPlatformDisable = function(option, platform) {
+		ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
+	};
 
-		this.didRender = function(element) {
-			element.className += ' modal';
-			element.style.visibility = 'visible';
-			$('select').material_select();
-		};
+	NewProject.prototype.setTagDisable = function(option, version) {
+		ko.applyBindingsToNode(option, {disable: version.disable}, version);
+	};
 
-		this.updateMeta = function(meta) {
-			this.meta = meta;
+	NewProject.prototype.submit = function() {
+		var platform = this.selectedPlatform();
+		var tag = this.selectedTag();
+		this.didPressSubmit(platform, tag);
+	};
 
-			for(var key in this.meta.project) {
-				var platform = { value:key, text:this.meta.project[key].text, disable:false };
-				this.platforms.push(platform);
-			}
-		};
+	NewProject.prototype.trigger = function() {
+		$('#toggle_'+this.id).trigger('click');
+	};
+
+	NewProject.prototype.didRender = function(element) {
+		element.className += ' modal';
+		element.style.visibility = 'visible';
+		$('select').material_select();
+	};
+
+	NewProject.prototype.updateMeta = function(meta) {
+		this.meta = meta;
+
+		for(var key in this.meta.project) {
+			var platform = { value:key, text:this.meta.project[key].text, disable:false };
+			this.platforms.push(platform);
+		}
 	};
 
 	return new NewProject();

@@ -1,9 +1,9 @@
-define(['underscore'], function(_) {
+define(['underscore', 'scripts/injector', 'newsfeed'], function(_, injector, NewsFeed) {
 	var App = function() {
-		debugger;
 		this.title = '3val';
 		this.router = '';
 		this.documentor = '';
+		this.feed = new NewsFeed();
 		this.meta = {
 			project: {
 				php: {
@@ -25,42 +25,48 @@ define(['underscore'], function(_) {
 				}
 			}
 		};
+		this.project = ko.observable({ platform:'', tag:'', documents:[] });
+	};
 
-		this.platformMeta = function(platform) {
-			return this.meta.project[platform];
-		};
+	App.prototype.init = function() {
+		injector.injectVM('#modal_newProject', 'modals/newProject');
 
-		this.project = ko.observable({
-			platform:'',
-			tag:'',
-			documents: []
-		});
-
-		this.createProject = function(platform, tag) {
-			if( platform === '' || tag === '') {
-				return false;
+		this.feed.publish('didInit', {
+			ids: {
+				newProject:'modal_newProject'
 			}
+		});
+	};
 
-			var meta = this.platformMeta(platform);
-			var documents = [
-				{
-					name:'index',
-					extension:'php',
-					content:'<?php\n\techo "Hello World!";'
-				}
-			];
+	App.prototype.platformMeta = function(platform) {
+		return this.meta.project[platform];
+	};
 
-			var project = {
-				meta:meta,
-				tag:tag,
-				documents:documents
-			};
 
-			this.project(project);
-			this.documentor.loadProject(project);
+	App.prototype.createProject = function(platform, tag) {
+		if( platform === '' || tag === '') {
+			return false;
+		}
 
-			return project;
+		var meta = this.platformMeta(platform);
+		var documents = [
+			{
+				name:'index',
+				extension:'php',
+				content:'<?php\n\techo "Hello World!";'
+			}
+		];
+
+		var project = {
+			meta:meta,
+			tag:tag,
+			documents:documents
 		};
+
+		this.project(project);
+		this.documentor.loadProject(project);
+
+		return project;
 	};
 
 	return new App();
