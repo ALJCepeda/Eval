@@ -21,7 +21,13 @@ define([], function() {
     AppController.prototype.setNewProject = function(modal_newProject) {
         this.newProject = modal_newProject;
 
-        modal_newProject.didSubmit = this.shouldCreateProject.bind(this);
+        modal_newProject.didSubmit = function(project, tag) {
+            var url = project + '/' + tag;
+            this.router.navigate(url, {trigger: true});
+            return true;
+        }.bind(this);
+
+        //this.shouldCreateProject.bind(this);
     }
     AppController.prototype.setDocumentor = function(documentor) {
         this.documentor = documentor;
@@ -32,20 +38,26 @@ define([], function() {
         router.feed.subscribe('gotCreate', function() {
             this.newProject.open();
         }.bind(this));
+
+        router.feed.subscribe('gotProject', function(args) {
+            var id = args.id;
+            var save = args.save;
+
+            var didCreate = this.attemptCreateProject(id, save);
+            if(didCreate === true) {
+                return true;
+            }
+
+            //TODO: Attempt to fetch project from server
+        }.bind(this));
     }
 
-    AppController.prototype.shouldCreateProject = function(platform, tag) {
-		var meta = this.app.platformMeta(platform);
+    AppController.prototype.attemptCreateProject = function(platform, tag) {
+		if(this.app.validPlatform(platform, tag) !== true) {
+            return false;
+        }
 
-		if( platform === '' || tag === '' || meta === '') {
-			return false;
-		}
-
-        setTimeout(function() {
-            this.router.navigate('create', {trigger: true});
-        }.bind(this), 500);
-
-		this.app.createProject(platform, tag, meta);
+		this.app.createProject(platform, tag);
         return true;
 	};
 

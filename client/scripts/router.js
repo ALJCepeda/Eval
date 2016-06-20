@@ -7,7 +7,7 @@ define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfee
 		var BackRouter = Backbone.Router.extend({
 		  	routes: {
 				":action":"actionRoute",
-				":id/:page":"pageRoute"
+				":id/:save":"idRoute"
 			},
 
 		  	actionRoute: function(action) {
@@ -18,8 +18,11 @@ define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfee
 				}
 		  	},
 
-		  	pageRoute: function(id, page) {
-
+		  	idRoute: function(id, save) {
+				self.feed.publish('gotProject', {
+					id:id,
+					save:save
+				})
 		  	}
 		});
 

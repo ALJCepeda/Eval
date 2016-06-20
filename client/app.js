@@ -33,7 +33,19 @@ define(['underscore',
 		return this.meta[platform] || '';
 	};
 
-	App.prototype.createProject = function(platform, tag, meta) {
+	App.prototype.validPlatform = function(platform, tag) {
+		var meta = this.platformMeta(platform);
+
+		if(meta === '') {
+			return false;
+		}
+
+		return meta.tags.indexOf(tag) !== -1;
+	};
+
+	App.prototype.createProject = function(platform, tag) {
+		var meta = this.platformMeta(platform);
+		
 		var project = {
 			meta:meta,
 			tag:tag,
