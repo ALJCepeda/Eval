@@ -20,7 +20,7 @@ define(['underscore',
 	};
 
 	App.prototype.fetchMeta = function() {
-		this.rest.info().then(function(info) {
+		return this.rest.info().then(function(info) {
 			console.log('Meta:', info);
 			this.meta = info.meta;
 			this.theme(info.themes);
@@ -45,7 +45,7 @@ define(['underscore',
 
 	App.prototype.createProject = function(platform, tag) {
 		var meta = this.platformMeta(platform);
-		
+
 		var project = {
 			meta:meta,
 			tag:tag,

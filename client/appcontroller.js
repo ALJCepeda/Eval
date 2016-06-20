@@ -7,8 +7,11 @@ define([], function() {
     };
 
     AppController.prototype.start = function() {
-        this.app.fetchMeta();
         this.app.selectedTheme('monokai');
+
+        this.app.fetchMeta().then(function() {
+            this.router.start();
+        }.bind(this));
     };
 
     AppController.prototype.setApp = function(app) {
