@@ -11,9 +11,9 @@ define(['feeds/app'], function(appfeed) {
 
 	/* Initial values */
 	Documentor.prototype.bind = function(id) {
-		this.editor.$blockScrolling = Infinity;
 		this.id = id;
 		this.editor = ace.edit(id);
+		this.editor.$blockScrolling = Infinity;
 		this.loadMode('plain_text');
 	};
 
