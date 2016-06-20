@@ -4,11 +4,16 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
 
-		this.id = 'modal_newProject';
+		this.id = '';
+		this.didSubmit;
 		this.meta = ko.observable({});
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
-		this.platforms = ko.observableArray([ firstPlatform ]);
+
+		this.disabled = ko.computed(function() {
+			return this.selectedPlatform() === '' ||
+					this.selectedTag() === ''
+		}.bind(this));
 
 		this.platforms = ko.computed(function() {
 			var meta = this.meta();
@@ -46,6 +51,18 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}.bind(this));
 	};
 
+	NewProject.prototype.onClick = function() {
+		if(this.disabled() === false) {
+			var platform = this.selectedPlatform();
+			var tag = this.selectedTag();
+
+			var shouldDismiss = this.didSubmit(platform, tag);
+			if(shouldDismiss === true) {
+				this.close();
+			}
+		}
+	};
+
 	NewProject.prototype.bind = function(id) {
 		this.id = id;
 		injector.injectVM('#'+id, 'modals/newProject');
@@ -68,8 +85,11 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		};
 	};
 
-	NewProject.prototype.trigger = function() {
-		$('#toggle_'+this.id).trigger('click');
+	NewProject.prototype.open = function() {
+		$('#open_'+this.id).trigger('click');
+	};
+	NewProject.prototype.close = function() {
+		$('#close_'+this.id).trigger('click');
 	};
 
 	NewProject.prototype.didRender = function(element) {

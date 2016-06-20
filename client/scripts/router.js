@@ -2,9 +2,6 @@ define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfee
 	var Router = function() {
 		this.router = '';
 		this.feed = new NewsFeed();
-		this.gotCreate = function() { console.log('#create'); };
-		this.gotStart = function() { console.log('#start'); };
-		this.gotSettings = function() { console.log('#settings'); };
 
 		var self = this;
 		var BackRouter = Backbone.Router.extend({
@@ -16,15 +13,7 @@ define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfee
 		  	actionRoute: function(action) {
 		  		switch(action) {
 					case 'create':
-						self.gotCreate();
-					break;
-
-					case 'start':
-						self.gotStart();
-					break;
-
-					case 'settings':
-						self.gotSettings();
+						self.feed.publish('gotCreate');
 					break;
 				}
 		  	},

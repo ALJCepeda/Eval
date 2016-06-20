@@ -20,6 +20,8 @@ define([], function() {
     };
     AppController.prototype.setNewProject = function(modal_newProject) {
         this.newProject = modal_newProject;
+
+        modal_newProject.didSubmit = this.shouldCreateProject.bind(this);
     }
     AppController.prototype.setDocumentor = function(documentor) {
         this.documentor = documentor;
@@ -28,30 +30,23 @@ define([], function() {
         this.router = router;
 
         router.feed.subscribe('gotCreate', function() {
-            this.newProject.trigger();
-        }.bind(this));
-
-        router.feed.subscribe('gotStart', function(fields) {
-            var didCreate = this.shouldCreateProject(fields);
-
-            if(didCreate === false) {
-                setTimeout(function() {
-                    this.router.navigate('create', {trigger: true});
-                }.bind(this), 500);
-            }
+            this.newProject.open();
         }.bind(this));
     }
 
-    AppController.prototype.shouldCreateProject = function(options) {
-        var platform = options.platform;
-        var tag = options.tag;
+    AppController.prototype.shouldCreateProject = function(platform, tag) {
 		var meta = this.app.platformMeta(platform);
 
 		if( platform === '' || tag === '' || meta === '') {
 			return false;
 		}
 
-		return this.app.createProject(platform, tag, meta);
+        setTimeout(function() {
+            this.router.navigate('create', {trigger: true});
+        }.bind(this), 500);
+
+		this.app.createProject(platform, tag, meta);
+        return true;
 	};
 
     return new AppController();
