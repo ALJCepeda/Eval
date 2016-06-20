@@ -2,14 +2,14 @@ var zmq = require("zmq");
 var bodyparser = require("body-parser");
 var config = require("../config.js");
 
-
-var RestAPI = function(workURL, pgdb, app) {
+var RestAPI = function(workURL, app, info) {
 	var self = this;
 
 	var jsoner = bodyparser.json();
 	this.workurl = workURL;
 	//this.keeper = book.keeper("restapi");
 	this.routes = {};
+	this.info = info;
 
 	//this.info.themes = config.aceThemes;
 
@@ -23,10 +23,8 @@ var RestAPI = function(workURL, pgdb, app) {
 
 	app.get("/info", jsoner, function(req, res) {
 		res.setHeader('content-type', 'application/json');
-		pgdb.info().then(function(info) {
-			var data = JSON.stringify(info);
-			res.send(data);
-		});
+		var data = JSON.stringify(info);
+		res.send(data);
  	}.bind(this));
 
 	app.get("/compile", jsoner, function(req, res) {

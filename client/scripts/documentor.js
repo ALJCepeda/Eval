@@ -19,7 +19,7 @@ define(['feeds/app'], function(appfeed) {
 	};
 
 	Documentor.prototype.loadProject = function(project) {
-		this.loadMode(project.meta.aceMode);
+		this.loadMode(project.meta.acemode);
 		this.loadDocuments(project.documents);
 	};
 

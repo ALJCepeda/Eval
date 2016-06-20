@@ -1,33 +1,50 @@
-var express = require("express");
+var fs = require('fs')
+var express = require('express');
 var app = express();
-var http = require("http").Server(app);
+var http = require('http').Server(app);
 
-var config = require("./config.js");
-var PGClient = require("./libs/eval_pgclient");
-var pgclient = new PGClient('postgres://vagrant:password@localhost/eval');
+var config = require('./config.js');
+var PGClient = require('./libs/eval_pgclient');
+var pgdb = new PGClient('postgres://vagrant:password@localhost/eval');
 
-app.use("/newsfeed.js", express.static("./libs/newsfeed/index.js"));
-app.use("/materialize", express.static("./node_modules/materialize-css/dist"));
-app.use("/jquery.js", express.static("./node_modules/jquery/dist/jquery.min.js"));
-app.use("/require.js", express.static("./node_modules/requirejs/require.js"));
-app.use("/knockout.js", express.static("./node_modules/knockout/build/output/knockout-latest.js"));
-app.use("/underscore.js", express.static("./node_modules/underscore/underscore-min.js"));
-app.use("/backbone.js", express.static("./node_modules/backbone/backbone-min.js"));
-app.use("/ace-builds", express.static("./node_modules/ace-builds"));
+app.use('/newsfeed.js', express.static('./libs/newsfeed/index.js'));
+app.use('/materialize', express.static('./node_modules/materialize-css/dist'));
+app.use('/jquery.js', express.static('./node_modules/jquery/dist/jquery.min.js'));
+app.use('/require.js', express.static('./node_modules/requirejs/require.js'));
+app.use('/knockout.js', express.static('./node_modules/knockout/build/output/knockout-latest.js'));
+app.use('/underscore.js', express.static('./node_modules/underscore/underscore-min.js'));
+app.use('/backbone.js', express.static('./node_modules/backbone/backbone-min.js'));
+app.use('/ace-builds', express.static('./node_modules/ace-builds'));
 
-var zmq = require("zmq");
-var WORK_URL = "tcp://127.0.0.1:3000";
-var req = zmq.socket("req");
-req.identity = "client" + process.pid;
+var zmq = require('zmq');
+var WORK_URL = 'tcp://127.0.0.1:3000';
+var req = zmq.socket('req');
+req.identity = 'client' + process.pid;
 
-req.bind(WORK_URL, function(err) {
+fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files) {
 	if(err) throw err;
 
-	var StaticAPI = require("./resources/staticapi.js");
-	var staticy = new StaticAPI(app);
+	var themes = files.filter(function(file) {
+		return file.indexOf('theme-') !== -1;
+	}).map(function(file) {
+		return file.substring(0, file.length-3).substring(6);
+	});
 
-	var RestAPI= require("./resources/restapi.js");
-	var rest = new RestAPI(req, pgclient, app);
+	pgdb.info().then(function(meta) {
+		req.bind(WORK_URL, function(err) {
+			if(err) throw err;
 
-	http.listen(config.port, function() { console.log("listening on *: " + config.port); });
-})
+			var StaticAPI = require('./resources/staticapi.js');
+			var staticy = new StaticAPI(app);
+
+			var info = {
+				meta:meta,
+				themes:themes
+			};
+			var RestAPI= require('./resources/restapi.js');
+			var rest = new RestAPI(req, app, info);
+
+			http.listen(config.port, function() { console.log('listening on *: ' + config.port); });
+		});
+	});
+});

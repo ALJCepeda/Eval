@@ -14,8 +14,8 @@ define(['feeds/app'], function(appfeed) {
 			var meta = this.meta();
 			var newPlatforms = [ firstPlatform ];
 
-			for(var key in meta.project) {
-				var platform = { value:key, text:meta.project[key].text, disable:false };
+			for(var key in meta) {
+				var platform = { value:key, text:meta[key].name, disable:false };
 				newPlatforms.push(platform);
 			}
 
@@ -29,7 +29,7 @@ define(['feeds/app'], function(appfeed) {
 
 			if(platform === "") { return tags; }
 
-			[].push.apply(tags, meta.project[platform].tags.map(function(tag) {
+			[].push.apply(tags, meta[platform].tags.map(function(tag) {
 				return { value: tag, text: tag, disable: false };
 			}));
 
@@ -40,7 +40,7 @@ define(['feeds/app'], function(appfeed) {
 
 			return tags;
 		}.bind(this));
-		
+
 		appfeed.subscribe('fetchedMeta', function(meta) {
 			this.meta(meta);
 		}.bind(this));
