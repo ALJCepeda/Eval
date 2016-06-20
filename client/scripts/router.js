@@ -1,12 +1,11 @@
-define(['feeds/app', 'modals/newProject'], function(appfeed, modal_newProject) {
+define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfeed, modal_newProject) {
 	var Router = function() {
 		this.router = '';
+		this.feed = new NewsFeed();
 		this.gotCreate = function() { console.log('#create'); };
 		this.gotStart = function() { console.log('#start'); };
 		this.gotSettings = function() { console.log('#settings'); };
-	};
 
-	Router.prototype.init = function() {
 		var self = this;
 		var BackRouter = Backbone.Router.extend({
 		  	routes: {
@@ -37,7 +36,7 @@ define(['feeds/app', 'modals/newProject'], function(appfeed, modal_newProject) {
 
 		this.router = new BackRouter();
 		Backbone.history.start();
-	}
+	};
 
 	Router.prototype.navigate = function(route, options) {
 		this.router.navigate(route, options);

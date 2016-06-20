@@ -7,11 +7,8 @@ var RestAPI = function(workURL, app, info) {
 
 	var jsoner = bodyparser.json();
 	this.workurl = workURL;
-	//this.keeper = book.keeper("restapi");
 	this.routes = {};
 	this.info = info;
-
-	//this.info.themes = config.aceThemes;
 
 	app.use(jsoner);
 	app.use(function (error, req, res, next){

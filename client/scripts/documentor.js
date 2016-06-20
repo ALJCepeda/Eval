@@ -10,8 +10,7 @@ define(['feeds/app'], function(appfeed) {
 	};
 
 	/* Initial values */
-	Documentor.prototype.init = function(id) {
-		console.log(id);
+	Documentor.prototype.bind = function(id) {
 		this.editor.$blockScrolling = Infinity;
 		this.id = id;
 		this.editor = ace.edit(id);

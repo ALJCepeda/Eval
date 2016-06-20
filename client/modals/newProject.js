@@ -1,4 +1,4 @@
-define(['feeds/app'], function(appfeed) {
+define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 	var NewProject = function() {
 		var self = this;
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
@@ -46,10 +46,10 @@ define(['feeds/app'], function(appfeed) {
 		}.bind(this));
 	};
 
-	NewProject.prototype.init = function(id) {
+	NewProject.prototype.bind = function(id) {
 		this.id = id;
+		injector.injectVM('#'+id, 'modals/newProject');
 	};
-
 	NewProject.prototype.setPlatformDisable = function(option, platform) {
 		ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
 	};
@@ -76,12 +76,6 @@ define(['feeds/app'], function(appfeed) {
 		element.className += ' modal';
 		element.style.visibility = 'visible';
 		$('select').material_select();
-	};
-
-	NewProject.prototype.updateMeta = function(meta) {
-		this.meta = meta;
-
-
 	};
 
 	return new NewProject();

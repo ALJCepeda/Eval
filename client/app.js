@@ -4,6 +4,7 @@ define(['underscore',
 		'newsfeed'], function(_, injector, rest, NewsFeed) {
 
 	var App = function() {
+		this.id;
 		this.title = '3val';
 		this.rest = rest;
 		this.feed = new NewsFeed();
@@ -13,9 +14,9 @@ define(['underscore',
 		this.selectedTheme = ko.observable('');
 	};
 
-	App.prototype.init = function() {
-		injector.injectVM('#modal_newProject', 'modals/newProject');
-		this.fetchMeta();
+	App.prototype.bind = function(id) {
+		this.id = id;
+		ko.applyBindings(this, document.getElementById(id));
 	};
 
 	App.prototype.fetchMeta = function() {

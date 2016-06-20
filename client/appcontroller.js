@@ -1,19 +1,37 @@
-define(['app',
-        'modals/newProject',
-        'scripts/documentor',
-        'scripts/router'], function(app, modal_newProject, documentor, router) {
+define([], function() {
     var AppController = function() {
+        this.app;
+        this.newProject;
+        this.documentor;
+        this.router;
+    };
+
+    AppController.prototype.start = function() {
+        this.app.fetchMeta();
+        this.app.selectedTheme('monokai');
+    };
+
+    AppController.prototype.setApp = function(app) {
         this.app = app;
+
+        app.selectedTheme.subscribe(function(theme) {
+            this.documentor.loadTheme(theme);
+        }.bind(this));
+    };
+    AppController.prototype.setNewProject = function(modal_newProject) {
         this.newProject = modal_newProject;
+    }
+    AppController.prototype.setDocumentor = function(documentor) {
         this.documentor = documentor;
+    };
+    AppController.prototype.setRouter = function(router) {
         this.router = router;
 
-        this.router.gotCreate = function() {
+        router.feed.subscribe('gotCreate', function() {
             this.newProject.trigger();
-        }.bind(this);
+        }.bind(this));
 
-        this.router.gotStart = function() {
-            var fields = this.newProject.fields();
+        router.feed.subscribe('gotStart', function(fields) {
             var didCreate = this.shouldCreateProject(fields);
 
             if(didCreate === false) {
@@ -21,23 +39,8 @@ define(['app',
                     this.router.navigate('create', {trigger: true});
                 }.bind(this), 500);
             }
-        }.bind(this);
-    };
-    
-    AppController.prototype.init = function() {
-        ko.applyBindings(app, document.getElementById("root"));
-
-        this.app.init();
-        this.router.init();
-        this.newProject.init('modal_newProject');
-        this.documentor.init('editor');
-
-        this.app.selectedTheme.subscribe(function(theme) {
-            documentor.loadTheme(theme);
-        });
-
-        this.app.selectedTheme('monokai');
-    };
+        }.bind(this));
+    }
 
     AppController.prototype.shouldCreateProject = function(options) {
         var platform = options.platform;
