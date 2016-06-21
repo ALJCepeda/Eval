@@ -36,7 +36,6 @@ define([], function() {
         this.router = router;
 
         router.feed.subscribe('gotCreate', function() {
-            debugger;
             this.createView.open();
         }.bind(this));
 

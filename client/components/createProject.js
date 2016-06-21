@@ -76,11 +76,9 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 	};
 
 	CreateProject.prototype.open = function() {
-		console.log("OPEN:", '#open_'+this.id);
 		$('#open_'+this.id).trigger('click');
 	};
 	CreateProject.prototype.close = function() {
-		console.log("CLOSE:", '#close_'+this.id);
 		$('#close_'+this.id).trigger('click');
 	};
 

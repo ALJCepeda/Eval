@@ -12,9 +12,10 @@ define(['app',
 	documentor.bind('editor');
 
 	controller.setDocumentor(documentor);
-	controller.setRouter(router);
 	controller.setRootView(rootView);
 	controller.setCreateView(createView);
+	
+	controller.setRouter(router);
 	controller.setApp(app);
 
 	controller.start();
