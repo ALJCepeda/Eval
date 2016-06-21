@@ -5,18 +5,20 @@ define(['feeds/app'], function(appfeed) {
 		this.theme = ko.observableArray([]);
 		this.selectedTheme = ko.observable('');
 
+        this.didSubmit;
+
 		appfeed.subscribe('fetchedThemes', function(themes) {
 			this.theme(themes);
 		}.bind(this));
 	};
 
-    rootVM.prototype.bind = function(id) {
+    rootVM.prototype.attach = function(id) {
         this.id = id;
         ko.applyBindings(this, document.getElementById(id));
     };
 
 	rootVM.prototype.onSubmit = function() {
-		console.log('submitted');
+		this.didSubmit();
 	};
 
     return new rootVM();

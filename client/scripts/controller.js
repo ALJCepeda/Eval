@@ -56,8 +56,15 @@ define([], function() {
         this.rootView = rootView;
 
         rootView.selectedTheme.subscribe(function(theme) {
-            this.documentor.loadTheme(theme);
+            this.documentor.setTheme(theme);
         }.bind(this));
+
+        rootView.didSubmit = function() {
+            var documents = this.documentor.getDocuments();
+            this.app.compile(documents).then(function(response) {
+                console.log("RESPONSE:", response);
+            });
+        }.bind(this);
     };
 
     Controller.prototype.setCreateView = function(createView) {

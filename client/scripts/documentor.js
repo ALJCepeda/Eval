@@ -5,37 +5,42 @@ define(['feeds/app'], function(appfeed) {
 		this.documents = [];
 
 		appfeed.subscribe('didCreate', function(project) {
-			this.loadProject(project);
+			this.setMode(project.meta.acemode);
+			this.setDocuments(project.documents);
 		}.bind(this));
 	};
 
 	/* Initial values */
-	Documentor.prototype.bind = function(id) {
+	Documentor.prototype.attach = function(id) {
 		this.id = id;
 		this.editor = ace.edit(id);
 		this.editor.$blockScrolling = Infinity;
-		this.loadMode('plain_text');
+		this.setMode('plain_text');
 	};
 
-	Documentor.prototype.loadProject = function(project) {
-		this.loadMode(project.meta.acemode);
-		this.loadDocuments(project.documents);
+	Documentor.prototype.getDocuments = function() {
+		var code = this.editor.getValue();
+		var doc = this.documents[0];
+		doc.content = code;
+
+		return this.documents;
 	};
+
 
 	/* 	Later this will involve loading tabs and responding to changes by updating
 		editor with tabbed content */
-	Documentor.prototype.loadDocuments = function(documents) {
+	Documentor.prototype.setDocuments = function(documents) {
 		this.documents = documents;
 		var doc = documents[0];
 		this.editor.setValue(doc.content);
 	};
 
-	Documentor.prototype.loadMode = function(m) {
+	Documentor.prototype.setMode = function(m) {
 		var mode = 'ace/mode/' + m;
 		this.editor.session.setMode(mode);
 	};
 
-	Documentor.prototype.loadTheme = function(t) {
+	Documentor.prototype.setTheme = function(t) {
 		var theme = 'ace/theme/' + t;
 		this.editor.setTheme(theme);
 	};

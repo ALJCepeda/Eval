@@ -1,18 +1,30 @@
 define(['underscore',
 		'scripts/injector',
-		'scripts/restful',
-		'newsfeed'], function(_, injector, rest, NewsFeed) {
+		'scripts/ajaxer',
+		'newsfeed'], function(_, injector, Ajaxer, NewsFeed) {
 
 	var App = function() {
 		this.id = ''
-		this.rest = rest;
 		this.feed = new NewsFeed();
+		this.ajax = new Ajaxer();
 		this.meta = '';
 		this.themes = '';
+		this.project = '';
+	};
+
+	App.prototype.compile = function(documents) {
+		var project = {
+			platform:this.project.platform,
+			tag: this.project.tag,
+			documents:documents
+		};
+
+		return this.ajax.compile(project);
 	};
 
 	App.prototype.fetchMeta = function() {
-		return this.rest.info().then(function(info) {
+
+		return this.ajax.info().then(function(info) {
 			console.log('Meta:', info);
 
 			this.meta = info.meta;
@@ -47,6 +59,7 @@ define(['underscore',
 			documents:meta.demo
 		};
 
+		this.project = project;
 		this.feed.publish('didCreate', project);
 		return project;
 	};

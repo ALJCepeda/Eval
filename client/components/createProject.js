@@ -63,7 +63,7 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}
 	};
 
-	CreateProject.prototype.bind = function(id) {
+	CreateProject.prototype.attach = function(id) {
 		this.id = id;
 		injector.injectVM('#'+id, 'components/createProject');
 	};
