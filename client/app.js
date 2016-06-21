@@ -4,28 +4,22 @@ define(['underscore',
 		'newsfeed'], function(_, injector, rest, NewsFeed) {
 
 	var App = function() {
-		this.id;
-		this.title = '3val';
+		this.id = ''
 		this.rest = rest;
 		this.feed = new NewsFeed();
 		this.meta = '';
-
-		this.theme = ko.observableArray([ 'terminal', 'monokai', 'twilight', 'vibrant_ink', 'github' ]);
-		this.selectedTheme = ko.observable('');
-	};
-
-	App.prototype.bind = function(id) {
-		this.id = id;
-		ko.applyBindings(this, document.getElementById(id));
+		this.themes = '';
 	};
 
 	App.prototype.fetchMeta = function() {
 		return this.rest.info().then(function(info) {
 			console.log('Meta:', info);
-			this.meta = info.meta;
-			this.theme(info.themes);
 
+			this.meta = info.meta;
 			this.feed.publish('fetchedMeta', info.meta);
+
+			this.themes = info.themes;
+			this.feed.publish('fetchedThemes', info.themes);
 		}.bind(this));
 	};
 
@@ -48,6 +42,7 @@ define(['underscore',
 
 		var project = {
 			meta:meta,
+			platform:platform,
 			tag:tag,
 			documents:meta.demo
 		};

@@ -70,7 +70,7 @@
 				</li>
 
 				<li>
-					<a class='waves-effect waves-light' href='#submit'>
+					<a class='waves-effect waves-light' data-bind='click: onSubmit'>
 						<i class='material-icons dp48'>done</i>
 					</a>
 				</li>
@@ -81,10 +81,9 @@
 	<div class='container'>
 		<pre class='page' id='editor'></pre>
 
-		<div id='modal_newProject' style='visibility:hidden;'></div>
-		<div id='modal_settings' style='visibility:hidden;'></div>
+		<div id='createProjectView' style='visibility:hidden;'></div>
 
-		<button id='open_modal_newProject' data-target='modal_newProject' class='btn modal-trigger' style='display:none;'>Modal</button>
+		<button id='open_createProjectView' data-target='createProjectView' class='btn modal-trigger' style='display:none;'>Modal</button>
 	</div>
 </body>
 

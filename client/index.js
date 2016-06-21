@@ -1,17 +1,20 @@
 define(['app',
-		'appcontroller',
+		'root',
+		'scripts/controller',
 		'scripts/router',
 		'scripts/documentor',
-		'modals/newProject'], function(app, controller, router, documentor, modal_newProject) {
+		'components/createProject'],
+		function(app, rootView, controller, router, documentor, createView) {
 	$('.modal-trigger').leanModal({ dismissible: false });
 
-	app.bind('root');
-	modal_newProject.bind('modal_newProject');
+	rootView.bind('root');
+	createView.bind('createProjectView');
 	documentor.bind('editor');
 
 	controller.setDocumentor(documentor);
 	controller.setRouter(router);
-	controller.setNewProject(modal_newProject);
+	controller.setRootView(rootView);
+	controller.setCreateView(createView);
 	controller.setApp(app);
 
 	controller.start();

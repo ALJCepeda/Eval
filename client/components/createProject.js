@@ -1,5 +1,5 @@
 define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
-	var NewProject = function() {
+	var CreateProject = function() {
 		var self = this;
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
@@ -51,7 +51,7 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}.bind(this));
 	};
 
-	NewProject.prototype.onClick = function() {
+	CreateProject.prototype.onClick = function() {
 		if(this.disabled() === false) {
 			var platform = this.selectedPlatform();
 			var tag = this.selectedTag();
@@ -63,40 +63,32 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}
 	};
 
-	NewProject.prototype.bind = function(id) {
+	CreateProject.prototype.bind = function(id) {
 		this.id = id;
-		injector.injectVM('#'+id, 'modals/newProject');
+		injector.injectVM('#'+id, 'components/createProject');
 	};
-	NewProject.prototype.setPlatformDisable = function(option, platform) {
+	CreateProject.prototype.setPlatformDisable = function(option, platform) {
 		ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
 	};
 
-	NewProject.prototype.setTagDisable = function(option, version) {
+	CreateProject.prototype.setTagDisable = function(option, version) {
 		ko.applyBindingsToNode(option, {disable: version.disable}, version);
 	};
 
-	NewProject.prototype.fields = function() {
-		var platform = this.selectedPlatform();
-		var tag = this.selectedTag();
-
-		return {
-			platform:platform,
-			tag:tag
-		};
-	};
-
-	NewProject.prototype.open = function() {
+	CreateProject.prototype.open = function() {
+		console.log("OPEN:", '#open_'+this.id);
 		$('#open_'+this.id).trigger('click');
 	};
-	NewProject.prototype.close = function() {
+	CreateProject.prototype.close = function() {
+		console.log("CLOSE:", '#close_'+this.id);
 		$('#close_'+this.id).trigger('click');
 	};
 
-	NewProject.prototype.didRender = function(element) {
+	CreateProject.prototype.didRender = function(element) {
 		element.className += ' modal';
 		element.style.visibility = 'visible';
 		$('select').material_select();
 	};
 
-	return new NewProject();
+	return new CreateProject();
 });

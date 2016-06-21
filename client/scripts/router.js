@@ -1,4 +1,4 @@
-define(['newsfeed', 'feeds/app', 'modals/newProject'], function(NewsFeed, appfeed, modal_newProject) {
+define(['newsfeed', 'feeds/app'], function(NewsFeed, appfeed) {
 	var Router = function() {
 		this.router = '';
 		this.feed = new NewsFeed();
