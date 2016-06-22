@@ -1,6 +1,8 @@
 var zmq = require('zmq');
 var bodyparser = require('body-parser');
 var config = require('../config.js');
+var bare = require(global.ROOT + '/libs/bareutil');
+var val = bare.val;
 
 var RestAPI = function(workURL, app, info) {
 	var self = this;
@@ -30,12 +32,7 @@ var RestAPI = function(workURL, app, info) {
 			return res.sendStatus(400);
 		}
 
-		console.log(req.body);
-		/*
-		var project = JSON.parse(req.body);
-		console.log(project);
-*/
-
+		var project = req.body;
 		res.send('Valid');
 		/*
 		var zmqReq = zmq.socket('zmq');
@@ -89,7 +86,31 @@ RestAPI.prototype.validCompileRequest = function(req) {
 		return false;
 	}
 
+	var documents = req.body.documents;
+	var valid = true;
+	documents.forEach(function(doc) {
+
+	});
+
 	return true;
+};
+
+RestAPI.prototype.validDocuments = function(documents) {
+	var valid = true;
+	var hasIndex = false;
+
+	documents.forEach(function(doc) {
+		//if(typeof doc.name === 'undefined')
+	});
+};
+
+RestAPI.prototype.validDocument = function(document) {
+	if(typeof document.name === 'undefined') {
+		console.log('Invalid document: Missing name');
+		return false;
+	}
+
+	//if(typeof document.extension === 'undefined' || document.exteens)
 };
 
 module.exports = RestAPI;

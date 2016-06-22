@@ -1,6 +1,5 @@
-define([ 'scripts/ajaxer' ], function(Ajaxer) {
+define([ 'scripts/ajaxer' ], function(ajax) {
 	var Injector = function(base) {
-		var ajax = new Ajaxer();
 		this.base = base;
 
 		this.injectHTML = function(selector, html) {

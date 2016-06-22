@@ -1,12 +1,10 @@
-define(['underscore',
-		'scripts/injector',
+define(['scripts/injector',
 		'scripts/ajaxer',
-		'newsfeed'], function(_, injector, Ajaxer, NewsFeed) {
+		'newsfeed'], function(injector, ajax, NewsFeed) {
 
 	var App = function() {
 		this.id = ''
 		this.feed = new NewsFeed();
-		this.ajax = new Ajaxer();
 		this.meta = '';
 		this.themes = '';
 		this.project = '';
@@ -19,12 +17,12 @@ define(['underscore',
 			documents:documents
 		};
 
-		return this.ajax.compile(project);
+		return ajax.compile(project);
 	};
 
 	App.prototype.fetchMeta = function() {
 
-		return this.ajax.info().then(function(info) {
+		return ajax.info().then(function(info) {
 			console.log('Meta:', info);
 
 			this.meta = info.meta;

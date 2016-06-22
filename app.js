@@ -7,6 +7,11 @@ var config = require('./config.js');
 var PGClient = require('./libs/eval_pgclient');
 var pgdb = new PGClient('postgres://vagrant:password@localhost/eval');
 
+var bare = require('./libs/bareutil');
+bare.misc.expose(app, express);
+bare.ajax.expose(app, express);
+
+app.use('/bluebird.js', express.static('./node_modules/bluebird/js/browser/bluebird.js'));
 app.use('/newsfeed.js', express.static('./libs/newsfeed/index.js'));
 app.use('/materialize', express.static('./node_modules/materialize-css/dist'));
 app.use('/jquery.js', express.static('./node_modules/jquery/dist/jquery.min.js'));
