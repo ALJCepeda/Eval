@@ -29,6 +29,7 @@ var RestAPI = function(workURL, app, info) {
 		res.send(data);
  	}.bind(this));
 
+	var requestNum = 0;
 	app.post('/compile', function(req, res) {
 		res.setHeader('content-type', 'application/json');
 		if(this.validCompileRequest(req) === false) {
@@ -37,17 +38,29 @@ var RestAPI = function(workURL, app, info) {
 
 		var project = req.body;
 
-		var zmqReq = zmq.socket('req');
-		zmqReq.connect(workURL);
-		zmqReq.on('message', function(data) {
-			var response = JSON.parse(data);
+		var req = zmq.socket('req');
+		req.identity = 'eval_' + ++requestNum;
 
-			console.log(data);
-			res.send({ status:200, id:id, stdout:response.stdout, stderr:response.stderr });
-		});
+		req.on('message', function(data) {
+			var response = JSON.parse(data);
+			console.log('Reply', requestNum)
+			console.log('Project ID:', response.id);
+
+			req.close();
+			res.send({
+				status:200,
+				id:response.id,
+				stdout:response.stdout,
+				stderr:response.stderr
+			});
+		}.bind(this));
+
+		req.connect(this.workurl);
 
 		var data = JSON.stringify(project);
-		zeroReq.send(data);
+		req.send(data);
+
+		console.log('Request', requestNum);
 	}.bind(this));
 
 	app.get('/script/:id', function(req, res) {

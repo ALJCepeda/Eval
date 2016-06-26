@@ -21,10 +21,7 @@ app.use('/underscore.js', express.static('./node_modules/underscore/underscore-m
 app.use('/backbone.js', express.static('./node_modules/backbone/backbone-min.js'));
 app.use('/ace-builds', express.static('./node_modules/ace-builds'));
 
-var zmq = require('zmq');
 var WORK_URL = 'tcp://127.0.0.1:3000';
-var req = zmq.socket('req');
-req.identity = 'client' + process.pid;
 
 fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files) {
 	if(err) throw err;
@@ -36,20 +33,17 @@ fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files)
 	});
 
 	pgdb.meta().then(function(meta) {
-		req.bind(WORK_URL, function(err) {
-			if(err) throw err;
+		var StaticAPI = require('./scripts/staticapi.js');
+		var staticy = new StaticAPI(app);
 
-			var StaticAPI = require('./scripts/staticapi.js');
-			var staticy = new StaticAPI(app);
+		var info = {
+			meta:meta,
+			themes:themes
+		};
 
-			var info = {
-				meta:meta,
-				themes:themes
-			};
-			var RestAPI= require('./scripts/restapi.js');
-			var rest = new RestAPI(req, app, info);
+		var RestAPI = require('./scripts/restapi.js');
+		var rest = new RestAPI(WORK_URL, app, info);
 
-			http.listen(config.port, function() { console.log('listening on *: ' + config.port); });
-		});
+		http.listen(config.port, function() { console.log('listening on *: ' + config.port); });
 	});
 });
