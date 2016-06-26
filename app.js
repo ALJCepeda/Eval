@@ -39,14 +39,14 @@ fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files)
 		req.bind(WORK_URL, function(err) {
 			if(err) throw err;
 
-			var StaticAPI = require('./resources/staticapi.js');
+			var StaticAPI = require('./scripts/staticapi.js');
 			var staticy = new StaticAPI(app);
 
 			var info = {
 				meta:meta,
 				themes:themes
 			};
-			var RestAPI= require('./resources/restapi.js');
+			var RestAPI= require('./scripts/restapi.js');
 			var rest = new RestAPI(req, app, info);
 
 			http.listen(config.port, function() { console.log('listening on *: ' + config.port); });
