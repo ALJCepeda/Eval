@@ -44,11 +44,11 @@ define([], function() {
             var save = args.save;
 
             var didCreate = this.attemptCreateProject(id, save);
-            if(didCreate === true) {
-                return true;
+            if(didCreate === false) {
+                //TODO: Attempt to fetch project from server
             }
 
-            //TODO: Attempt to fetch project from server
+            this.rootView.selectedTab('editor');
         }.bind(this));
     };
 
