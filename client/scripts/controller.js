@@ -62,8 +62,13 @@ define([], function() {
         rootView.didSubmit = function() {
             var documents = this.documentor.getDocuments();
             this.app.compile(documents).then(function(response) {
-                console.log("RESPONSE:", response);
-            });
+                $('#stdout').html(response.stdout);
+                $('#stderr').html(response.stderr);
+
+                this.rootView.selectedTab('output');
+            }.bind(this));
+
+            this.rootView.selectedTab('loading');
         }.bind(this);
     };
 

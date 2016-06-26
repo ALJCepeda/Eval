@@ -4,7 +4,7 @@ define(['feeds/app'], function(appfeed) {
         this.title = '3val';
 		this.theme = ko.observableArray([]);
 		this.selectedTheme = ko.observable('');
-
+        this.selectedTab = ko.observable('editor');
         this.didSubmit;
 
 		appfeed.subscribe('fetchedThemes', function(themes) {

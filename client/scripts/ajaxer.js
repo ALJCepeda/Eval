@@ -1,13 +1,10 @@
 define(['bare.ajax'], function(ajax) {
 	ajax.info = function() {
-        return ajax.get('info').then(function(data) {
-            var info = JSON.parse(data);
-            return info;
-        });
+        return ajax.get('info').then(JSON.parse);
     };
 
-    ajax.compile = function(data) {
-        return ajax.post('compile', data);
+    ajax.compile = function(project) {
+        return ajax.post('compile', project).then(JSON.parse);
     }
 
 	return ajax;

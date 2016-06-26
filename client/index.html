@@ -45,6 +45,23 @@
 		.modal-large {
 			min-height: 50%;
 		}
+
+		#outputContainer {
+			background-color: white;
+		}
+		#outputContainer > #stdout {
+			width:100%;
+			height:80%;
+		}
+		#outputContainer > #stderr {
+			width:100%;
+			height:20%;
+		}
+		#loadingContainer {
+			position:relative;
+			width:50%;
+			left:25%;
+		}
 	</style>
 </head>
 
@@ -79,12 +96,24 @@
 	</nav>
 
 	<div class='container'>
-		<pre class='page' id='editor'></pre>
+		<div id='editorContainer' data-bind='visible: selectedTab() === "editor"'>
+			<pre class='page' id='editor'></pre>
+		</div>
 
-		<div id='createProjectView' style='visibility:hidden;'></div>
+		<div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
+			<div id='stdout'></div>
+			<div id='stderr'></div>
+		</div>
 
-		<button id='open_createProjectView' data-target='createProjectView' class='btn modal-trigger' style='display:none;'>Modal</button>
+		<div id='loadingContainer' class='page' data-bind='visible: selectedTab() === "loading"'>
+			<div class="progress">
+      			<div class="indeterminate"></div>
+  			</div>
+		</div>
 	</div>
+
+	<div id='createProjectView' style='visibility:hidden;'></div>
+	<button id='open_createProjectView' data-target='createProjectView' class='btn modal-trigger' style='display:none;'>Modal</button>
 </body>
 
 </html>
