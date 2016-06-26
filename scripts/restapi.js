@@ -51,7 +51,8 @@ var RestAPI = function(workURL, app, info) {
 				status:200,
 				id:response.id,
 				stdout:response.stdout,
-				stderr:response.stderr
+				stderr:response.stderr,
+				error:response.error
 			});
 		}.bind(this));
 
@@ -62,16 +63,6 @@ var RestAPI = function(workURL, app, info) {
 
 		console.log('Request', requestNum);
 	}.bind(this));
-
-	app.get('/script/:id', function(req, res) {
- 		var scripter = new ScriptManager(config.urls.mongo);
- 		scripter.getScript(req.params.id).then(function(doc) {
- 			res.send(doc || {});
- 		}).catch(function(error) {
- 			keeper.record('getScript', error, true);
- 			res.send({ status:500, message:'We were unable to complete your request, please try again later'});
- 		});
- 	});
 };
 
 RestAPI.prototype.validCompileRequest = function(req) {
