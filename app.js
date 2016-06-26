@@ -35,7 +35,7 @@ fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files)
 		return file.substring(0, file.length-3).substring(6);
 	});
 
-	pgdb.info().then(function(meta) {
+	pgdb.meta().then(function(meta) {
 		req.bind(WORK_URL, function(err) {
 			if(err) throw err;
 

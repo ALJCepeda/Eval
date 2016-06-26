@@ -1,18 +1,21 @@
 var zmq = require('zmq');
 var bodyparser = require('body-parser');
 var config = require('../config.js');
-var bare = require(global.ROOT + '/libs/bareutil');
+var bare = require('bareutil');
 var val = bare.val;
 
 var RestAPI = function(workURL, app, info) {
 	var self = this;
 
-	var jsoner = bodyparser.json();
+	app.use(bodyparser.urlencoded({
+	    extended: true
+	}));
+	app.use(bodyparser.json());
+
 	this.workurl = workURL;
 	this.routes = {};
 	this.info = info;
 
-	app.use(jsoner);
 	app.use(function (error, req, res, next){
     	//Catch json error
     	console.log('Error encountered');
@@ -20,36 +23,34 @@ var RestAPI = function(workURL, app, info) {
     	next(error);
 	});
 
-	app.get('/info', jsoner, function(req, res) {
+	app.get('/info', function(req, res) {
 		res.setHeader('content-type', 'application/json');
 		var data = JSON.stringify(info);
 		res.send(data);
  	}.bind(this));
 
-	app.post('/compile', jsoner, function(req, res) {
+	app.post('/compile', function(req, res) {
 		res.setHeader('content-type', 'application/json');
 		if(this.validCompileRequest(req) === false) {
 			return res.sendStatus(400);
 		}
 
 		var project = req.body;
-		res.send('Valid');
-		/*
-		var zmqReq = zmq.socket('zmq');
+
+		var zmqReq = zmq.socket('req');
 		zmqReq.connect(workURL);
 		zmqReq.on('message', function(data) {
 			var response = JSON.parse(data);
 
+			console.log(data);
 			res.send({ status:200, id:id, stdout:response.stdout, stderr:response.stderr });
-			console.log('Reponse ' + count + ':', response.stdout);
-			send();
 		});
 
 		var data = JSON.stringify(project);
-		zeroReq.send(data);*/
+		zeroReq.send(data);
 	}.bind(this));
 
-	app.get('/script/:id', jsoner, function(req, res) {
+	app.get('/script/:id', function(req, res) {
  		var scripter = new ScriptManager(config.urls.mongo);
  		scripter.getScript(req.params.id).then(function(doc) {
  			res.send(doc || {});
@@ -61,22 +62,22 @@ var RestAPI = function(workURL, app, info) {
 };
 
 RestAPI.prototype.validCompileRequest = function(req) {
-	if(typeof req.body === 'undefined') {
+	if(val.undefined(req.body) === true) {
 		console.log('Invalid request: No body');
 		return false
 	}
 
-	if(typeof req.body.documents === 'undefined') {
+	if(val.undefined(req.body.documents) === true) {
 		console.log('Invalid request: No documents');
 		return false;
 	}
-	if(typeof req.body.platform === 'undefined') {
+	if(val.undefined(req.body.platform) === true) {
 		console.log('Invalid request: No platform');
 		return false;
 	}
 
 	var meta = this.info.meta[req.body.platform]
-	if(typeof meta === 'undefined') {
+	if(val.undefined(meta) === true) {
 		console.log('Invalid request: Unrecognized platform');
 		return false;
 	}
@@ -88,29 +89,37 @@ RestAPI.prototype.validCompileRequest = function(req) {
 
 	var documents = req.body.documents;
 	var valid = true;
-	documents.forEach(function(doc) {
-
-	});
-
-	return true;
-};
-
-RestAPI.prototype.validDocuments = function(documents) {
-	var valid = true;
 	var hasIndex = false;
-
 	documents.forEach(function(doc) {
-		//if(typeof doc.name === 'undefined')
-	});
+		if(this.validDocument(doc) === false) {
+			valid = false;
+		}
+
+		if(doc.name === 'index') {
+			hasIndex = true;
+		}
+	}.bind(this));
+
+	return valid === true && hasIndex === true;
 };
 
 RestAPI.prototype.validDocument = function(document) {
-	if(typeof document.name === 'undefined') {
+	if(val.undefined(document.name) === true) {
 		console.log('Invalid document: Missing name');
 		return false;
 	}
 
-	//if(typeof document.extension === 'undefined' || document.exteens)
+	if(val.undefined(document.extension) === true) {
+		console.log('Invalid document: Missing extension');
+		return false;
+	}
+
+	if(val.undefined(document.content) === true) {
+		console.log('Invalid document: Missing content');
+		return false;
+	}
+
+	return true;
 };
 
 module.exports = RestAPI;
