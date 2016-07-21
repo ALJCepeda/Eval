@@ -16,6 +16,7 @@ define(['feeds/app'], function(appfeed) {
 		this.editor = ace.edit(id);
 		this.editor.$blockScrolling = Infinity;
 		this.setMode('plain_text');
+		this.editor.resize();
 	};
 
 	Documentor.prototype.getDocuments = function() {

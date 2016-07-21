@@ -10,6 +10,11 @@ define(['feeds/app'], function(appfeed) {
 		appfeed.subscribe('fetchedThemes', function(themes) {
 			this.theme(themes);
 		}.bind(this));
+
+        var self = this;
+        this.clickedTheme = function(theme) {
+            self.selectedTheme(theme);
+        };
 	};
 
     rootVM.prototype.attach = function(id) {
@@ -20,6 +25,5 @@ define(['feeds/app'], function(appfeed) {
 	rootVM.prototype.onSubmit = function() {
 		this.didSubmit();
 	};
-
     return new rootVM();
 });

@@ -21,18 +21,20 @@
     "url": "https://github.com/ALJCepeda/Eval/issues"
   },
   "dependencies": {
-    "ace-builds": "^1.2.2",
-    "backbone": "^1.3.3",
-    "bareutil": "^1.5.1",
-    "bluebird": "^3.4.1",
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "jquery": "~3.0.0",
-    "knockout": "^3.4.0",
-    "materialize-css": "~0.97.6",
-    "requirejs": "^2.2.0",
-    "tape": "^4.6.0",
-    "underscore": "^1.8.3",
-    "zmq": "~2.15.3"
+    "ace-builds": "*",
+    "backbone": "*",
+    "bareutil": "*",
+    "bluebird": "*",
+    "body-parser": "*",
+    "bootstrap": "*",
+    "bootstrap-material-design": "*",
+    "express": "*",
+    "jquery": "2.*",
+    "knockout": "*",
+    "materialize-css": "*",
+    "requirejs": "*",
+    "tape": "*",
+    "underscore": "*",
+    "zmq": "*"
   }
 }

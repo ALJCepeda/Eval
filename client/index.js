@@ -5,7 +5,7 @@ define(['app',
 		'scripts/documentor',
 		'components/createProject'],
 		function(app, rootView, controller, router, documentor, createView) {
-	$('.modal-trigger').leanModal({ dismissible: false });
+	$.material.init();
 
 	rootView.attach('root');
 	createView.attach('createProjectView');

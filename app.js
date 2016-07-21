@@ -13,7 +13,9 @@ bare.ajax.expose(app, express);
 
 app.use('/bluebird.js', express.static('./node_modules/bluebird/js/browser/bluebird.js'));
 app.use('/newsfeed.js', express.static('./libs/newsfeed/index.js'));
-app.use('/materialize', express.static('./node_modules/materialize-css/dist'));
+app.use('/dropdownjs', express.static('./libs/dropdown.js'))
+app.use('/bootstrap', express.static('./node_modules/bootstrap/dist'));
+app.use('/bootstrap-md', express.static('./node_modules/bootstrap-material-design/dist'));
 app.use('/jquery.js', express.static('./node_modules/jquery/dist/jquery.min.js'));
 app.use('/require.js', express.static('./node_modules/requirejs/require.js'));
 app.use('/knockout.js', express.static('./node_modules/knockout/build/output/knockout-latest.js'));
