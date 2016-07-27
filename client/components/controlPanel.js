@@ -28,7 +28,7 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 			var newPlatforms = [];
 
 			for(var key in meta) {
-				var platform = { value:key, text:meta[key].name, disable:false };
+				var platform = { value:key, text:meta[key].name };
 				newPlatforms.push(platform);
 			}
 
@@ -41,9 +41,9 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 			var tags = [];
 
 			if(platform === "") { return tags; }
-
+			
 			[].push.apply(tags, meta[platform].tags.map(function(tag) {
-				return { value: tag, text: tag, disable: false };
+				return { value: tag, text: tag };
 			}));
 
 			self.selectedTag('');

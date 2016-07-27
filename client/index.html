@@ -25,7 +25,7 @@
 	<style type='text/css' media='screen'>
 		body {
 			height:100vh;
-			background-color: black;
+			background-color: white;
 		}
 		.submit {
 			position:absolute;
@@ -75,16 +75,6 @@
 			 background-color:#80d8ff;
 		}
 
-		.controlPanel {
-			position:absolute;
-			height:25vh;
-			width:25vw;
-			bottom:10px;
-			right:10px;
-			padding:10px;
-			background-color: white;
-		}
-
 		.controlPanel-header {
 			height:5%;
 			width:100%;
@@ -108,9 +98,9 @@
 </head>
 
 <body>
-	<div class="container-fluid" style="background-color:blue;height:100%;width:100%;">
+	<div class="container-fluid" style="height:100%;width:100%;">
 		<div class="row" style="height:100%;">
-			<div class="col-md-10" style="background-color:red;height:100%;padding:0px;">
+			<div class="col-md-10" style="height:100%;padding:0px;">
 				<pre class='page' id='editor' data-bind='visible: selectedTab() === "editor"'></pre>
 
 				<div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
@@ -125,7 +115,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-2" id='controlPanelView' style="background-color:green;height:100%;">
+			<div class="col-md-2" id='controlPanelView' style="height:100%;">
 
 			</div>
 		</div>
