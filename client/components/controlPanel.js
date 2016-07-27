@@ -1,8 +1,6 @@
 define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 	var ControlPanel = function() {
 		var self = this;
-		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
-		var firstTag = { value: '', text: 'Choose your version', disable:true };
 
 		this.id = '';
 		this.didSubmit;
@@ -27,7 +25,7 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 
 		this.platforms = ko.computed(function() {
 			var meta = self.meta();
-			var newPlatforms = [ firstPlatform ];
+			var newPlatforms = [];
 
 			for(var key in meta) {
 				var platform = { value:key, text:meta[key].name, disable:false };
@@ -40,7 +38,7 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		this.tags = ko.computed(function() {
 			var meta = self.meta();
 			var platform = self.selectedPlatform();
-			var tags = [ firstTag ];
+			var tags = [];
 
 			if(platform === "") { return tags; }
 
@@ -79,11 +77,6 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 
 	ControlPanel.prototype.setTagDisable = function(option, version) {
 		ko.applyBindingsToNode(option, {disable: version.disable}, version);
-	};
-
-	ControlPanel.prototype.didRender = function(element) {
-		element.className += ' modal';
-		element.style.visibility = 'visible';
 	};
 
 	ControlPanel.prototype.onSubmit = function() {

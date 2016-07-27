@@ -16,11 +16,10 @@
             <label for="platformSelect" class="col-md-2 control-label">Platform</label>
 
             <div class="col-md-9" style="float:right;">
-                <select id='platformSelect' data-bind='options: platforms,
-                                    optionsText: "text",
-                                    optionsValue: "value",
-                                    value: selectedPlatform,
-                                    optionsAfterRender: setPlatformDisable'>
+                <select id='platformSelect' class="form-control" data-bind='options: platforms,
+                                                                            optionsText: "text",
+                                                                            optionsValue: "value",
+                                                                            value: selectedPlatform'>
                 </select>
             </div>
         </div>
@@ -29,35 +28,18 @@
             <label for="versionSelect" class="col-md-2 control-label">Version</label>
 
             <div class="col-md-9" style="float:right;">
-                <select id='versionSelect' data-bind='options: tags,
-                                    optionsText: "text",
-                                    optionsValue: "value",
-                                    value: selectedTag,
-                                    optionsAfterRender: setTagDisable'>
+                <select id='versionSelect' class="form-control" data-bind='options: tags,
+                                                                            optionsText: "text",
+                                                                            optionsValue: "value",
+                                                                            value: selectedTag'>
                 </select>
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" data-bind="click: onSubmit" class="btn btn-primary">Submit</button>
             </div>
         </div>
     </form>
-</div>
-
-<div class="controlPanel-footer">
-    <ul>
-        <li>
-            <a class='waves-effect waves-light' href='#create'>
-                <i class='material-icons dp48'>add</i>
-            </a>
-        </li>
-
-        <li>
-            <a class='waves-effect waves-light' data-bind='click: onSubmit'>
-                <i class='material-icons dp48'>done</i>
-            </a>
-        </li>
-    </ul>
 </div>
