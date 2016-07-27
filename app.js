@@ -1,16 +1,19 @@
 var fs = require('fs')
 var express = require('express');
-var app = express();
-var http = require('http').Server(app);
+var bare = require('bareutil');
+var eval_shared = require('eval_shared');
 
 var config = require('./config.js');
-var PGClient = require('./libs/eval_pgclient');
-var pgdb = new PGClient('postgres://vagrant:password@localhost/eval');
 
-var bare = require('./libs/bareutil');
+var app = express();
+var http = require('http').Server(app);
+var pgdb = new eval_shared.PGAgent('postgres://vagrant:password@localhost/eval');
+
+eval_shared.Document.expose(app, express);
+eval_shared.Save.expose(app, express);
+eval_shared.Project.expose(app, express);
 bare.misc.expose(app, express);
 bare.ajax.expose(app, express);
-
 app.use('/bluebird.js', express.static('./node_modules/bluebird/js/browser/bluebird.js'));
 app.use('/newsfeed.js', express.static('./libs/newsfeed/index.js'));
 app.use('/dropdownjs', express.static('./libs/dropdown.js'))
@@ -34,12 +37,12 @@ fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files)
 		return file.substring(0, file.length-3).substring(6);
 	});
 
-	pgdb.meta().then(function(meta) {
+	pgdb.platform().then(function(platformInfo) {
 		var StaticAPI = require('./scripts/staticapi.js');
 		var staticy = new StaticAPI(app);
 
 		var info = {
-			meta:meta,
+			meta:platformInfo,
 			themes:themes
 		};
 

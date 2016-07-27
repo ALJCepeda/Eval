@@ -44,15 +44,20 @@ var RestAPI = function(workURL, app, info) {
 		req.on('message', function(data) {
 			var response = JSON.parse(data);
 			console.log('Reply', requestNum)
+
+			if(response.error) {
+				res.send({
+					status:500,
+					error:'Internal Server Error',
+					message:response.message
+				});
+			}
 			console.log('Project ID:', response.id);
 
 			req.close();
 			res.send({
 				status:200,
-				id:response.id,
-				stdout:response.stdout,
-				stderr:response.stderr,
-				error:response.error
+				payload:JSON.stringify(response)
 			});
 		}.bind(this));
 
@@ -60,70 +65,8 @@ var RestAPI = function(workURL, app, info) {
 
 		var data = JSON.stringify(project);
 		req.send(data);
-
 		console.log('Request', requestNum);
 	}.bind(this));
-};
-
-RestAPI.prototype.validCompileRequest = function(req) {
-	if(val.undefined(req.body) === true) {
-		console.log('Invalid request: No body');
-		return false
-	}
-
-	if(val.undefined(req.body.documents) === true) {
-		console.log('Invalid request: No documents');
-		return false;
-	}
-	if(val.undefined(req.body.platform) === true) {
-		console.log('Invalid request: No platform');
-		return false;
-	}
-
-	var meta = this.info.meta[req.body.platform]
-	if(val.undefined(meta) === true) {
-		console.log('Invalid request: Unrecognized platform');
-		return false;
-	}
-
-	if(meta.tags.indexOf(req.body.tag) === -1) {
-		console.log('Invalid request: Unsupported tag');
-		return false;
-	}
-
-	var documents = req.body.documents;
-	var valid = true;
-	var hasIndex = false;
-	documents.forEach(function(doc) {
-		if(this.validDocument(doc) === false) {
-			valid = false;
-		}
-
-		if(doc.name === 'index') {
-			hasIndex = true;
-		}
-	}.bind(this));
-
-	return valid === true && hasIndex === true;
-};
-
-RestAPI.prototype.validDocument = function(document) {
-	if(val.undefined(document.name) === true) {
-		console.log('Invalid document: Missing name');
-		return false;
-	}
-
-	if(val.undefined(document.extension) === true) {
-		console.log('Invalid document: Missing extension');
-		return false;
-	}
-
-	if(val.undefined(document.content) === true) {
-		console.log('Invalid document: Missing content');
-		return false;
-	}
-
-	return true;
 };
 
 module.exports = RestAPI;

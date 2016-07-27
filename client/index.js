@@ -3,17 +3,17 @@ define(['app',
 		'scripts/controller',
 		'scripts/router',
 		'scripts/documentor',
-		'components/createProject'],
-		function(app, rootView, controller, router, documentor, createView) {
+		'components/controlPanel'],
+		function(app, rootView, controller, router, documentor, controlPanel) {
 	$.material.init();
 
 	rootView.attach('root');
-	createView.attach('createProjectView');
+	controlPanel.attach('controlPanelView');
 	documentor.attach('editor');
 
 	controller.setDocumentor(documentor);
 	controller.setRootView(rootView);
-	controller.setCreateView(createView);
+	controller.setControlPanel(controlPanel);
 
 	controller.setRouter(router);
 	controller.setApp(app);

@@ -2,17 +2,18 @@ define([], function() {
     var Controller = function() {
         this.app;
         this.rootView;
-        this.createView;
+        this.controlPanel;
         this.documentor;
         this.router;
     };
 
     Controller.prototype.start = function() {
+        var self = this;
         this.app.fetchMeta().then(function() {
-            this.router.start();
+            self.router.start();
 
-            this.rootView.selectedTheme('monokai');
-        }.bind(this));
+            self.controlPanel.selectedTheme('monokai');
+        });
     };
 
     Controller.prototype.attemptCreateProject = function(platform, tag) {
@@ -33,53 +34,56 @@ define([], function() {
     };
 
     Controller.prototype.setRouter = function(router) {
+        var self = this;
         this.router = router;
 
         router.feed.subscribe('gotCreate', function() {
-            this.createView.open();
-        }.bind(this));
+            self.controlPanel.open();
+        });
 
         router.feed.subscribe('gotProject', function(args) {
             var id = args.id;
             var save = args.save;
 
-            var didCreate = this.attemptCreateProject(id, save);
+            var didCreate = self.attemptCreateProject(id, save);
             if(didCreate === false) {
                 //TODO: Attempt to fetch project from server
             }
 
-            this.rootView.selectedTab('editor');
-        }.bind(this));
+            self.rootView.selectedTab('editor');
+        });
     };
 
     Controller.prototype.setRootView = function(rootView) {
+        var self = this;
         this.rootView = rootView;
 
-        rootView.selectedTheme.subscribe(function(theme) {
-            this.documentor.setTheme(theme);
-        }.bind(this));
-
         rootView.didSubmit = function() {
-            var documents = this.documentor.getDocuments();
-            this.app.compile(documents).then(function(response) {
+            var documents = self.documentor.getDocuments();
+            self.app.compile(documents).then(function(response) {
                 $('#stdout').html(response.stdout);
                 $('#stderr').html(response.stderr);
 
-                this.rootView.selectedTab('output');
-            }.bind(this));
+                self.rootView.selectedTab('output');
+            });
 
-            this.rootView.selectedTab('loading');
-        }.bind(this);
+            self.rootView.selectedTab('loading');
+        };
     };
 
-    Controller.prototype.setCreateView = function(createView) {
-        this.createView = createView;
+    Controller.prototype.setControlPanel = function(controlPanel) {
+        var self = this;
+        this.controlPanel = controlPanel;
 
-        createView.didSubmit = function(project, tag) {
+        controlPanel.selectedTheme.subscribe(function(theme) {
+            self.documentor.setTheme(theme);
+        });
+
+        controlPanel.didSubmit = function(project, tag) {
             var url = project + '/' + tag;
-            this.router.navigate(url, {trigger: true});
+            self.router.navigate(url, {trigger: true});
             return true;
-        }.bind(this);
+        };
     };
 
     return new Controller();

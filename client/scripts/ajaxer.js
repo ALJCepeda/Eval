@@ -1,4 +1,4 @@
-define(['bare.ajax'], function(ajax) {
+define(['bareutil.ajax'], function(ajax) {
 	ajax.info = function() {
         return ajax.get('info').then(JSON.parse);
     };

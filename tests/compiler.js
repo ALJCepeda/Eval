@@ -2,35 +2,32 @@ var tape = require('tape'),
 	zmq = require('zmq');
 
 tape('client', function(t) {
-	var WORK_URL = 'tcp://127.0.0.1:3000';
 	var nodejs = {
 		platform:'nodejs',
 		tag:'latest',
-		documents: [
-			{
-				name:'index',
-				extension:'js',
-				content:'console.log(\'Hello NodeJS!\')'
-			}
-		]
+		documents: {
+			index: {	id:'index',
+						extension:'js',
+						content:'console.log(\'Hello NodeJS!\')' }
+		}
 	};
 
 	var php = {
 		platform:'php',
 		tag:'5.6',
-		documents: [
-			{
-				name:'index',
-				extension:'php',
-				content:'<?php echo \'Hello PHP!\'; '
-			}
-		]
+		documents: {
+			index: {	id:'index',
+						extension:'php',
+						content:'<?php echo \'Hello PHP!\'; ' }
+		}
 	};
 
 	// socket to talk to server
 	var sockets = [];
-
-	for(var workers = 0; workers < 10; workers ++) {
+	const WORKER_NUM = 5;
+	const SEND_NUM = 5;
+	const WORK_URL = 'tcp://127.0.0.1:3000';
+	for(var workers = 0; workers < WORKER_NUM; workers ++) {
 		var req = zmq.socket('req');
 		var identity = 'client' + process.pid + '_' + workers;
 		req.identity =  identity;
@@ -39,20 +36,24 @@ tape('client', function(t) {
 		req.on('message', function(reply) {
 			var result = JSON.parse(reply);
 			x++;
-		  	console.log('Received reply', x, 'and id', result.projectid);
-			console.log('Answer:', result.stdout.toString());
+		  	console.log('Received reply', x, 'and id', result.id);
+			if(!result.error) {
+				console.log(result.save.stdout);
+			} else {
+				console.log(result.error);
+			}
 		});
 
-		req.connect('tcp://localhost:5555');
+		req.connect(WORK_URL);
 
-		for (var i = 0; i < 5; i++) {
+		for (var i = 0; i < SEND_NUM; i++) {
 			var project;
 			if(i % 2 === 0) {
-				project = nodejs;
+				project = php;
 			} else {
-				project =  php;
+				project =  nodejs;
 			}
-			project.id = identity + '_' + i;
+
 			var data = JSON.stringify(project);
 
 			console.log('Sending:', data);

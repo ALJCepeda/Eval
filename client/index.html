@@ -75,64 +75,59 @@
 			 background-color:#80d8ff;
 		}
 
+		.controlPanel {
+			position:absolute;
+			height:25vh;
+			width:25vw;
+			bottom:10px;
+			right:10px;
+			padding:10px;
+			background-color: white;
+		}
+
+		.controlPanel-header {
+			height:5%;
+			width:100%;
+			text-align: center;
+		}
+
+		.controlPanel-body {
+			width:100%;
+		}
+
+		.controlPanel-footer {
+			height:10%;
+			width:100%;
+		}
+
+		.controlPanel-footer > ul > li {
+			float:left;
+			margin:10px;
+		}
 	</style>
 </head>
 
 <body>
-	<div class="navbar">
-  		<div class="container-fluid">
-    		<div class="navbar-header">
-      			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-        			<span class="icon-bar"></span>
-        			<span class="icon-bar"></span>
-        			<span class="icon-bar"></span>
-      			</button>
-      			<a class="navbar-brand">Eval</a>
-    		</div>
+	<div class="container-fluid" style="background-color:blue;height:100%;width:100%;">
+		<div class="row" style="height:100%;">
+			<div class="col-md-10" style="background-color:red;height:100%;padding:0px;">
+				<pre class='page' id='editor' data-bind='visible: selectedTab() === "editor"'></pre>
 
-    		<div class="navbar-collapse collapse navbar-responsive-collapse"  style="background-color:#80d8f">
-      			<ul class="nav navbar-nav">
-					<li>
-						<div class="btn-group">
-							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Themes <span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu" data-bind="foreach:theme" style="max-height:70vh;overflow-y:scroll;">
-								<li><a data-bind="text:$data, click:$root.clickedTheme"></a></li>
-							</ul>
-						</div>
-					</li>
-      			</ul>
+				<div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
+					<div id='stdout'></div>
+					<div id='stderr'></div>
+				</div>
 
-      			<ul class="nav navbar-nav navbar-right">
-					<li>
-						<a class='waves-effect waves-light' href='#create'>
-							<i class='material-icons dp48'>add</i>
-						</a>
-					</li>
+				<div id='loadingContainer' class='page' data-bind='visible: selectedTab() === "loading"'>
+					<div class="progress">
+		      			<div class="indeterminate"></div>
+		  			</div>
+				</div>
+			</div>
 
-					<li>
-						<a class='waves-effect waves-light' data-bind='click: onSubmit'>
-							<i class='material-icons dp48'>done</i>
-						</a>
-					</li>
-      			</ul>
-    		</div>
-  		</div>
-	</div>
+			<div class="col-md-2" id='controlPanelView' style="background-color:green;height:100%;">
 
-	<div class='container-fluid' style='height:100%; width:100%; padding:0px;'>
-		<pre class='page' id='editor' data-bind='visible: selectedTab() === "editor"'></pre>
-
-		<div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
-			<div id='stdout'></div>
-			<div id='stderr'></div>
-		</div>
-
-		<div id='loadingContainer' class='page' data-bind='visible: selectedTab() === "loading"'>
-			<div class="progress">
-      			<div class="indeterminate"></div>
-  			</div>
+			</div>
 		</div>
 	</div>
 

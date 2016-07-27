@@ -1,5 +1,5 @@
 define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
-	var CreateProject = function() {
+	var ControlPanel = function() {
 		var self = this;
 		var firstPlatform = { value: '', text: 'Choose your platform', disable:true };
 		var firstTag = { value: '', text: 'Choose your version', disable:true };
@@ -9,14 +9,24 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		this.meta = ko.observable({});
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
+		this.theme = ko.observableArray([]);
+		this.selectedTheme = ko.observable('');
+
+		appfeed.subscribe('fetchedThemes', function(themes) {
+			self.theme(themes);
+		});
+
+        var self = this;
+        this.clickedTheme = function(theme) {
+            self.selectedTheme(theme);
+        };
 
 		this.disabled = ko.computed(function() {
-			return this.selectedPlatform() === '' ||
-					this.selectedTag() === ''
-		}.bind(this));
+			return self.selectedPlatform() === '' || self.selectedTag() === '';
+		});
 
 		this.platforms = ko.computed(function() {
-			var meta = this.meta();
+			var meta = self.meta();
 			var newPlatforms = [ firstPlatform ];
 
 			for(var key in meta) {
@@ -25,11 +35,11 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 			}
 
 			return newPlatforms;
-		}.bind(this));
+		});
 
 		this.tags = ko.computed(function() {
-			var meta = this.meta();
-			var platform = this.selectedPlatform();
+			var meta = self.meta();
+			var platform = self.selectedPlatform();
 			var tags = [ firstTag ];
 
 			if(platform === "") { return tags; }
@@ -38,20 +48,16 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 				return { value: tag, text: tag, disable: false };
 			}));
 
-			this.selectedTag('');
-			setTimeout(function() {
-				$('#selectVersion').material_select();
-			});
-
+			self.selectedTag('');
 			return tags;
-		}.bind(this));
+		});
 
 		appfeed.subscribe('fetchedMeta', function(meta) {
-			this.meta(meta);
-		}.bind(this));
+			self.meta(meta);
+		});
 	};
 
-	CreateProject.prototype.onClick = function() {
+	ControlPanel.prototype.onClick = function() {
 		if(this.disabled() === false) {
 			var platform = this.selectedPlatform();
 			var tag = this.selectedTag();
@@ -63,30 +69,26 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}
 	};
 
-	CreateProject.prototype.attach = function(id) {
+	ControlPanel.prototype.attach = function(id) {
 		this.id = id;
-		injector.injectVM('#'+id, 'components/createProject');
+		injector.injectVM('#'+id, 'components/controlPanel');
 	};
-	CreateProject.prototype.setPlatformDisable = function(option, platform) {
+	ControlPanel.prototype.setPlatformDisable = function(option, platform) {
 		ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
 	};
 
-	CreateProject.prototype.setTagDisable = function(option, version) {
+	ControlPanel.prototype.setTagDisable = function(option, version) {
 		ko.applyBindingsToNode(option, {disable: version.disable}, version);
 	};
 
-	CreateProject.prototype.open = function() {
-		$('#open_'+this.id).trigger('click');
-	};
-	CreateProject.prototype.close = function() {
-		$('#close_'+this.id).trigger('click');
-	};
-
-	CreateProject.prototype.didRender = function(element) {
+	ControlPanel.prototype.didRender = function(element) {
 		element.className += ' modal';
 		element.style.visibility = 'visible';
-		$('select').material_select();
 	};
 
-	return new CreateProject();
+	ControlPanel.prototype.onSubmit = function() {
+		this.didSubmit();
+	};
+
+	return new ControlPanel();
 });
