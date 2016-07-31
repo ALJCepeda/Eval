@@ -9,10 +9,23 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
     Controller.prototype.appStarted = function() {
         var self = this;
 
-        this.router = new Router();
-        this.documentor = new Documentor();
-        this.controlPanel = new ControlPanel();
+        return ajax.fetchMeta().then(function(info) {
+            console.log('Fetched info:', info)
+            self.initRouter();
+            self.initControlPanel(info);
+            self.initDocumentor();
 
+            return self.documentor.inject('documentorView').then(function() {
+                return self.controlPanel.inject('controlPanelView');
+            }).then(function() {
+                self.router.start();
+            });
+        });
+    };
+
+    Controller.prototype.initRouter = function() {
+        var self = this;
+        this.router = new Router();
         this.router.gotProject = function() {
             var id = args.id;
             var save = args.save;
@@ -24,7 +37,11 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
 
             //self.rootView.selectedTab('editor');
         };
+    };
 
+    Controller.prototype.initControlPanel = function(info) {
+        var self = this;
+        this.controlPanel = new ControlPanel(info.meta, info.themes);
         this.controlPanel.shouldSubmit = function(project, tag) {
             var documents = self.documentor.getDocuments();
 
@@ -40,26 +57,17 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
             });
         };
 
-        this.controlPanel.changedTheme = function(newTheme) {
-            self.documentor.setTheme(newTheme);
+        this.controlPanel.changedTheme = function(theme) {
+            self.documentor.setTheme(theme);
         };
 
-        this.controlPanel.changedPlatform = function(newPlatform) {
-            self.documentor.setMode(newPlatform);
+        this.controlPanel.changedPlatform = function(platform, aceMode) {
+            self.documentor.setMode(aceMode);
         };
+    };
 
-        return this.documentor.inject('documentorView').then(function() {
-            return self.controlPanel.inject('controlPanelView');
-        }).then(function() {
-            return ajax.fetchMeta();
-        }).then(function(info) {
-            console.log('Fetched info:', info)
-            self.router.start();
-            self.controlPanel.hooks.didFetchMeta(info.meta);
-            self.controlPanel.hooks.didFetchThemes(info.themes);
-
-            self.controlPanel.selectedTheme('monokai');
-        });
+    Controller.prototype.initDocumentor = function() {
+        this.documentor = new Documentor();
     };
 
     Controller.prototype.attemptCreateProject = function(platform, tag) {
@@ -71,5 +79,5 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
         return true;
 	};
 
-    return new Controller();
+    return Controller;
 });

@@ -1,5 +1,5 @@
 define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
-	var ControlPanel = function() {
+	var ControlPanel = function(meta, themes) {
 		var self = this;
 
 		this.id = '';
@@ -7,15 +7,19 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.changedPlatform;
 		this.changedTheme;
 
-		this.meta = ko.observable({});
-		this.theme = ko.observableArray([]);
+		this.meta = ko.observable(meta);
+		this.theme = ko.observableArray(themes);
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
 		this.selectedTheme = ko.observable('');
 
 		this.selectedPlatform.subscribe(function(platform) {
-			self.changedPlatform(platform || 'plain_text');
+			var platformInfo = self.meta()[platform];
+			var aceMode = platformInfo.aceMode;
+
+			self.changedPlatform(platform, aceMode);
 		});
+
 		this.selectedTheme.subscribe(function(theme) {
 			self.changedTheme(theme || 'monokai');
 		});
@@ -42,9 +46,6 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 			var platformInfo = meta[platform];
 			var newTags = [];
 
-			if(platform === "") { return newTags; }
-			if(!val.object(meta[platform])) { return {}; }
-
 			[].push.apply(newTags, meta[platform].tags.map(function(tag) {
 				return { value: tag, text: tag };
 			}));
@@ -52,14 +53,6 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 			self.selectedTag('latest');
 			return newTags;
 		});
-
-		this.hooks = {};
-		this.hooks.didFetchThemes = function(themes) {
-			self.theme(themes);
-		};
-		this.hooks.didFetchMeta = function(meta) {
-			self.meta(meta);
-		};
 	};
 
 	ControlPanel.prototype.onClick = function() {

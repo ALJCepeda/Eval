@@ -46,5 +46,5 @@ define(['scripts/injector',
 		return project;
 	};
 
-	return new App();
+	return App;
 });
