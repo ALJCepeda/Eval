@@ -18,6 +18,7 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
             return self.documentor.inject('documentorView').then(function() {
                 return self.controlPanel.inject('controlPanelView');
             }).then(function() {
+                self.controlPanel.doSubscriptions();
                 self.router.start();
             });
         });
@@ -42,9 +43,11 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
     Controller.prototype.initControlPanel = function(info) {
         var self = this;
         this.controlPanel = new ControlPanel(info.meta, info.themes);
-        this.controlPanel.shouldSubmit = function(project, tag) {
+
+        this.controlPanel.clickedSubmit = function(project, tag) {
             var documents = self.documentor.getDocuments();
 
+            debugger;
             self.rootView.selectedTab('loading');
             var url = project + '/' + tag;
             self.router.navigate(url, {trigger: true});

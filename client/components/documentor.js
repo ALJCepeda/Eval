@@ -1,6 +1,7 @@
 define(['scripts/injector'], function(Injector) {
     var Documentor = function() {
 		this.id = '';
+        
 		this.editor = '';
 		this.documents = [];
         this.selectedTab = ko.observable('editor');
