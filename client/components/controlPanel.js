@@ -46,6 +46,11 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		});
 	};
 
+	/*
+		Knockout calls computed observers as soon as they're created but not subscribers
+		In order to avoid unnecessary checks on updates we defer subscription creation and force updates
+	*/
+
 	ControlPanel.prototype.doSubscriptions = function() {
 		var self = this;
 		this.selectedPlatform.subscribe(function(platform) {
