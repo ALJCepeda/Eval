@@ -1,4 +1,4 @@
-define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
+define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 	var ControlPanel = function() {
 		var self = this;
 
@@ -10,11 +10,6 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		this.theme = ko.observableArray([]);
 		this.selectedTheme = ko.observable('');
 
-		appfeed.subscribe('fetchedThemes', function(themes) {
-			self.theme(themes);
-		});
-
-        var self = this;
         this.clickedTheme = function(theme) {
             self.selectedTheme(theme);
         };
@@ -38,21 +33,31 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		this.tags = ko.computed(function() {
 			var meta = self.meta();
 			var platform = self.selectedPlatform();
-			var tags = [];
+			var platformInfo = meta[platform];
+			var newTags = [];
 
-			if(platform === "") { return tags; }
-			
-			[].push.apply(tags, meta[platform].tags.map(function(tag) {
+			if(platform === "") { return newTags; }
+			if(!val.object(meta[platform])) { return {}; }
+
+			[].push.apply(newTags, meta[platform].tags.map(function(tag) {
 				return { value: tag, text: tag };
 			}));
 
-			self.selectedTag('');
-			return tags;
+			self.selectedTag('latest');
+			return newTags;
 		});
 
-		appfeed.subscribe('fetchedMeta', function(meta) {
+		this.hooks = {};
+		this.hooks.didFetchThemes = function(themes) {
+			self.theme(themes);
+		};
+		this.hooks.didFetchMeta = function(meta) {
 			self.meta(meta);
-		});
+		};
+
+		this.onSubmit = function() {
+			console.log('submitted');
+		};
 	};
 
 	ControlPanel.prototype.onClick = function() {
@@ -67,21 +72,15 @@ define(['feeds/app', 'scripts/injector'], function(appfeed, injector) {
 		}
 	};
 
-	ControlPanel.prototype.attach = function(id) {
+	ControlPanel.prototype.inject = function(id) {
+		var injector = new Injector('/');
 		this.id = id;
-		injector.injectVM('#'+id, 'components/controlPanel');
-	};
-	ControlPanel.prototype.setPlatformDisable = function(option, platform) {
-		ko.applyBindingsToNode(option, {disable: platform.disable}, platform);
-	};
-
-	ControlPanel.prototype.setTagDisable = function(option, version) {
-		ko.applyBindingsToNode(option, {disable: version.disable}, version);
+		return injector.injectVM('#'+id, 'components/controlPanel');
 	};
 
 	ControlPanel.prototype.onSubmit = function() {
 		this.didSubmit();
 	};
 
-	return new ControlPanel();
+	return ControlPanel;
 });

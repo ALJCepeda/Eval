@@ -1,24 +1,23 @@
-define([], function() {
-	var Documentor = function() {
+define(['scripts/injector'], function(Injector) {
+    var Documentor = function() {
 		this.id = '';
 		this.editor = '';
 		this.documents = [];
-
-		/*
-		appfeed.subscribe('didCreate', function(project) {
-			this.setMode(project.meta.acemode);
-			this.setDocuments(project.documents);
-		}.bind(this));
-		*/
+        this.selectedTab = ko.observable('editor');
 	};
 
 	/* Initial values */
 	Documentor.prototype.inject = function(id) {
+        var self = this;
+        var injector = new Injector('/');
 		this.id = id;
-		this.editor = ace.edit(id);
-		this.editor.$blockScrolling = Infinity;
-		this.setMode('plain_text');
-		this.editor.resize();
+
+		return injector.injectVM('#'+id, 'components/documentor').then(function() {
+            self.editor = ace.edit('editor');
+    		self.editor.$blockScrolling = Infinity;
+    		self.setMode('plain_text');
+    		self.editor.resize();
+        });
 	};
 
 	Documentor.prototype.getDocuments = function() {
@@ -47,6 +46,5 @@ define([], function() {
 		var theme = 'ace/theme/' + t;
 		this.editor.setTheme(theme);
 	};
-
-	return Documentor;
 });
+a

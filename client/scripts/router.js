@@ -1,4 +1,4 @@
-define(['newsfeed', 'feeds/app'], function(NewsFeed, appfeed) {
+define(['newsfeed'], function(NewsFeed) {
 	var Router = function() {
 		this.router = '';
 		this.feed = new NewsFeed();
@@ -36,5 +36,5 @@ define(['newsfeed', 'feeds/app'], function(NewsFeed, appfeed) {
 		this.router.navigate(route, options);
 	};
 
-	return new Router();
+	return Router;
 });

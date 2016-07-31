@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang='en' id='root'>
 <head>
-	<title data-bind='text:title'></title>
+	<title>Eval</title>
 	<meta charset='UTF-8'>
 	<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 
@@ -100,24 +100,8 @@
 <body>
 	<div class="container-fluid" style="height:100%;width:100%;">
 		<div class="row" style="height:100%;">
-			<div class="col-md-10" style="height:100%;padding:0px;">
-				<pre class='page' id='editor' data-bind='visible: selectedTab() === "editor"'></pre>
-
-				<div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
-					<div id='stdout'></div>
-					<div id='stderr'></div>
-				</div>
-
-				<div id='loadingContainer' class='page' data-bind='visible: selectedTab() === "loading"'>
-					<div class="progress">
-		      			<div class="indeterminate"></div>
-		  			</div>
-				</div>
-			</div>
-
-			<div class="col-md-2" id='controlPanelView' style="height:100%;">
-
-			</div>
+			<div class="col-md-10" id='documentorView' style="height:100%;padding:0px;"></div>
+			<div class="col-md-2" id='controlPanelView' style="height:100%;"></div>
 		</div>
 	</div>
 

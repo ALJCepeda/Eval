@@ -1,6 +1,6 @@
 define(['bareutil.ajax'], function(ajax) {
-	ajax.info = function() {
-        return ajax.get('info').then(JSON.parse);
+	ajax.fetchMeta = function() {
+        return ajax.get('meta').then(JSON.parse);
     };
 
     ajax.compile = function(project) {

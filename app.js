@@ -12,6 +12,7 @@ var pgdb = new eval_shared.PGAgent('postgres://vagrant:password@localhost/eval')
 eval_shared.Document.expose(app, express);
 eval_shared.Save.expose(app, express);
 eval_shared.Project.expose(app, express);
+bare.val.expose(app, express);
 bare.misc.expose(app, express);
 bare.ajax.expose(app, express);
 app.use('/bluebird.js', express.static('./node_modules/bluebird/js/browser/bluebird.js'));

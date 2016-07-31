@@ -4,7 +4,7 @@ var config = require('../config.js');
 var bare = require('bareutil');
 var val = bare.val;
 
-var RestAPI = function(workURL, app, info) {
+var RestAPI = function(workURL, app, meta) {
 	var self = this;
 
 	app.use(bodyparser.urlencoded({
@@ -14,7 +14,7 @@ var RestAPI = function(workURL, app, info) {
 
 	this.workurl = workURL;
 	this.routes = {};
-	this.info = info;
+	this.meta = meta;
 
 	app.use(function (error, req, res, next){
     	//Catch json error
@@ -23,9 +23,9 @@ var RestAPI = function(workURL, app, info) {
     	next(error);
 	});
 
-	app.get('/info', function(req, res) {
+	app.get('/meta', function(req, res) {
 		res.setHeader('content-type', 'application/json');
-		var data = JSON.stringify(info);
+		var data = JSON.stringify(self.meta);
 		res.send(data);
  	}.bind(this));
 

@@ -3,11 +3,18 @@ define(['scripts/injector',
 		'newsfeed'], function(injector, ajax, NewsFeed) {
 
 	var App = function() {
-		this.id = ''
+		this.controller;
 		this.feed = new NewsFeed();
 		this.meta = '';
 		this.themes = '';
 		this.project = '';
+	};
+
+	App.prototype.start = function() {
+		$.material.init();
+		this.controller.appStarted().then(function() {
+			console.log('Application initialized');
+		});
 	};
 
 	App.prototype.compile = function(documents) {
@@ -20,31 +27,8 @@ define(['scripts/injector',
 		return ajax.compile(project);
 	};
 
-	App.prototype.fetchMeta = function() {
-
-		return ajax.info().then(function(info) {
-			console.log('Meta:', info);
-
-			this.meta = info.meta;
-			this.feed.publish('fetchedMeta', info.meta);
-
-			this.themes = info.themes;
-			this.feed.publish('fetchedThemes', info.themes);
-		}.bind(this));
-	};
-
 	App.prototype.platformMeta = function(platform) {
 		return this.meta[platform] || '';
-	};
-
-	App.prototype.validPlatform = function(platform, tag) {
-		var meta = this.platformMeta(platform);
-
-		if(meta === '') {
-			return false;
-		}
-
-		return meta.tags.indexOf(tag) !== -1;
 	};
 
 	App.prototype.createProject = function(platform, tag) {
