@@ -1,15 +1,8 @@
-define([], function() {
+define(['eval_shared.Document'], function(Document) {
 	var Documentor = function() {
 		this.id = '';
 		this.editor = '';
 		this.documents = [];
-
-		/*
-		appfeed.subscribe('didCreate', function(project) {
-			this.setMode(project.meta.acemode);
-			this.setDocuments(project.documents);
-		}.bind(this));
-		*/
 	};
 
 	/* Initial values */
@@ -18,16 +11,19 @@ define([], function() {
 		this.editor = ace.edit(id);
 		this.editor.$blockScrolling = Infinity;
 		this.editor.resize();
+		
 
 		return Promise.resolve();
 	};
 
-	Documentor.prototype.getDocuments = function() {
+	Documentor.prototype.getDocument = function(info) {
 		var code = this.editor.getValue();
-		var doc = this.documents[0];
-		doc.content = code;
 
-		return this.documents;
+		return new Document({
+			id:'index',
+			extension:info.extension,
+			content:code
+		});
 	};
 
 

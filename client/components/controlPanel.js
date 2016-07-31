@@ -75,11 +75,16 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 	};
 
 	ControlPanel.prototype.onSubmit = function() {
-		var platform = self.selectedPlatform();
-		var tag = self.selectedTheme();
+		var platform = this.selectedPlatform();
+		var tag = this.selectedTag();
+		var info = this.meta()[platform];
 
-		this.clickedSubmit(platform, theme);
+		this.clickedSubmit(platform, tag, info);
 	};
 
+	ControlPanel.prototype.hasTag = function(platform, tag) {
+		var platformInfo = this.meta()[platform];
+		return val.defined(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
+	};
 	return ControlPanel;
 });

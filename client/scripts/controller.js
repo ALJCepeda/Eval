@@ -1,5 +1,5 @@
-define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injector', 'components/controlPanel' ],
-        function(ajax, Router, Documentor, Injector, ControlPanel) {
+define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/injector', 'components/controlPanel', 'eval_shared.Project' ],
+        function(ajax, Router, Documentor, Injector, ControlPanel, Project) {
     var Controller = function() {
         this.controlPanel;
         this.documentor;
@@ -8,7 +8,6 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
 
     Controller.prototype.appStarted = function() {
         var self = this;
-
         return ajax.fetchMeta().then(function(info) {
             console.log('Fetched info:', info)
             self.initRouter();
@@ -27,16 +26,13 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
     Controller.prototype.initRouter = function() {
         var self = this;
         this.router = new Router();
-        this.router.gotProject = function() {
-            var id = args.id;
-            var save = args.save;
-
-            var didCreate = self.attemptCreateProject(id, save);
-            if(didCreate === false) {
-                //TODO: Attempt to fetch project from server
+        this.router.didGetCreate = function(platform, tag) {
+            if(self.controlPanel.hasTag(platform, tag) === true) {
+                self.controlPanel.selectedPlatform(platform);
+                self.controlPanel.selectedTag(tag);
+            } else {
+                //TODO: Display error
             }
-
-            //self.rootView.selectedTab('editor');
         };
     };
 
@@ -44,20 +40,36 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
         var self = this;
         this.controlPanel = new ControlPanel(info.meta, info.themes);
 
-        this.controlPanel.clickedSubmit = function(project, tag) {
-            var documents = self.documentor.getDocuments();
+        this.controlPanel.clickedSubmit = function(platform, tag, info) {
+            var doc = self.documentor.getDocument(info);
 
-            debugger;
-            self.rootView.selectedTab('loading');
+            self.documentor.selectedTab('loading');
+
+            /*
             var url = project + '/' + tag;
-            self.router.navigate(url, {trigger: true});
+            //self.router.navigate(url, {trigger: true});
+            */
 
+            var project = new Project({
+                platform:platform,
+                tag:tag,
+                documents:{
+                    index:doc
+                }
+            });
+
+            return ajax.compile(project).then(function(response) {
+                console.log(response);
+            });
+
+            /*
             return self.app.compile(documents).then(function(response) {
+
                 $('#stdout').html(response.stdout);
                 $('#stderr').html(response.stderr);
 
                 self.rootView.selectedTab('output');
-            });
+            });*/
         };
 
         this.controlPanel.changedTheme = function(theme) {
@@ -72,15 +84,6 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
     Controller.prototype.initDocumentor = function() {
         this.documentor = new Documentor();
     };
-
-    Controller.prototype.attemptCreateProject = function(platform, tag) {
-		if(this.app.validPlatform(platform, tag) !== true) {
-            return false;
-        }
-
-		this.app.createProject(platform, tag);
-        return true;
-	};
 
     return Controller;
 });

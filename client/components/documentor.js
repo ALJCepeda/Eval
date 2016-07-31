@@ -1,7 +1,7 @@
-define(['scripts/injector'], function(Injector) {
+define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document) {
     var Documentor = function() {
 		this.id = '';
-        
+
 		this.editor = '';
 		this.documents = [];
         this.selectedTab = ko.observable('editor');
@@ -16,17 +16,18 @@ define(['scripts/injector'], function(Injector) {
 		return injector.inject('#'+id, 'components/documentor', this).then(function() {
             self.editor = ace.edit('editor');
     		self.editor.$blockScrolling = Infinity;
-    		self.setMode('plain_text');
     		self.editor.resize();
         });
 	};
 
-	Documentor.prototype.getDocuments = function() {
+    Documentor.prototype.getDocument = function(info) {
 		var code = this.editor.getValue();
-		var doc = this.documents[0];
-		doc.content = code;
 
-		return this.documents;
+		return new Document({
+			id:'index',
+			extension:info.extension,
+			content:code
+		});
 	};
 
 
@@ -47,5 +48,6 @@ define(['scripts/injector'], function(Injector) {
 		var theme = 'ace/theme/' + t;
 		this.editor.setTheme(theme);
 	};
+
+    return Documentor;
 });
-a

@@ -1,39 +1,33 @@
-define(['newsfeed'], function(NewsFeed) {
+define(['newsfeed'], function() {
 	var Router = function() {
-		this.router = '';
-		this.feed = new NewsFeed();
+		this.backRouter = '';
+		this.didGetProject;
+		this.didGetCreate;
 	};
 
 	Router.prototype.start = function() {
 		var self = this;
 		var BackRouter = Backbone.Router.extend({
 		  	routes: {
-				":action":"actionRoute",
-				":id/:save":"idRoute"
+				":projectid/:saveid":"idRoute",
+				"create/:platform/:tag":"createRoute"
 			},
 
-		  	actionRoute: function(action) {
-		  		switch(action) {
-					case 'create':``
-						self.feed.publish('gotCreate');
-					break;
-				}
+		  	idRoute: function(projectid, saveid) {
+				self.didGetProject(projectid, saveid);
 		  	},
 
-		  	idRoute: function(id, save) {
-				self.feed.publish('gotProject', {
-					id:id,
-					save:save
-				})
-		  	}
+			createRoute: function(platform, tag) {
+				self.didGetCreate(platform, tag);
+			}
 		});
 
-		this.router = new BackRouter();
+		this.backRouter = new BackRouter();
 		Backbone.history.start();
 	}
 
 	Router.prototype.navigate = function(route, options) {
-		this.router.navigate(route, options);
+		this.backRouter.navigate(route, options);
 	};
 
 	return Router;
