@@ -44,11 +44,16 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
             self.documentor.setTheme(newTheme);
         };
 
-        return this.controlPanel.inject('controlPanelView').then(function() {
-            return self.documentor.inject('documentorView');
+        this.controlPanel.changedPlatform = function(newPlatform) {
+            self.documentor.setMode(newPlatform);
+        };
+
+        return this.documentor.inject('documentorView').then(function() {
+            return self.controlPanel.inject('controlPanelView');
         }).then(function() {
             return ajax.fetchMeta();
         }).then(function(info) {
+            console.log('Fetched info:', info)
             self.router.start();
             self.controlPanel.hooks.didFetchMeta(info.meta);
             self.controlPanel.hooks.didFetchThemes(info.themes);

@@ -3,7 +3,9 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		var self = this;
 
 		this.id = '';
-		this.didSubmit;
+		this.shouldSubmit;
+		this.changedPlatform;
+		this.changedTheme;
 
 		this.meta = ko.observable({});
 		this.theme = ko.observableArray([]);
@@ -11,9 +13,12 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.selectedTag = ko.observable('');
 		this.selectedTheme = ko.observable('');
 
-        this.clickedTheme = function(theme) {
-            self.selectedTheme(theme);
-        };
+		this.selectedPlatform.subscribe(function(platform) {
+			self.changedPlatform(platform || 'plain_text');
+		});
+		this.selectedTheme.subscribe(function(theme) {
+			self.changedTheme(theme || 'monokai');
+		});
 
 		this.disabled = ko.computed(function() {
 			return self.selectedPlatform() === '' || self.selectedTag() === '';
@@ -79,8 +84,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		var platform = self.selectedPlatform();
 		var tag = self.selectedTheme();
 
-		console.log("should submit");
-		//this.shouldSubmit(platform, theme);
+		this.shouldSubmit(platform, theme);
 	};
 
 	return ControlPanel;

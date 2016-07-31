@@ -17,8 +17,9 @@ define([], function() {
 		this.id = id;
 		this.editor = ace.edit(id);
 		this.editor.$blockScrolling = Infinity;
-		this.setMode('plain_text');
 		this.editor.resize();
+
+		return Promise.resolve();
 	};
 
 	Documentor.prototype.getDocuments = function() {
