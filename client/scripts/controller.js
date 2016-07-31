@@ -13,11 +13,7 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
         this.documentor = new Documentor();
         this.controlPanel = new ControlPanel();
 
-        this.router.feed.subscribe('gotCreate', function() {
-            self.controlPanel.open();
-        });
-
-        this.router.feed.subscribe('gotProject', function(args) {
+        this.router.gotProject = function() {
             var id = args.id;
             var save = args.save;
 
@@ -27,28 +23,25 @@ define(['scripts/ajaxer', 'scripts/router', 'scripts/documentor', 'scripts/injec
             }
 
             //self.rootView.selectedTab('editor');
-        });
+        };
 
-        this.controlPanel.didSubmit = function() {
+        this.controlPanel.shouldSubmit = function(project, tag) {
             var documents = self.documentor.getDocuments();
-            self.app.compile(documents).then(function(response) {
+
+            self.rootView.selectedTab('loading');
+            var url = project + '/' + tag;
+            self.router.navigate(url, {trigger: true});
+
+            return self.app.compile(documents).then(function(response) {
                 $('#stdout').html(response.stdout);
                 $('#stderr').html(response.stderr);
 
                 self.rootView.selectedTab('output');
             });
-
-            self.rootView.selectedTab('loading');
         };
 
-        this.controlPanel.selectedTheme.subscribe(function(theme) {
-            self.documentor.setTheme(theme);
-        });
-
-        this.controlPanel.didSubmit = function(project, tag) {
-            var url = project + '/' + tag;
-            self.router.navigate(url, {trigger: true});
-            return true;
+        this.controlPanel.changedTheme = function(newTheme) {
+            self.documentor.setTheme(newTheme);
         };
 
         return this.controlPanel.inject('controlPanelView').then(function() {

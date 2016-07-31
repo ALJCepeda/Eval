@@ -12,7 +12,7 @@ define(['scripts/injector'], function(Injector) {
         var injector = new Injector('/');
 		this.id = id;
 
-		return injector.injectVM('#'+id, 'components/documentor').then(function() {
+		return injector.inject('#'+id, 'components/documentor', this).then(function() {
             self.editor = ace.edit('editor');
     		self.editor.$blockScrolling = Infinity;
     		self.setMode('plain_text');

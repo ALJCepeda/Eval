@@ -4,10 +4,11 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 
 		this.id = '';
 		this.didSubmit;
+
 		this.meta = ko.observable({});
+		this.theme = ko.observableArray([]);
 		this.selectedPlatform = ko.observable('');
 		this.selectedTag = ko.observable('');
-		this.theme = ko.observableArray([]);
 		this.selectedTheme = ko.observable('');
 
         this.clickedTheme = function(theme) {
@@ -54,10 +55,6 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.hooks.didFetchMeta = function(meta) {
 			self.meta(meta);
 		};
-
-		this.onSubmit = function() {
-			console.log('submitted');
-		};
 	};
 
 	ControlPanel.prototype.onClick = function() {
@@ -75,11 +72,15 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 	ControlPanel.prototype.inject = function(id) {
 		var injector = new Injector('/');
 		this.id = id;
-		return injector.injectVM('#'+id, 'components/controlPanel');
+		return injector.inject('#'+id, 'components/controlPanel', this);
 	};
 
 	ControlPanel.prototype.onSubmit = function() {
-		this.didSubmit();
+		var platform = self.selectedPlatform();
+		var tag = self.selectedTheme();
+
+		console.log("should submit");
+		//this.shouldSubmit(platform, theme);
 	};
 
 	return ControlPanel;
