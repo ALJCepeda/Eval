@@ -55,8 +55,10 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 
 	ControlPanel.prototype.doSubscriptions = function() {
 		var self = this;
+		var oldPlatform = this.selectedPlatform();
 		this.selectedPlatform.subscribe(function(platform) {
-			self.changedPlatform(platform);
+			self.changedPlatform(platform, oldPlatform);
+			oldPlatform = platform;
 		});
 
 		this.selectedTheme.subscribe(function(theme) {

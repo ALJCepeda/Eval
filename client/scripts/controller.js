@@ -123,9 +123,16 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
             self.documentor.setTheme(theme);
         };
 
-        this.controlPanel.changedPlatform = function(platform) {
-            var aceMode = self.info.meta[platform].aceMode
+        this.controlPanel.changedPlatform = function(platform, oldPlatform) {
+            var platformInfo = self.info.meta[platform];
+            var oldPlatformInfo = self.info.meta[oldPlatform];
+
+            var aceMode = platformInfo.aceMode;
             self.documentor.setMode(aceMode);
+
+            if(self.documentor.getDocument().content === oldPlatformInfo.demo.index.content){
+                self.documentor.setDocument(platformInfo.demo.index);
+            }
         };
 
         this.controlPanel.shouldShowOutput = function(show) {
