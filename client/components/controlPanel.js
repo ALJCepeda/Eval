@@ -20,6 +20,9 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.isSubmitting = ko.observable(false);
 		this.showOutput = ko.observable(false);
 
+		this.hasProject = ko.computed(function() {
+			return self.projectid() !== '' && self.saveid() !== '';
+		});
 		this.platforms = ko.computed(function() {
 			var info = self.info();
 			var newPlatforms = [];

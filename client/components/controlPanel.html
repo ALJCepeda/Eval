@@ -3,28 +3,30 @@
         <h2 style='text-align:center'>Eval</h2>
     </div>
 
-    <label class='col-sm-4 control-label'>ProjectID:</label>
-    <div class='col-sm-8'>
-        <p class='form-control-static float-right'data-bind='text:projectid'></p>
+    <div data-bind='visible:hasProject'>
+        <label class='col-sm-4 control-label'>ProjectID:</label>
+        <div class='col-sm-8'>
+            <p class='form-control-static float-right'data-bind='text:projectid'></p>
+        </div>
+
+        <label class='col-sm-4 control-label'>SaveID:</label>
+        <div class='col-sm-8'>
+            <p class='form-control-static float-right'data-bind='text:saveid'></p>
+        </div>
+
+        <div class='checkbox' style='text-align:center;'>
+            <label style='margin-top:10px;'>
+                <input type='checkbox' data-bind='checked:showOutput'>
+                <span class='checkbox-material'>
+                    <span class='check'></span>
+                </span>
+                Output
+            </label>
+        </div>
     </div>
 
-    <label class='col-sm-4 control-label'>SaveID:</label>
-    <div class='col-sm-8'>
-        <p class='form-control-static float-right'data-bind='text:saveid'></p>
-    </div>
-
-    <div class='checkbox' style='text-align:center;'>
-        <label style='margin-top:10px;'>
-            <input type='checkbox' data-bind='checked:showOutput'>
-            <span class='checkbox-material'>
-                <span class='check'></span>
-            </span>
-            Output
-        </label>
-    </div>
+    <hr>
 </div>
-
-<hr>
 
 <div class='controlPanel-body'>
     <form class='form-horizontal'>
