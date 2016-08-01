@@ -45,12 +45,7 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
 
             self.documentor.selectedTab('loading');
 
-            /*
-            var url = project + '/' + tag;
-            //self.router.navigate(url, {trigger: true});
-            */
-
-            var project = new Project({
+            var curProj = new Project({
                 platform:platform,
                 tag:tag,
                 documents:{
@@ -58,18 +53,21 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
                 }
             });
 
-            return ajax.compile(project).then(function(response) {
-                console.log(response);
+            return ajax.compile(curProj).then(function(response) {
+                if(response.status === 200) {
+                    console.info("Response:", response);
+                    var parsed = JSON.parse(response.project);
+                    var resProj = new Project(JSON.parse(response.project));
+
+                    var url = resProj.id + '/' + resProj.save.id;
+                    self.router.navigate(url);
+
+                    self.documentor.stdout(resProj.save.stdout);
+                    self.documentor.stderr(resProj.save.stderr);
+
+                    self.documentor.selectedTab('output');
+                }
             });
-
-            /*
-            return self.app.compile(documents).then(function(response) {
-
-                $('#stdout').html(response.stdout);
-                $('#stderr').html(response.stderr);
-
-                self.rootView.selectedTab('output');
-            });*/
         };
 
         this.controlPanel.changedTheme = function(theme) {

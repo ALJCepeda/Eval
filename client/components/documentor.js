@@ -4,6 +4,9 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
 
 		this.editor = '';
 		this.documents = [];
+        this.stdout = ko.observable('');
+        this.stderr = ko.observable('');
+
         this.selectedTab = ko.observable('editor');
 	};
 
