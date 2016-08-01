@@ -1,8 +1,5 @@
-define([ 'app', 'scripts/controller' ],
-		function(App, Controller) {
-	var app = new App();
+define(['scripts/controller'],
+		function(Controller) {
 	var controller = new Controller();
-
-	app.controller = controller;
-	app.start();
+	controller.start();
 });

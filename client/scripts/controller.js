@@ -6,10 +6,12 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
         this.router;
     };
 
-    Controller.prototype.appStarted = function() {
+    Controller.prototype.start = function() {
+        $.material.init();
         var self = this;
+
         return ajax.fetchMeta().then(function(info) {
-            console.log('Fetched info:', info)
+            console.log('Info:', info)
             self.initRouter();
             self.initControlPanel(info);
             self.initDocumentor();
@@ -18,6 +20,8 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
                 return self.controlPanel.inject('controlPanelView');
             }).then(function() {
                 self.controlPanel.doSubscriptions();
+                console.log('Application initialized');
+
                 self.router.start();
             });
         });
@@ -26,6 +30,7 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
     Controller.prototype.initRouter = function() {
         var self = this;
         this.router = new Router();
+
         this.router.didGetCreate = function(platform, tag) {
             if(self.controlPanel.hasTag(platform, tag) === true) {
                 self.controlPanel.selectedPlatform(platform);
@@ -33,6 +38,11 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
             } else {
                 //TODO: Display error
             }
+        };
+
+        this.router.didGetProject = function(projectid, saveid) {
+            console.log('Project:', projectid);
+            console.log('Save:', saveid);
         };
     };
 
