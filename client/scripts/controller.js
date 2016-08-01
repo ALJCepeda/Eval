@@ -47,6 +47,8 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
             if(self.controlPanel.hasTag(platform, tag) === true) {
                 self.controlPanel.selectedPlatform(platform);
                 self.controlPanel.selectedTag(tag);
+
+                self.clearAll();
             } else {
                 //TODO: Display error
             }
@@ -114,9 +116,9 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
             });
         };
 
-        this.controlPanel.clickedClear = function(platform) {
-            var demo = self.info.meta[platform].demo;
-            self.documentor.setDocument(demo.index);
+        this.controlPanel.clickedClear = function(platform, tag) {
+            var url = 'create/' + platform + '/' + tag;
+            self.router.navigate(url, { trigger:true });
         };
 
         this.controlPanel.changedTheme = function(theme) {
@@ -142,6 +144,14 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
                 self.documentor.selectedTab('editor');
             }
         };
+    };
+
+    Controller.prototype.clearAll = function() {
+        var platform = this.controlPanel.selectedPlatform();
+        var demo = this.info.meta[platform].demo;
+
+        this.documentor.setFields('', '', demo.index);
+        this.controlPanel.setFields('', '');
     };
 
     Controller.prototype.loadProject = function(project) {

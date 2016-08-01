@@ -88,20 +88,27 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 
 	ControlPanel.prototype.onClear = function() {
 		var platform = this.selectedPlatform();
+		var tag = this.selectedTag();
 
-		this.clickedClear(platform);
+		this.clickedClear(platform, tag);
 	};
 
 	ControlPanel.prototype.hasTag = function(platform, tag) {
 		var platformInfo = this.info()[platform];
-		return val.defined(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
+		return val.object(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
 	};
 
 	ControlPanel.prototype.setFields = function(projectid, saveid, platform, tag) {
 		this.projectid(projectid);
 		this.saveid(saveid);
-		this.selectedPlatform(platform);
-		this.selectedTag(tag);
+
+		if(val.string(platform)) {
+			this.selectedPlatform(platform);
+		}
+
+		if(val.string(tag)) {
+			this.selectedTag(tag);
+		}
 	};
 
 	return ControlPanel;
