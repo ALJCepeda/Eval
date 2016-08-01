@@ -152,6 +152,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
 
         this.documentor.setFields('', '', demo.index);
         this.controlPanel.setFields('', '');
+        this.controlPanel.showOutput(false);
         this.project = null;
     };
 
