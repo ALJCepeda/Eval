@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='en' id='root'>
+<html lang='en'>
 <head>
 	<title>Eval</title>
 	<meta charset='UTF-8'>
@@ -23,34 +23,14 @@
 	<script src='/require.js' data-main='index' type='text/javascript'></script>
 
 	<style type='text/css' media='screen'>
-		body {
-			height:100vh;
-			background-color: white;
-		}
 		.submit {
 			position:absolute;
 			bottom:20px;
 			right:20px;
 		}
-
-		#editorContainer {
-			position:relative;
-			width:100%;
-			height:100%;
-			background-color: blue;
-		}
 		.page {
 			height:100%;
 		}
-
-		.modal-content > h1, h2, h3, h4, h5, h6 {
-			padding-bottom: 10px;
-		}
-
-		.modal-large {
-			min-height: 50%;
-		}
-
 		#outputContainer {
 			background-color: white;
 		}
@@ -67,31 +47,8 @@
 			width:50%;
 			left:25%;
 		}
-
-		.navbar {
-			margin-bottom:0px;
-		}
-		.navbar-default {
-			 background-color:#80d8ff;
-		}
-		.float-right{
-			float:right;
-		}
-		.float-left{
-			float:left;
-		}
-
-		.controlPanel-header {
-			width:100%;
-		}
-
-		.controlPanel-body {
-			width:100%;
-		}
-
-		.controlPanel-footer {
-			width:100%;
-		}
+		.float-right{ float:right; }
+		.float-left{ float:left; }
 
 		.controlPanel-footer > ul > li {
 			float:left;
@@ -100,16 +57,13 @@
 	</style>
 </head>
 
-<body>
-	<div class='container-fluid' style='height:100%;width:100%;'>
+<body style="overflow:hidden;">
+	<div class='container-fluid' style='height:100vh;'>
 		<div class='row' style='height:100%;'>
-			<div class='col-md-10 container-fluid' id='documentorView' style='height:100%;'></div>
-			<div class='col-md-2 container-fluid' id='controlPanelView' style='height:100%;'></div>
+			<div class='col-sm-10 container-fluid view-container' id='documentorView' style='height:100%;padding-left:0px;padding-right:0px;'></div>
+			<div class='col-sm-2 container-fluid view-container' id='controlPanelView' style='height:100%;overflow-y:auto;'></div>
 		</div>
 	</div>
-
-	<div id='createProjectView' style='visibility:hidden;'></div>
-	<button id='open_createProjectView' data-target='createProjectView' class='btn modal-trigger' style='display:none;'>Modal</button>
 </body>
 
 </html>
