@@ -25,12 +25,12 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
         });
 	};
 
-    Documentor.prototype.getDocument = function(info) {
+    Documentor.prototype.getDocument = function(extension) {
 		var code = this.editor.getValue();
 
 		return new Document({
 			id:'index',
-			extension:info.extension,
+			extension:extension,
 			content:code
 		});
 	};

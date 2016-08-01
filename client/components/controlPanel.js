@@ -1,5 +1,5 @@
 define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
-	var ControlPanel = function(meta, themes) {
+	var ControlPanel = function(info, themes) {
 		var self = this;
 		this.id = '';
 
@@ -8,7 +8,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.changedPlatform;//(platform)
 		this.changedTheme;//(theme)
 
-		this.meta = ko.observable(meta);
+		this.info = ko.observable(info);
 		this.theme = ko.observableArray(themes);
 
 		this.selectedPlatform = ko.observable('php');
@@ -21,11 +21,11 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.showOutput = ko.observable(false);
 
 		this.platforms = ko.computed(function() {
-			var meta = self.meta();
+			var info = self.info();
 			var newPlatforms = [];
 
-			for(var key in meta) {
-				var platform = { value:key, text:meta[key].name };
+			for(var key in info) {
+				var platform = { value:key, text:info[key].name };
 				newPlatforms.push(platform);
 			}
 
@@ -33,10 +33,10 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		});
 
 		this.tags = ko.computed(function() {
-			var meta = self.meta();
+			var info = self.info();
 			var platform = self.selectedPlatform();
-			console.log("PLATFORM:", platform);
-			var tags = meta[platform].tags;
+
+			var tags = info[platform].tags;
 			var newTags = [];
 
 			[].push.apply(newTags, tags.map(function(tag) {
@@ -56,10 +56,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 	ControlPanel.prototype.doSubscriptions = function() {
 		var self = this;
 		this.selectedPlatform.subscribe(function(platform) {
-			var platformInfo = self.meta()[platform];
-			var aceMode = platformInfo.aceMode;
-
-			self.changedPlatform(platform, aceMode);
+			self.changedPlatform(platform);
 		});
 
 		this.selectedTheme.subscribe(function(theme) {
@@ -83,13 +80,18 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 	ControlPanel.prototype.onSubmit = function() {
 		var platform = this.selectedPlatform();
 		var tag = this.selectedTag();
-		var info = this.meta()[platform];
 
-		this.clickedSubmit(platform, tag, info);
+		this.clickedSubmit(platform, tag);
+	};
+
+	ControlPanel.prototype.onClear = function() {
+		var platform = this.selectedPlatform();
+
+		this.clickedClear(platform);
 	};
 
 	ControlPanel.prototype.hasTag = function(platform, tag) {
-		var platformInfo = this.meta()[platform];
+		var platformInfo = this.info()[platform];
 		return val.defined(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
 	};
 

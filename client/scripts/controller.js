@@ -1,10 +1,11 @@
-define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/documentor', 'scripts/injector', 'components/controlPanel', 'eval_shared.Project' ],
-        function(ajax, val, Router, Documentor, Injector, ControlPanel, Project) {
+define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'components/documentor', 'scripts/injector', 'components/controlPanel', 'eval_shared.Project' ],
+        function(ajax, val, obj, Router, Documentor, Injector, ControlPanel, Project) {
     var Controller = function() {
         this.controlPanel;
         this.documentor;
         this.router;
 
+        this.info = null;
         this.project = null;
     };
 
@@ -13,7 +14,9 @@ define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/document
         var self = this;
 
         return ajax.fetchMeta().then(function(info) {
-            console.log('Info:', info)
+            console.log('Info:', info);
+            self.info = info;
+
             self.initRouter();
             self.initControlPanel(info);
             self.initDocumentor();
@@ -60,11 +63,19 @@ define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/document
 
     Controller.prototype.initControlPanel = function(info) {
         var self = this;
-        this.controlPanel = new ControlPanel(info.meta, info.themes, this.project);
+        var panelInfo = obj.map(info.meta, function(entry, key) {
+            return {
+                'name': entry.name,
+                'tags': entry.tags
+            };
+        });
 
-        this.controlPanel.clickedSubmit = function(platform, tag, info) {
+        this.controlPanel = new ControlPanel(panelInfo, info.themes);
+
+        this.controlPanel.clickedSubmit = function(platform, tag) {
             var promise;
-            var doc = self.documentor.getDocument(info);
+            var extension = self.info.meta[platform].extension;
+            var doc = self.documentor.getDocument(extension);
             self.controlPanel.isSubmitting(true);
 
             if(val.object(self.project) &&
@@ -103,11 +114,17 @@ define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/document
             });
         };
 
+        this.controlPanel.clickedClear = function(platform) {
+            var demo = self.info.meta[platform].demo;
+            self.documentor.setDocument(demo.index);
+        };
+
         this.controlPanel.changedTheme = function(theme) {
             self.documentor.setTheme(theme);
         };
 
-        this.controlPanel.changedPlatform = function(platform, aceMode) {
+        this.controlPanel.changedPlatform = function(platform) {
+            var aceMode = self.info.meta[platform].aceMode
             self.documentor.setMode(aceMode);
         };
 
