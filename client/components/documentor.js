@@ -51,7 +51,7 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
 
     Documentor.prototype.setFields = function(stdout, stderr, doc) {
         this.stdout(stdout);
-        this.stderr(stderr);
+        this.stderr('<p>' + stderr + '</p>');
         this.setDocument(doc);
     };
 
