@@ -10,7 +10,6 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
         this.stderr = ko.observable('');
 
         this.selectedTab = ko.observable('editor');
-        this.showLoading = ko.observable(false);
 	};
 
 	/* Initial values */

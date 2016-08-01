@@ -65,7 +65,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/document
         this.controlPanel.clickedSubmit = function(platform, tag, info) {
             var promise;
             var doc = self.documentor.getDocument(info);
-            self.documentor.showLoading(true);
+            self.controlPanel.isSubmitting(true);
 
             if(val.object(self.project) &&
                 self.project.platform === platform &&
@@ -97,7 +97,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/document
                 var url = project.id + '/' + project.save.id;
                 self.router.navigate(url);
 
-                self.documentor.showLoading(false);
+                self.controlPanel.isSubmitting(false);
                 self.controlPanel.showOutput(true);
                 return project;
             });

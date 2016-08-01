@@ -17,11 +17,8 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 
 		this.projectid = ko.observable('');
 		this.saveid = ko.observable('');
+		this.isSubmitting = ko.observable(false);
 		this.showOutput = ko.observable(false);
-
-		this.disabled = ko.computed(function() {
-			return self.selectedPlatform() === '' || self.selectedTag() === '';
-		});
 
 		this.platforms = ko.computed(function() {
 			var meta = self.meta();

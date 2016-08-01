@@ -33,9 +33,9 @@
 
             <div class='col-md-8'>
                 <select id='platformSelect' class='form-control' data-bind='options: platforms,
-                                                                                                        optionsText: "text",
-                                                                                                        optionsValue: "value",
-                                                                                                        value: selectedPlatform'>
+                                                                                        optionsText: "text",
+                                                                                        optionsValue: "value",
+                                                                                        value: selectedPlatform'>
                 </select>
             </div>
         </div>
@@ -45,9 +45,9 @@
 
             <div class='col-md-8' style='float:right;'>
                 <select id='versionSelect' class='form-control' data-bind='options: tags,
-                                                                                                        optionsText: "text",
-                                                                                                        optionsValue: "value",
-                                                                                                        value: selectedTag'>
+                                                                            optionsText: "text",
+                                                                            optionsValue: "value",
+                                                                            value: selectedTag'>
                 </select>
             </div>
         </div>
@@ -62,7 +62,7 @@
 
         <div class='form-group'>
             <div class='col-md-12 text-center'>
-                <button type='submit' data-bind='click: onSubmit' class='btn btn-primary'>Submit</button>
+                <button type='submit' data-bind='click: onSubmit, css:{ disabled:isSubmitting }' class='btn btn-primary'>Submit</button>
             </div>
         </div>
     </form>
