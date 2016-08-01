@@ -49,7 +49,7 @@ fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files)
 		};
 
 		var RestAPI = require('./scripts/restapi.js');
-		var rest = new RestAPI(WORK_URL, app, info);
+		var rest = new RestAPI(WORK_URL, pgdb, app, info);
 
 		http.listen(config.port, function() { console.log('listening on *: ' + config.port); });
 	});

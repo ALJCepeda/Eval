@@ -4,7 +4,7 @@ var config = require('../config.js');
 var bare = require('bareutil');
 var val = bare.val;
 
-var RestAPI = function(workURL, app, meta) {
+var RestAPI = function(workURL, pgdb, app, meta) {
 	var self = this;
 
 	app.use(bodyparser.urlencoded({
@@ -12,7 +12,8 @@ var RestAPI = function(workURL, app, meta) {
 	}));
 	app.use(bodyparser.json());
 
-	this.workurl = workURL;
+	this.workURL = workURL;
+	this.pgdb = pgdb;
 	this.routes = {};
 	this.meta = meta;
 
@@ -29,6 +30,17 @@ var RestAPI = function(workURL, app, meta) {
 		res.send(data);
  	});
 
+	app.post('/project', function(req, res) {
+		res.setHeader('content-type', 'application/json');
+
+		self.pgdb.projectSaveSelect(req.body.projectid, req.body.saveid).then(function(project) {
+			res.send({
+				status:200,
+				project:project
+			});
+		})
+	});
+
 	var requestNum = 0;
 	app.post('/compile', function(req, res) {
 		res.setHeader('content-type', 'application/json');
@@ -37,7 +49,7 @@ var RestAPI = function(workURL, app, meta) {
 		var zmqReq = zmq.socket('req');
 		zmqReq.identity = 'eval_' + ++requestNum;
 		zmqReq.on('message', RestAPI.onZMQMessage(zmqReq, res, requestNum));
-		zmqReq.connect(self.workurl);
+		zmqReq.connect(self.workURL);
 
 		var data = JSON.stringify(project);
 		console.log('Request', requestNum);
@@ -62,7 +74,7 @@ RestAPI.onZMQMessage = function(zmqReq, res, requestNum) {
 		zmqReq.close();
 		res.send({
 			status:200,
-			project:JSON.stringify(response)
+			project:response
 		});
 	};
 };

@@ -7,5 +7,9 @@ define(['bareutil.ajax'], function(ajax) {
         return ajax.post('compile', project).then(JSON.parse);
     }
 
+	ajax.project = function(projectid, saveid) {
+		return ajax.post('project', { projectid:projectid, saveid:saveid }).then(JSON.parse);
+	};
+
 	return ajax;
 });

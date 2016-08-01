@@ -34,6 +34,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.tags = ko.computed(function() {
 			var meta = self.meta();
 			var platform = self.selectedPlatform();
+			console.log("PLATFORM:", platform);
 			var tags = meta[platform].tags;
 			var newTags = [];
 

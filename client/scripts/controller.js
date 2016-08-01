@@ -41,8 +41,16 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
         };
 
         this.router.didGetProject = function(projectid, saveid) {
-            console.log('Project:', projectid);
-            console.log('Save:', saveid);
+            return ajax.project(projectid, saveid).then(function(response) {
+                console.log('didGetProject:', response);
+                if(response.status === 200) {
+                    var project = new Project(response.project);
+                    self.controlPanel.selectedPlatform(project.platform);
+                    self.controlPanel.selectedTag(project.tag);
+
+                    self.documentor.setDocument(project.documents.index);
+                }
+            });
         };
     };
 
@@ -66,8 +74,7 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
             return ajax.compile(curProj).then(function(response) {
                 if(response.status === 200) {
                     console.info("Response:", response);
-                    var parsed = JSON.parse(response.project);
-                    var resProj = new Project(JSON.parse(response.project));
+                    var resProj = new Project(response.project);
 
                     var url = resProj.id + '/' + resProj.save.id;
                     self.router.navigate(url);

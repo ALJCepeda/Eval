@@ -33,15 +33,10 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
 		});
 	};
 
-
-	/* 	Later this will involve loading tabs and responding to changes by updating
-		editor with tabbed content */
-	Documentor.prototype.setDocuments = function(documents) {
-		this.documents = documents;
-		var doc = documents[0];
-		this.editor.setValue(doc.content);
-	};
-
+    Documentor.prototype.setDocument = function(doc) {
+        this.editor.setValue(doc.content);
+    };
+    
 	Documentor.prototype.setMode = function(m) {
 		var mode = 'ace/mode/' + m;
 		this.editor.session.setMode(mode);
