@@ -74,11 +74,15 @@
 		.navbar-default {
 			 background-color:#80d8ff;
 		}
+		.float-right{
+			float:right;
+		}
+		.float-left{
+			float:left;
+		}
 
 		.controlPanel-header {
-			height:5%;
 			width:100%;
-			text-align: center;
 		}
 
 		.controlPanel-body {
@@ -86,7 +90,6 @@
 		}
 
 		.controlPanel-footer {
-			height:10%;
 			width:100%;
 		}
 
@@ -100,8 +103,8 @@
 <body>
 	<div class='container-fluid' style='height:100%;width:100%;'>
 		<div class='row' style='height:100%;'>
-			<div class='col-md-10' id='documentorView' style='height:100%;padding:0px;'></div>
-			<div class='col-md-2' id='controlPanelView' style='height:100%;'></div>
+			<div class='col-md-10 container-fluid' id='documentorView' style='height:100%;'></div>
+			<div class='col-md-2 container-fluid' id='controlPanelView' style='height:100%;'></div>
 		</div>
 	</div>
 

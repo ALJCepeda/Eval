@@ -15,6 +15,9 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		this.selectedTag = ko.observable('latest');
 		this.selectedTheme = ko.observable('monokai');
 
+		this.projectid = ko.observable('');
+		this.saveid = ko.observable('');
+
 		this.disabled = ko.computed(function() {
 			return self.selectedPlatform() === '' || self.selectedTag() === '';
 		});
@@ -87,5 +90,13 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		var platformInfo = this.meta()[platform];
 		return val.defined(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
 	};
+
+	ControlPanel.prototype.setProject = function(projectid, saveid, platform, tag) {
+		this.projectid(projectid);
+		this.saveid(saveid);
+		this.selectedPlatform(platform);
+		this.selectedTag(tag);
+	};
+
 	return ControlPanel;
 });

@@ -45,9 +45,7 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
                 console.log('didGetProject:', response);
                 if(response.status === 200) {
                     var project = new Project(response.project);
-                    self.controlPanel.selectedPlatform(project.platform);
-                    self.controlPanel.selectedTag(project.tag);
-
+                    self.controlPanel.setProject(project.id, project.save.id, project.platform, project.tag);
                     self.documentor.setDocument(project.documents.index);
                 }
             });

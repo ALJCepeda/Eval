@@ -1,38 +1,53 @@
-<div class='controlPanel-header'>
-    <h2>Eval</h2>
+<div class='controlPanel-header row'>
+    <div class='col-sm-12'>
+        <h2 style='text-align:center'>Eval</h2>
+    </div>
+
+    <label class='col-sm-4 control-label'>ProjectID:</label>
+    <div class='col-sm-8'>
+        <p class='form-control-static float-right'data-bind='text:projectid'></p>
+    </div>
+
+    <label class='col-sm-4 control-label'>SaveID:</label>
+    <div class='col-sm-8'>
+        <p class='form-control-static float-right'data-bind='text:saveid'></p>
+    </div>
+    
 </div>
+
+<hr>
 
 <div class='controlPanel-body'>
     <form class='form-horizontal'>
         <div class='form-group'>
-            <label for='platformSelect' class='col-md-2 control-label'>Platform</label>
+            <label for='platformSelect' class='col-md-4 control-label'>Platform</label>
 
-            <div class='col-md-9' style='float:right;'>
-                <select id='platformSelect' class='form-control' data-bind='options: platforms,
-                                                                            optionsText: "text",
-                                                                            optionsValue: "value",
-                                                                            value: selectedPlatform'>
+            <div class='col-md-8'>
+                <select id='platformSelect' class='form-control' style='text-align:center;' data-bind='options: platforms,
+                                                                                                        optionsText: "text",
+                                                                                                        optionsValue: "value",
+                                                                                                        value: selectedPlatform'>
                 </select>
             </div>
         </div>
 
         <div class='form-group'>
-            <label for='versionSelect' class='col-md-2 control-label'>Version</label>
+            <label for='versionSelect' class='col-md-4 control-label'>Version</label>
 
-            <div class='col-md-9' style='float:right;'>
-                <select id='versionSelect' class='form-control' data-bind='options: tags,
-                                                                            optionsText: "text",
-                                                                            optionsValue: "value",
-                                                                            value: selectedTag'>
+            <div class='col-md-8' style='float:right;'>
+                <select id='versionSelect' class='form-control' style='text-align:center;' data-bind='options: tags,
+                                                                                                        optionsText: "text",
+                                                                                                        optionsValue: "value",
+                                                                                                        value: selectedTag'>
                 </select>
             </div>
         </div>
 
         <div class='form-group'>
-            <label for='themeSelect' class='col-md-2 control-label'>Theme</label>
+            <label for='themeSelect' class='col-md-4 control-label'>Theme</label>
 
-            <div class='col-md-9' style='float:right;'>
-                <select id='themeSelect' class='form-control' data-bind='options:theme, value:selectedTheme'></select>
+            <div class='col-md-8' style='float:right;'>
+                <select id='themeSelect' class='form-control' style='text-align:center;' data-bind='options:theme, value:selectedTheme'></select>
             </div>
         </div>
 
