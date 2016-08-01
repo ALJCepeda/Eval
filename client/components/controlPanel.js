@@ -17,6 +17,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 
 		this.projectid = ko.observable('');
 		this.saveid = ko.observable('');
+		this.showOutput = ko.observable(false);
 
 		this.disabled = ko.computed(function() {
 			return self.selectedPlatform() === '' || self.selectedTag() === '';
@@ -68,6 +69,10 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 			self.changedTheme(theme);
 		});
 
+		this.showOutput.subscribe(function(show) {
+			self.shouldShowOutput(show);
+		});
+
 		this.selectedPlatform.valueHasMutated();
 		this.selectedTheme.valueHasMutated();
 	};
@@ -91,7 +96,7 @@ define(['scripts/injector', 'bareutil.val'], function(Injector, val) {
 		return val.defined(platformInfo) && platformInfo.tags.indexOf(tag) !== -1;
 	};
 
-	ControlPanel.prototype.setProject = function(projectid, saveid, platform, tag) {
+	ControlPanel.prototype.setFields = function(projectid, saveid, platform, tag) {
 		this.projectid(projectid);
 		this.saveid(saveid);
 		this.selectedPlatform(platform);

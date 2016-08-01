@@ -1,9 +1,11 @@
-define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/injector', 'components/controlPanel', 'eval_shared.Project' ],
-        function(ajax, Router, Documentor, Injector, ControlPanel, Project) {
+define(['scripts/ajaxer', 'bareutil.val', 'scripts/router', 'components/documentor', 'scripts/injector', 'components/controlPanel', 'eval_shared.Project' ],
+        function(ajax, val, Router, Documentor, Injector, ControlPanel, Project) {
     var Controller = function() {
         this.controlPanel;
         this.documentor;
         this.router;
+
+        this.project = null;
     };
 
     Controller.prototype.start = function() {
@@ -18,14 +20,21 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
 
             return self.documentor.inject('documentorView').then(function() {
                 return self.controlPanel.inject('controlPanelView');
-            }).then(function() {
-                self.controlPanel.doSubscriptions();
-                console.log('Application initialized');
-
-                self.router.start();
             });
+        }).then(function() {
+            self.controlPanel.doSubscriptions();
+            console.log('Application initialized');
+
+            self.router.start();
         });
     };
+
+    var projectResponse = function(response) {
+        console.log('response:', response);
+        if(response.status === 200) {
+            return new Project(response.project);
+        }
+    }
 
     Controller.prototype.initRouter = function() {
         var self = this;
@@ -41,47 +50,57 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
         };
 
         this.router.didGetProject = function(projectid, saveid) {
-            return ajax.project(projectid, saveid).then(function(response) {
-                console.log('didGetProject:', response);
-                if(response.status === 200) {
-                    var project = new Project(response.project);
-                    self.controlPanel.setProject(project.id, project.save.id, project.platform, project.tag);
-                    self.documentor.setDocument(project.documents.index);
-                }
-            });
+            return ajax.project(projectid, saveid)
+                        .then(projectResponse)
+                        .then(function(project) {
+                            self.loadProject(project);
+                        });
         };
     };
 
     Controller.prototype.initControlPanel = function(info) {
         var self = this;
-        this.controlPanel = new ControlPanel(info.meta, info.themes);
+        this.controlPanel = new ControlPanel(info.meta, info.themes, this.project);
 
         this.controlPanel.clickedSubmit = function(platform, tag, info) {
+            var promise;
             var doc = self.documentor.getDocument(info);
-
             self.documentor.selectedTab('loading');
 
-            var curProj = new Project({
-                platform:platform,
-                tag:tag,
-                documents:{
-                    index:doc
+            debugger;
+
+            if(val.object(self.project) &&
+                self.project.platform === platform &&
+                self.project.tag === tag) {
+
+                if(self.project.documents.index.equal(doc) === true) {
+                    promise = Promise.resolve(self.project);
+                } else {
+                    self.project.documents.index = doc;
+                    promise = ajax.compile(self.project).then(projectResponse);
                 }
-            });
 
-            return ajax.compile(curProj).then(function(response) {
-                if(response.status === 200) {
-                    console.info("Response:", response);
-                    var resProj = new Project(response.project);
+            } else {
+                var newProj = new Project({
+                    platform:platform,
+                    tag:tag,
+                    documents:{
+                        index:doc
+                    }
+                });
 
-                    var url = resProj.id + '/' + resProj.save.id;
-                    self.router.navigate(url);
+                promise = ajax.compile(newProj).then(projectResponse);
+            }
 
-                    self.documentor.stdout(resProj.save.stdout);
-                    self.documentor.stderr(resProj.save.stderr);
 
-                    self.documentor.selectedTab('output');
-                }
+            return promise.then(function(project) {
+                self.loadProject(project);
+
+                var url = project.id + '/' + project.save.id;
+                self.router.navigate(url);
+
+                self.controlPanel.showOutput(true);
+                return project;
             });
         };
 
@@ -92,10 +111,27 @@ define(['scripts/ajaxer', 'scripts/router', 'components/documentor', 'scripts/in
         this.controlPanel.changedPlatform = function(platform, aceMode) {
             self.documentor.setMode(aceMode);
         };
+
+        this.controlPanel.shouldShowOutput = function(show) {
+            if(show === true) {
+                self.documentor.selectedTab('output');
+            } else {
+                self.documentor.selectedTab('editor');
+            }
+        };
     };
 
+    Controller.prototype.loadProject = function(project) {
+        this.project = project;
+
+        this.documentor.setFields(project.save.stdout, project.save.stderr, project.documents.index);
+        this.controlPanel.setFields(project.id, project.save.id, project.platform, project.tag);
+
+        return this.project;
+    }
+
     Controller.prototype.initDocumentor = function() {
-        this.documentor = new Documentor();
+        this.documentor = new Documentor(this.project);
     };
 
     return Controller;

@@ -1,12 +1,14 @@
 define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document) {
     var Documentor = function() {
+        var self = this;
 		this.id = '';
 
 		this.editor = '';
 		this.documents = [];
+
         this.stdout = ko.observable('');
         this.stderr = ko.observable('');
-
+        
         this.selectedTab = ko.observable('editor');
 	};
 
@@ -36,7 +38,7 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
     Documentor.prototype.setDocument = function(doc) {
         this.editor.setValue(doc.content);
     };
-    
+
 	Documentor.prototype.setMode = function(m) {
 		var mode = 'ace/mode/' + m;
 		this.editor.session.setMode(mode);
@@ -46,6 +48,12 @@ define(['scripts/injector', 'eval_shared.Document'], function(Injector, Document
 		var theme = 'ace/theme/' + t;
 		this.editor.setTheme(theme);
 	};
+
+    Documentor.prototype.setFields = function(stdout, stderr, doc) {
+        this.stdout(stdout);
+        this.stderr(stderr);
+        this.setDocument(doc);
+    };
 
     return Documentor;
 });
