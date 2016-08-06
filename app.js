@@ -7,7 +7,7 @@ var config = require('./config.js');
 
 var app = express();
 var http = require('http').Server(app);
-var pgdb = new eval_shared.PGAgent('postgres://vagrant:password@localhost/eval');
+var pgdb = new eval_shared.PGAgent(process.env.PSQL_EVAL);
 
 eval_shared.Document.expose(app, express);
 eval_shared.Save.expose(app, express);
