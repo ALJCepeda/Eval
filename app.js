@@ -30,7 +30,7 @@ app.use('/ace-builds', express.static('./node_modules/ace-builds'));
 
 var WORK_URL = 'tcp://127.0.0.1:3000';
 
-fs.readdir('/sources/eval/node_modules/ace-builds/src-min', function(err, files) {
+fs.readdir('node_modules/ace-builds/src-min', function(err, files) {
 	if(err) throw err;
 
 	var themes = files.filter(function(file) {
