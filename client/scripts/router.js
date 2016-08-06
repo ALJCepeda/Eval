@@ -1,4 +1,4 @@
-define(['newsfeed'], function() {
+define([], function() {
 	var Router = function() {
 		this.backRouter = '';
 		this.didGetProject;
