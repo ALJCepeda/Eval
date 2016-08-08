@@ -7,6 +7,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
 
         this.info = null;
         this.project = null;
+        this.lastProject = null;
     };
 
     Controller.prototype.start = function() {
@@ -81,15 +82,16 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
             var doc = self.documentor.getDocument(extension);
             self.controlPanel.isSubmitting(true);
 
+            var didFetchProject = self.didFetchProject.bind(self);
             if(val.object(self.project) &&
                 self.project.platform === platform &&
                 self.project.tag === tag) {
 
                 if(self.project.documents.index.equal(doc) === true) {
-                    promise = Promise.resolve(self.project);
+                    return Promise.resolve(self.project).then(didFetchProject);
                 } else {
                     self.project.documents.index = doc;
-                    promise = ajax.compile(self.project).then(projectResponse);
+                    return ajax.compile(self.project).then(projectResponse).then(didFetchProject);
                 }
 
             } else {
@@ -101,20 +103,14 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
                     }
                 });
 
-                promise = ajax.compile(newProj).then(projectResponse);
+                debugger;
+                
+                if(self.lastProject && self.lastProject.equal(newProj)) {
+                    return Promise.resolve(self.lastProject).then(didFetchProject);
+                }
+
+                return ajax.compile(newProj).then(projectResponse).then(didFetchProject);
             }
-
-
-            return promise.then(function(project) {
-                self.loadProject(project);
-
-                var url = project.id + '/' + project.save.id;
-                self.router.navigate(url);
-
-                self.controlPanel.isSubmitting(false);
-                self.controlPanel.showOutput(true);
-                return project;
-            });
         };
 
         this.controlPanel.clickedClear = function(platform, tag) {
@@ -147,6 +143,17 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
         };
     };
 
+    Controller.prototype.didFetchProject = function(project) {
+        this.loadProject(project);
+
+        var url = project.id + '/' + project.save.id;
+        this.router.navigate(url);
+
+        this.controlPanel.isSubmitting(false);
+        this.controlPanel.showOutput(true);
+        return project;
+    };
+
     Controller.prototype.clearAll = function() {
         var platform = this.controlPanel.selectedPlatform();
         var demo = this.info.meta[platform].demo;
@@ -159,6 +166,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
 
     Controller.prototype.loadProject = function(project) {
         this.project = project;
+        this.lastProject = project;
 
         this.documentor.setFields(project.save.stdout, project.save.stderr, project.documents.index);
         this.controlPanel.setFields(project.id, project.save.id, project.platform, project.tag);
