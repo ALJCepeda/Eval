@@ -29,6 +29,7 @@ define(['scripts/ajaxer', 'bareutil.val', 'bareutil.obj', 'scripts/router', 'com
             console.log('Application initialized');
 
             self.router.start();
+            self.clearAll();
         });
     };
 
