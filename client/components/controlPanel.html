@@ -2,8 +2,22 @@
     <div class='col-sm-12'>
         <h2 style='text-align:center'>Eval</h2>
     </div>
+</div>
 
-    <div data-bind='visible:hasProject'>
+<hr>
+
+<div class='row'>
+    <div class='form-horizontal' data-bind='visible:hasProject() === true' style='min-height:115px;'>
+        <div class='checkbox' style='text-align:center;padding-bottom:15px;'>
+            <label style='margin-top:10px;'>
+                <input type='checkbox' data-bind='checked:showOutput'>
+                <span class='checkbox-material'>
+                    <span class='check'></span>
+                </span>
+                Output
+            </label>
+        </div>
+
         <label class='col-sm-4 control-label'>ProjectID:</label>
         <div class='col-sm-8'>
             <p class='form-control-static float-right'data-bind='text:projectid'></p>
@@ -13,23 +27,9 @@
         <div class='col-sm-8'>
             <p class='form-control-static float-right'data-bind='text:saveid'></p>
         </div>
-
-        <div class='checkbox' style='text-align:center;'>
-            <label style='margin-top:10px;'>
-                <input type='checkbox' data-bind='checked:showOutput'>
-                <span class='checkbox-material'>
-                    <span class='check'></span>
-                </span>
-                Output
-            </label>
-        </div>
     </div>
 
-    <hr>
-</div>
-
-<div class='controlPanel-body'>
-    <form class='form-horizontal'>
+    <form class='form-horizontal' data-bind='visible:hasProject() === false'>
         <div class='form-group'>
             <label for='platformSelect' class='col-md-4 control-label'>Platform</label>
 
@@ -53,8 +53,14 @@
                 </select>
             </div>
         </div>
+    </form>
 
+
+
+    <form class='form-horizontal'>
         <div class='form-group'>
+            <hr data-bind='visible:hasProject() === true' style='padding-top:10px;'>
+            
             <label for='themeSelect' class='col-md-4 control-label'>Theme</label>
 
             <div class='col-md-8' style='float:right;'>
