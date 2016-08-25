@@ -6,9 +6,23 @@
 
 <hr>
 
-<div class='row'>
-    <div class='form-horizontal' data-bind='visible:hasProject() === true' style='min-height:115px;'>
-        <div class='checkbox' style='text-align:center;padding-bottom:15px;'>
+<div class='row-w c-between m-center'>
+    <div class='row-w' data-bind='visible:hasProject' style='min-height:125px;'>
+        <div style='width:100%'>
+            <label class='col-sm-4 control-label'>ProjectID:</label>
+            <div class='col-sm-8'>
+                <p class='form-control-static float-right' data-bind='text:projectid'></p>
+            </div>
+        </div>
+
+        <div style='width:100%'>
+            <label class='col-sm-4 control-label'>SaveID:</label>
+            <div class='col-sm-8'>
+                <p class='form-control-static float-right' data-bind='text:saveid'></p>
+            </div>
+        </div>
+
+        <div class='checkbox' style='text-align:center;padding-bottom:15px;width:100%;'>
             <label style='margin-top:10px;'>
                 <input type='checkbox' data-bind='checked:showOutput'>
                 <span class='checkbox-material'>
@@ -17,22 +31,11 @@
                 Output
             </label>
         </div>
-
-        <label class='col-sm-4 control-label'>ProjectID:</label>
-        <div class='col-sm-8'>
-            <p class='form-control-static float-right'data-bind='text:projectid'></p>
-        </div>
-
-        <label class='col-sm-4 control-label'>SaveID:</label>
-        <div class='col-sm-8'>
-            <p class='form-control-static float-right'data-bind='text:saveid'></p>
-        </div>
     </div>
 
-    <form class='form-horizontal' data-bind='visible:hasProject() === false'>
-        <div class='form-group'>
+    <div class='row-w' data-bind='hidden:hasProject' style='min-height:125px;'>
+        <div style='width:100%'>
             <label for='platformSelect' class='col-md-4 control-label'>Platform</label>
-
             <div class='col-md-8'>
                 <select id='platformSelect' class='form-control' data-bind='options: platforms,
                                                                                         optionsText: "text",
@@ -42,9 +45,8 @@
             </div>
         </div>
 
-        <div class='form-group'>
+        <div style='width:100%'>
             <label for='versionSelect' class='col-md-4 control-label'>Version</label>
-
             <div class='col-md-8' style='float:right;'>
                 <select id='versionSelect' class='form-control' data-bind='options: tags,
                                                                             optionsText: "text",
@@ -53,14 +55,12 @@
                 </select>
             </div>
         </div>
-    </form>
+    </div>
 
+    <div class='row-w' style='min-height:125px;'>
+        <div style='width:100%'>
+            <hr data-bind='visible:hasProject' style='padding-top:10px;'>
 
-
-    <form class='form-horizontal'>
-        <div class='form-group'>
-            <hr data-bind='visible:hasProject() === true' style='padding-top:10px;'>
-            
             <label for='themeSelect' class='col-md-4 control-label'>Theme</label>
 
             <div class='col-md-8' style='float:right;'>
@@ -68,11 +68,11 @@
             </div>
         </div>
 
-        <div class='form-group'>
+        <div style='width:100%'>
             <div class='col-md-12 text-center'>
                 <a data-bind='click: onSubmit, css:{ disabled:isSubmitting }' class='btn btn-raised btn-success'>Submit</a>
                 <a data-bind='click: onClear' class='btn btn-raised btn-danger'>Reset</a>
             </div>
         </div>
-    </form>
+    </div>
 </div>
