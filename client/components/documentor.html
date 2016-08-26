@@ -1,6 +1,6 @@
 <pre class='page' id='editor' data-bind='visible: selectedTab() === "editor"'></pre>
 
 <div id='outputContainer' class='page' data-bind='visible: selectedTab() === "output"'>
-    <div id='stdout' data-bind='html:stdout'></div>
-    <div id='stderr' data-bind='html:stderr'></div>
+    <div id='stdout' data-bind='html:stdout' style='overflow-y:auto'></div>
+    <div id='stderr' data-bind='html:stderr' style='overflow-y:auto'></div>
 </div>
