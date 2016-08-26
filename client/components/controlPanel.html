@@ -1,23 +1,23 @@
 <div class='row'>
-    <div class='col-sm-12'>
+    <div class='col-md-12'>
         <h2 style='text-align:center'>Eval</h2>
     </div>
 </div>
 
 <hr>
 
-<div class='row-w c-between m-center'>
+<div class='row-w c-between m-center' style='background-color:white'>
     <div class='row-w' data-bind='visible:hasProject' style='min-height:125px;'>
         <div style='width:100%'>
-            <label class='col-sm-4 control-label'>ProjectID:</label>
-            <div class='col-sm-8'>
+            <label class='col-md-4 control-label'>ProjectID:</label>
+            <div class='col-md-8'>
                 <p class='form-control-static float-right' data-bind='text:projectid'></p>
             </div>
         </div>
 
         <div style='width:100%'>
-            <label class='col-sm-4 control-label'>SaveID:</label>
-            <div class='col-sm-8'>
+            <label class='col-md-4 control-label'>SaveID:</label>
+            <div class='col-md-8'>
                 <p class='form-control-static float-right' data-bind='text:saveid'></p>
             </div>
         </div>
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class='row-w' data-bind='hidden:hasProject' style='min-height:125px;'>
+    <div class='row-w' data-bind='visible:hasProject() === false' style='min-height:125px;'>
         <div style='width:100%'>
             <label for='platformSelect' class='col-md-4 control-label'>Platform</label>
             <div class='col-md-8'>
@@ -59,10 +59,9 @@
 
     <div class='row-w' style='min-height:125px;'>
         <div style='width:100%'>
-            <hr data-bind='visible:hasProject' style='padding-top:10px;'>
+            <hr data-bind='visible:hasProject'>
 
             <label for='themeSelect' class='col-md-4 control-label'>Theme</label>
-
             <div class='col-md-8' style='float:right;'>
                 <select id='themeSelect' class='form-control' data-bind='options:theme, value:selectedTheme'></select>
             </div>
