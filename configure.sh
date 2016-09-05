@@ -1,7 +1,9 @@
 #!/bin/bash
 # Configure eval project and create project user
 # eval_shared project must exist in /sources/eval_shared
-# ARGS: username, psql_password
+# ARGS: username, password
+useradd -m $1
+
 touch /home/$1/.psql_history >/dev/null 2>&1
 
 content=`sed "s/\\$1/$1/g" /sources/eval_shared/queries/init_user.sql`
@@ -36,5 +38,18 @@ echo '<VirtualHost *:80>
 	ProxyPassReverse / http://localhost:8002/
 	ServerName code.aljcepeda.com
 </VirtualHost>' >> /etc/apache2/sites-available/eval.conf
+
+docker pull aljcepeda/php:5.4
+docker pull aljcepeda/php:5.5
+docker pull aljcepeda/php:5.6
+docker pull aljcepeda/php:latest
+
+docker pull aljcepeda/pascal:2.6.4
+docker pull aljcepeda/pascal:latest
+
+docker pull aljcepeda/nodejs:0.12
+docker pull aljcepeda/nodejs:latest
+
+docker pull aljcepeda/haskell:latest
 
 echo 'Installed Eval project'
